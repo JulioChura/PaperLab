@@ -90,8 +90,8 @@ export const UnderConstruction: React.FC<UnderConstructionProps> = ({ moduleId, 
             }}
           >
             <Pencil 
-              className="w-10 h-10 animate-bounce"
-              style={{ color: mod.accent, animationDuration: '2.5s' }}
+              className="w-10 h-10 animate-float"
+              style={{ color: mod.accent }}
             />
             {/* Stamp Overlay if user pressed the stamp button */}
             {stamped && (
