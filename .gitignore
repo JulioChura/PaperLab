@@ -22,3 +22,76 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ==============================
+# Python - Entornos virtuales
+# ==============================
+venv/
+.venv/
+env/
+ENV/
+virtualenv/
+.python-version
+
+# ==============================
+# Python - Caché y compilados
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# ==============================
+# Python - Instalaciones y paquetes
+# ==============================
+pip-wheel-metadata/
+*.egg
+*.egg-info/
+.eggs/
+wheels/
+share/python-wheels/
+build/
+develop-eggs/
+dist/
+
+# ==============================
+# Python - Herramientas
+# ==============================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.dmypy.json
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# ==============================
+# FastAPI / Uvicorn
+# ==============================
+*.sqlite3
+*.db
+
+# ==============================
+# Variables de entorno y secretos
+# ==============================
+.env
+.env.*
+!.env.example
+!.env.template
+
+# ==============================
+# Jupyter Notebook
+# ==============================
+.ipynb_checkpoints/
+generador.py
+proyecto_consolidado.md
+# ==============================
+# Archivos temporales
+# ==============================
+*.tmp
+*.bak
+*.swp
