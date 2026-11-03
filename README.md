@@ -8,10 +8,16 @@ PaperLab es un sistema educativo que permite a estudiantes y docentes dibujar bo
 
 ## 🏛️ Arquitectura General
 
-El repositorio está organizado en dos partes complementarias:
+El proyecto cuenta con una separación limpia y desacoplada entre dos componentes principales:
 
-1. **Frontend (WebAR & UI):** Desarrollado en **React 19**, **Vite**, **TypeScript** y **Tailwind CSS v4**. Gestiona la interfaz del laboratorio, la selección de disciplinas y el visor WebAR de cámara con permisos y efectos de sonido/hologramas.
-2. **Backend (Motor de Análisis IA):** Desarrollado en **FastAPI** con arquitectura de **Modular Monolith** (vertical slices). Preprocesa las fotografías, consulta a **Google Gemini** con salida estructurada estricta y valida contratos físicos determinísticos para alimentar a los simuladores.
+```
+PaperLab/
+├── frontend/   ← Aplicación WebAR (React 19 + Vite + TypeScript + Tailwind CSS v4)
+└── backend/    ← Backend de Análisis IA (FastAPI + Modular Monolith + Gemini Direct / OpenRouter)
+```
+
+1. **Frontend (`frontend/`):** Desarrollado en **React 19**, **Vite**, **TypeScript** y **Tailwind CSS v4**. Gestiona la interfaz del laboratorio, la selección de disciplinas y el visor WebAR con acceso a la cámara del dispositivo móvil, efectos holográficos y sonido.
+2. **Backend (`backend/`):** Desarrollado en **FastAPI** con arquitectura de **Modular Monolith** (vertical slices). Preprocesa las fotografías, consulta a **Google Gemini** con salida estructurada estricta y valida contratos físicos determinísticos para alimentar a los simuladores.
 
 ---
 
@@ -25,11 +31,11 @@ El repositorio está organizado en dos partes complementarias:
 
 ## 🎨 1. Instalación y Ejecución del Frontend
 
-El frontend se encuentra en la raíz del proyecto.
+El frontend se encuentra en la carpeta `frontend/`.
 
-### Paso 1: Instalar dependencias
-Abre tu terminal en la raíz del proyecto (`PaperLab/`):
+### Paso 1: Entrar a la carpeta e instalar dependencias
 ```bash
+cd frontend
 npm install
 ```
 
@@ -54,7 +60,7 @@ El frontend quedará activo en:
 El backend se encuentra dentro de la carpeta `backend/`.
 
 ### Paso 1: Crear y activar entorno virtual Python
-Desde la raíz del proyecto (`PaperLab/`):
+Desde la raíz del proyecto (`PaperLab/`) o dentro de `backend/`:
 
 **En Windows (PowerShell):**
 ```powershell
@@ -88,7 +94,7 @@ Edita `backend/.env` colocando tu clave de API:
 # Proveedor principal: 'gemini' (directo, ultra-rápido ~2s) o 'openrouter'
 LLM_PROVIDER=gemini
 
-# Tu API Key de Google Gemini
+# Tu API Key oficial de Google Gemini
 GEMINI_API_KEY=tu_api_key_aqui
 GEMINI_MODEL=gemini-2.5-flash
 
@@ -147,13 +153,14 @@ python -m unittest tests.test_api
 
 ```
 PaperLab/
-├── public/                          ← Assets estáticos WebAR del frontend
-├── src/                             ← Código fuente React (Componentes, Visor WebAR, Theme)
-│   ├── components/                  ← ARCameraView, ModuleSelector, SplashScreen, etc.
-│   ├── data/                        ← Paletas de colores y constantes
-│   └── utils/                       ← Efectos de sonido y utilidades WebAR
-├── package.json                     ← Configuración y dependencias del Frontend
-├── vite.config.ts                   ← Configuración de Vite + Tailwind
+├── frontend/                        ← Aplicación WebAR en React 19 + Vite
+│   ├── public/                      ← Assets estáticos y favicon
+│   ├── src/                         ← Código fuente React (Componentes, Visor WebAR, Theme)
+│   │   ├── components/              ← ARCameraView, ModuleSelector, SplashScreen, Header, etc.
+│   │   ├── data/                    ← Paletas de colores y configuración
+│   │   └── utils/                   ← Efectos de sonido y utilidades WebAR
+│   ├── package.json                 ← Dependencias y scripts del frontend
+│   └── vite.config.ts               ← Configuración de Vite y Tailwind v4
 │
 ├── backend/                         ← Monolito modular FastAPI
 │   ├── main.py                      ← Entrada FastAPI, CORS y endpoints base
@@ -162,7 +169,7 @@ PaperLab/
 │   ├── requirements.txt             ← Dependencias oficiales de Python
 │   ├── shared/                      ← Excepciones, tipos comunes y logging
 │   ├── modules/
-│   │   ├── analysis/                ← Módulo de análisis (API, Service, Skills, Adapters)
+│   │   ├── analysis/                ← Módulo vertical de análisis (API, Service, Skills, Adapters)
 │   │   │   ├── domain/skills/       ← Especialistas: physics, circuit, flowchart, math_geo
 │   │   │   ├── adapters/            ← Gemini Direct SDK y OpenRouter LangChain
 │   │   │   └── ports/               ← Interfaz abstracta LLMClient
@@ -172,6 +179,6 @@ PaperLab/
 │   │   └── history/                 ← Scaffold futuro: historial de simulaciones
 │   └── tests/                       ← Tests unitarios determinísticos
 │
-├── RUBRICA_EJERCICIOS.md            ← Catálogo canónico de ejercicios de PaperLab
+├── RUBRICA_EJERCICIOS.md            ← Catálogo canónico oficial de ejercicios de PaperLab
 └── README.md                        ← Este documento
 ```
