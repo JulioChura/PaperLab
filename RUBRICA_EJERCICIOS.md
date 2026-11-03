@@ -4,7 +4,7 @@ Este documento define la taxonomía y el catálogo canónico de ejercicios que e
 
 ---
 
-## ⚛️ Módulo 1: Simulaciones de Física
+## ⚛️ Módulo 1: Simulaciones de Física (6 Tipos)
 
 ### 1.1. Plano Inclinado con Fricción
 *   **Sintaxis gráfica en papel:** Triángulo rectángulo con pendiente $\theta$, línea de apoyo horizontal y un bloque cuadrado apoyado en la rampa. Anotación opcional de masa $m$ o coeficiente $\mu$.
@@ -40,7 +40,7 @@ Este documento define la taxonomía y el catálogo canónico de ejercicios que e
 
 ---
 
-## ⚡ Módulo 2: Circuitos Eléctricos
+## ⚡ Módulo 2: Circuitos Eléctricos (6 Tipos)
 
 ### 2.1. Circuito Simple de Malla Única
 *   **Sintaxis gráfica en papel:** Rectángulo cerrado con batería ($+/-$), zigzag de resistor ($R$) y círculo con cruz o triángulo para bombilla/LED.
@@ -74,46 +74,37 @@ Este documento define la taxonomía y el catálogo canónico de ejercicios que e
 
 ---
 
-## 🔀 Módulo 3: Diagramas de Flujo & Análisis de Código
+## 🔀 Módulo 3: Diagramas de Flujo & Análisis de Código (2 Tipos)
 
-### 3.1. Diagrama de Flujo: Algoritmo Secuencial
-*   **Sintaxis gráfica en papel:** Bloques estándar unidos por flechas: Óvalo `[Inicio]`, Paralelogramo `[Entrada de datos]`, Rectángulo `[Operación/Cálculo]`, Rectángulo `[Salida]`, Óvalo `[Fin]`.
-*   **Superposición WebAR:** Token de datos luminoso recorre el camino paso a paso actualizando los valores calculados sobre el papel.
+### 3.1. Diagramas de Flujo (Detección y Simulación de Bloques Lógicos)
+*   **Sintaxis gráfica en papel:** Bloques estándar de diagramación conectados por flechas direccionales:
+    *   Óvalo: `[Inicio]` y `[Fin]`.
+    *   Paralelogramo: Lectura de datos de entrada (`Leer N`) o salida (`Mostrar X`).
+    *   Rectángulo: Operaciones matemáticas y asignación de variables (`Suma = A + B`).
+    *   Rombo: Decisiones y condiciones (`¿x >= 0?`, `¿contador < 10?`) con salidas etiquetadas `SÍ` / `NO`, incluyendo bucles con flechas de retorno.
+*   **Superposición WebAR:** La IA analiza la topología de la red de bloques. Un **token de datos luminoso** camina a través de las flechas trazadas en el cuaderno físico; evalúa las condiciones según los valores ingresados por el estudiante y compila el diagrama a código real (Python / JS) en un panel flotante.
 
-### 3.2. Diagrama de Flujo: Bifurcación Condicional (IF / ELSE)
-*   **Sintaxis gráfica en papel:** Rombo de decisión con condición lógica (ej: `¿x > 0?`) y dos ramas de salida rotuladas `SÍ` y `NO`.
-*   **Superposición WebAR:** Evaluación de la condición con un valor de entrada del usuario; el flujo ilumina la rama tomada en verde y atenúa la rama descartada.
-
-### 3.3. Diagrama de Flujo: Bucle Iterativo (WHILE / FOR)
-*   **Sintaxis gráfica en papel:** Rombo de condición con una flecha de retorno hacia un nodo previo formando un ciclo cerrado de repetición.
-*   **Superposición WebAR:** Animación cíclica del token por el bucle mientras un contador en pantalla incrementa en cada vuelta hasta cumplir la condición de salida.
-
-### 3.4. Análisis de Código: Debugger Paso a Paso
-*   **Sintaxis gráfica en papel:** Líneas de pseudocódigo o código manuscrito en el cuaderno (ej: asignación de variables, condicionales, bucles).
-*   **Superposición WebAR:** Reconocimiento óptico de líneas de código; resalta la línea en ejecución actual como un depurador real (Step Over / Step Into), con un inspector de variables flotante que muestra el estado de la memoria en cada paso.
-
-### 3.5. Tabla de Traza (Dry-Run / Prueba de Escritorio)
-*   **Sintaxis gráfica en papel:** Cuadrícula de tabla dibujada a mano con columnas para cada variable (`i`, `suma`, `condición`, `salida`).
-*   **Superposición WebAR:** La IA llena o valida la tabla paso a paso a medida que ejecuta mentalmente el algoritmo, marcando en verde aciertos y en rojo discrepancias de lógica.
-
-### 3.6. Seguimiento de Pilas y Recursión
-*   **Sintaxis gráfica en papel:** Definición de una función que se llama a sí misma (ej: `factorial(n) = n * factorial(n-1)`) o bloques apilados.
-*   **Superposición WebAR:** Proyección de la pila de llamadas (*call stack*) con marcos de función que se apilan y desapilan visualmente mostrando el caso base.
+### 3.2. Análisis de Código (Debugger Paso a Paso e Inspector de Memoria)
+*   **Sintaxis gráfica en papel:** Líneas continuas de pseudocódigo o código manuscrito en el cuaderno (declaración de variables, estructuras `si/entonces`, bucles `mientras/para`, operaciones).
+*   **Superposición WebAR:** Reconocimiento óptico (OCR) del texto manuscrito estructurado. La aplicación actúa como un **depurador interactivo (debugger)** en tiempo real:
+    *   Resalta físicamente con una barra de luz la **línea en ejecución actual**.
+    *   Permite al alumno avanzar línea por línea con controles virtuales (*Step Over* / *Continuar*).
+    *   Despliega un **inspector de memoria flotante** sobre el margen de la hoja que muestra cómo cambian los valores de las variables en cada paso de ejecución.
 
 ---
 
-## 📐 Módulo 4: Matemáticas & Geometría (Enfoque Preuniversitario)
+## 📐 Módulo 4: Matemáticas & Geometría (5 Tipos Preuniversitarios)
 
 ### 4.1. Geometría del Espacio (Estereometría 3D sobre Papel)
-*   **Sintaxis gráfica en papel:** Proyecciones en perspectiva isométrica o caballera de sólidos geométricos dibujados en el plano: prismas, cilindros, pirámides, conos o esferas con líneas visibles continuas y aristas ocultas punteadas. Cotas de radio $r$, altura $h$ o arista $a$.
-*   **Superposición WebAR:** El sólido 2D dibujado cobra volumen tridimensional y se levanta del papel como un holograma 3D que el alumno puede inspeccionar girando su teléfono; cálculo dinámico de Volumen ($V$), Área Lateral ($A_L$) y Área Total ($A_T$).
+*   **Sintaxis gráfica en papel:** Proyecciones en perspectiva de sólidos geométricos dibujados en el plano: prismas, cilindros, pirámides, conos o esferas con líneas continuas y aristas ocultas punteadas. Cotas de radio $r$, altura $h$ o arista $a$.
+*   **Superposición WebAR:** El dibujo plano cobra volumen y se levanta del papel como un holograma tridimensional interactivo; cálculo dinámico de Volumen ($V$), Área Lateral ($A_L$) y Área Total ($A_T$).
 *   **Fórmulas Pre-U:**
     *   Cilindro: $V = \pi r^2 h \quad|\quad A_L = 2\pi r h$
     *   Cono: $V = \frac{1}{3}\pi r^2 h \quad|\quad g = \sqrt{r^2 + h^2}$
     *   Esfera: $V = \frac{4}{3}\pi r^3 \quad|\quad A = 4\pi r^2$
 
 ### 4.2. Geometría Analítica en el Plano Cartesiano
-*   **Sintaxis gráfica en papel:** Ejes ortogonales $XY$ en papel cuadriculado con puntos rotulados con sus coordenadas $A(x_1, y_1)$ y $B(x_2, y_2)$, rectas trazadas o secciones cónicas (circunferencia, parábola con foco y directriz, elipse).
+*   **Sintaxis gráfica en papel:** Ejes ortogonales $XY$ en papel cuadriculado con puntos rotulados $A(x_1, y_1)$ y $B(x_2, y_2)$, rectas trazadas o secciones cónicas (circunferencia, parábola con foco y directriz, elipse).
 *   **Superposición WebAR:** Proyección del vector distancia entre puntos, punto medio $M$, cálculo de la pendiente de la recta ($m = \tan\theta$), ecuación general de la recta ($Ax + By + C = 0$) o ecuación ordinaria de la cónica.
 *   **Fórmulas Pre-U:**
     *   Distancia: $d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$
@@ -121,14 +112,14 @@ Este documento define la taxonomía y el catálogo canónico de ejercicios que e
     *   Circunferencia canónica: $(x-h)^2 + (y-k)^2 = r^2$
 
 ### 4.3. Gráfica de Funciones ($f(x)$)
-*   **Sintaxis gráfica en papel:** Ejes cartesianos con una función manuscrita al lado: polinomial ($y = ax^2 + bx + c$), valor absoluto ($y = |x - h| + k$), raíz cuadrada o trigonométrica ($y = A\sin(Bx)$).
+*   **Sintaxis gráfica en papel:** Ejes cartesianos con una función manuscrita al lado: cuadrática ($y = ax^2 + bx + c$), lineal, valor absoluto o trigonométrica.
 *   **Superposición WebAR:** Calibración automática del origen $(0,0)$ sobre la cuadrícula del cuaderno; trazo continuo de la curva matemática exacta pasando por los puntos notables: vértices, asíntotas, raíces/interceptos con el eje $X$ y eje $Y$, y cálculo de Dominio y Rango.
-*   **Conceptos Pre-U:** Puntos de corte, asíntotas verticales/horizontales, concavidad y transformaciones de funciones ($f(x \pm c)$, reflexiones).
+*   **Conceptos Pre-U:** Puntos de corte, asíntotas, concavidad y transformaciones de funciones.
 
 ### 4.4. Solver de Ecuaciones Paso a Paso
-*   **Sintaxis gráfica en papel:** Una ecuación algebraica escrita a mano con lápiz (ej: ecuación cuadrática $ax^2 + bx + c = 0$, sistema lineal $2\times 2$, o ecuación exponencial/logarítmica).
-*   **Superposición WebAR:** Reconocimiento OCR de los términos matemáticos; proyecta al lado del trazo en el papel el desglose deductivo paso a paso: factorización, discriminante ($\Delta = b^2 - 4ac$), método de sustitución/igualación y conjunto solución ($C.S.$) resaltado en un recuadro luminoso.
-*   **Técnicas Pre-U:** Fórmula general de Carnot, método del aspa simple, determinantes (regla de Cramer).
+*   **Sintaxis gráfica en papel:** Una ecuación algebraica escrita a mano con lápiz (ej: ecuación cuadrática $ax^2 + bx + c = 0$, sistema lineal $2\times 2$, o ecuación exponencial).
+*   **Superposición WebAR:** Reconocimiento OCR de los términos matemáticos; proyecta al lado del trazo en el papel el desglose deductivo paso a paso: factorización, discriminante ($\Delta = b^2 - 4ac$), método de sustitución/aspa simple y conjunto solución ($C.S.$) resaltado.
+*   **Técnicas Pre-U:** Fórmula general de Carnot, método del aspa simple, determinantes.
 
 ### 4.5. Cálculo de Ángulos en Figuras Geométricas
 *   **Sintaxis gráfica en papel:** Configuraciones clásicas de examen de admisión:
@@ -139,6 +130,5 @@ Este documento define la taxonomía y el catálogo canónico de ejercicios que e
 *   **Superposición WebAR:** La IA detecta la topología de la figura, reconoce las relaciones geométricas (ángulos alternos internos, teorema del boomerang, ángulo exterior, ángulo inscrito) y proyecta sobre la figura la ecuación geométrica resuelta mostrando el valor exacto de la incógnita $x$ en grados sexagesimales.
 *   **Propiedades Pre-U:**
     *   Ángulo exterior de triángulo: $\theta_{\text{ext}} = \alpha + \beta$
-    *   Teorema de la mariposa / corbata: $\alpha + \beta = \theta + \phi$
-    *   Rectas paralelas: Ángulos correspondientes y conjugados.
-
+    *   Teorema del boomerang: $x = \alpha + \beta + \theta$
+    *   Rectas paralelas: Ángulos correspondientes y alternos internos.
