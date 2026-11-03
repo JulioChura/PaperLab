@@ -1,22 +1,42 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
-    --desk-surface: #131722;
-    --paper-sheet: #fbf9f4;
-    --paper-line: rgba(60, 90, 150, 0.12);
-    --paper-margin: rgba(220, 60, 60, 0.4);
-    --ink-graphite: #202430;
-    --ar-cyan: #00f0ff;
-    --ar-amber: #f59e0b;
-    --ar-emerald: #10b981;
-    --ar-violet: #a855f7;
+    --bg-ground: #f5f0e6;
+    --surface: #ffffff;
+    --surface-secondary: #eee7da;
+    --border-color: #d8cebd;
+    --text-primary: #14171f;
+    --text-secondary: #586071;
+    --accent-cyan: #0284c7;
+    --accent-amber: #d97706;
+    --accent-emerald: #059669;
+    --accent-violet: #7c3aed;
+    --grid-line: rgba(30, 41, 59, 0.07);
+    --grid-major: rgba(30, 41, 59, 0.14);
+  }
+
+  .dark {
+    --bg-ground: #070a11;
+    --surface: #0e1422;
+    --surface-secondary: #141c2e;
+    --border-color: #212c42;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-cyan: #00f0ff;
+    --accent-amber: #f59e0b;
+    --accent-emerald: #10b981;
+    --accent-violet: #a855f7;
+    --grid-line: rgba(0, 240, 255, 0.04);
+    --grid-major: rgba(0, 240, 255, 0.09);
   }
 
   body {
+    background-color: var(--bg-ground);
+    color: var(--text-primary);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--desk-surface);
-    color: #e2e8f0;
   }
 
   ::selection {
@@ -25,105 +45,80 @@
   }
 }
 
-/* Custom fonts */
-.font-hand {
-  font-family: 'Caveat', cursive;
+/* Custom Typography Utility Classes */
+.font-display {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  letter-spacing: -0.035em;
 }
 
-.font-mono-code {
-  font-family: 'JetBrains Mono', monospace;
+.font-telemetry {
+  font-family: 'DM Mono', monospace;
 }
 
-/* Drafting Desk Mat Texture */
-.bg-drafting-mat {
-  background-color: #12151e;
+/* Atmospheric Architectural Background Grids */
+.bg-optics-grid {
+  background-size: 24px 24px, 120px 120px;
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
-  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px);
 }
 
-/* Authentic Physical Paper Grid Texture */
-.paper-notebook-sheet {
-  background-color: #faf7ee;
-  background-image: 
-    linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  box-shadow: 
-    -4px 0 10px rgba(0, 0, 0, 0.25),
-    4px 10px 30px rgba(0, 0, 0, 0.4),
-    inset 0 0 40px rgba(0, 0, 0, 0.04);
+.paper-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Cyanotype / Blueprint Paper Texture for Construction */
-.blueprint-sheet {
-  background-color: #0c1e38;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
-  box-shadow: 
-    inset 0 0 60px rgba(0, 0, 0, 0.5),
-    0 12px 28px rgba(0, 0, 0, 0.5);
+.dark .paper-surface {
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
 }
 
-/* Masking Tape effect */
-.masking-tape {
-  background: rgba(245, 230, 190, 0.85);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  border-left: 2px dashed rgba(200, 180, 140, 0.6);
-  border-right: 2px dashed rgba(200, 180, 140, 0.6);
+/* Keyframe Reveals & Motion Orchestration */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-/* Red Rubber Ink Stamp Effect */
-.ink-stamp {
-  border: 3px solid #dc2626;
-  color: #dc2626;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  mask-image: radial-gradient(circle, black 70%, rgba(0, 0, 0, 0.5) 100%);
-  -webkit-mask-image: radial-gradient(circle, black 70%, rgba(0, 0, 0, 0.5) 100%);
+@keyframes laserSweepHorizontal {
+  0% { transform: translateY(0%); opacity: 0.15; }
+  50% { opacity: 0.9; }
+  100% { transform: translateY(100%); opacity: 0.15; }
 }
 
-/* Holographic Laser Reticle Animation */
-@keyframes laserSweep {
-  0% { top: -4%; opacity: 0.2; }
-  50% { opacity: 0.85; }
-  100% { top: 104%; opacity: 0.2; }
+@keyframes apertureSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.animate-laser-sweep {
-  animation: laserSweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.animate-entrance {
+  animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes subtleFloat {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
+.animate-laser {
+  animation: laserSweepHorizontal 3s ease-in-out infinite alternate;
 }
 
-.animate-float {
-  animation: subtleFloat 3.5s ease-in-out infinite;
+.animate-aperture {
+  animation: apertureSpin 24s linear infinite;
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #12151e;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #252d3d;
+  background: var(--border-color);
   border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #37435b;
 }

@@ -1,127 +1,147 @@
-import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
-import { 
-  Sparkles, 
-  ArrowRight, 
-  Layers, 
-  Atom, 
-  Zap, 
-  GitBranch, 
-  Triangle 
-} from 'lucide-react';
+import React from 'react';
+import { ArrowRight, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
+import { Logo } from './Logo';
 import { audioJuice } from '../utils/audioJuice';
 
 interface SplashScreenProps {
   onEnter: () => void;
-  onOpenPalette: () => void;
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter, onOpenPalette }) => {
-  const [isOpening, setIsOpening] = useState(false);
+export const SplashScreen: React.FC<SplashScreenProps> = ({ 
+  onEnter, 
+  isDarkMode, 
+  onToggleTheme 
+}) => {
+  const [isMuted, setIsMuted] = React.useState(audioJuice.getMuted());
 
-  const handleOpenNotebook = () => {
-    setIsOpening(true);
-    audioJuice.playPowerUp();
+  const handleToggleSound = () => {
+    const muted = audioJuice.toggleMute();
+    setIsMuted(muted);
+  };
 
-    try {
-      confetti({
-        particleCount: 50,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ['#00f0ff', '#f59e0b', '#10b981', '#a855f7', '#ffffff']
-      });
-    } catch {
-      // failsafe
-    }
-
-    setTimeout(() => {
-      onEnter();
-    }, 550);
+  const handleStart = () => {
+    audioJuice.playTap();
+    onEnter();
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-drafting-mat flex flex-col justify-between p-4 sm:p-8 overflow-hidden select-none">
-      {/* Top Technical Header */}
-      <header className="w-full max-w-5xl mx-auto flex items-center justify-between text-xs font-mono text-slate-400 pb-4 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="font-bold text-white">PAPERLAB</span>
-          <span className="text-slate-600">•</span>
-          <span>WEBAR OFFLINE (MOTOR LOCAL)</span>
-        </div>
+    <div className="relative min-h-screen w-full bg-[#f5f0e6] dark:bg-[#070a11] text-[#14171f] dark:text-[#f8fafc] bg-optics-grid flex flex-col justify-between p-4 sm:p-8 md:p-12 transition-colors select-none">
+      {/* Top Header */}
+      <header className="w-full max-w-6xl mx-auto flex items-center justify-between pb-6 border-b border-[#d8cebd] dark:border-[#212c42]">
+        <Logo size="md" />
 
-        <button
-          onClick={() => {
-            audioJuice.playTap();
-            onOpenPalette();
-          }}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer"
-        >
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Sistema de Diseño</span>
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Day / Night Theme Button */}
+          <button
+            onClick={onToggleTheme}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] text-xs font-telemetry hover:border-slate-400 dark:hover:border-slate-500 transition-all cursor-pointer shadow-xs"
+          >
+            {isDarkMode ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Modo Día</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-slate-700" />
+                <span className="hidden sm:inline">Modo Noche</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleToggleSound}
+            className="p-2 rounded-lg border border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] hover:border-slate-400 dark:hover:border-slate-500 transition-all cursor-pointer shadow-xs"
+            title={isMuted ? "Sonido desactivado" : "Sonido activado"}
+          >
+            {isMuted ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />}
+          </button>
+        </div>
       </header>
 
-      {/* Center: The Physical Lab Field Notebook Cover */}
-      <main className="w-full max-w-2xl mx-auto my-auto flex flex-col items-center">
-        <div className="w-full rounded-3xl bg-[#1a1f2c] border-2 border-slate-700/80 p-8 sm:p-12 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] relative overflow-hidden text-left">
-          
-          {/* Subtle notebook stitching / edge seam */}
-          <div className="absolute top-0 bottom-0 left-6 w-[2px] border-r border-dashed border-slate-600/60 pointer-events-none" />
+      {/* Main Hero: Architectural Split Layout */}
+      <main className="w-full max-w-6xl mx-auto my-auto py-8 sm:py-16 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        {/* Left Column: Bold Typography & Manifesto */}
+        <div className="lg:col-span-7 flex flex-col items-start text-left">
+          <div className="inline-flex items-center gap-2 text-xs font-telemetry text-cyan-700 dark:text-cyan-400 uppercase tracking-widest mb-4">
+            <span className="w-2 h-2 rounded-full bg-cyan-600 dark:bg-cyan-400 animate-pulse" />
+            <span>WebAR 100% en el celular • Cero pantallas pasivas</span>
+          </div>
 
-          {/* Technical Laboratory Spec Plate */}
-          <div className="pl-6">
-            <div className="font-mono text-[11px] text-cyan-400 uppercase tracking-widest mb-1">
-              REGISTRO EXPERIMENTAL • EDICIÓN 2026
-            </div>
+          <h1 className="font-display font-black text-5xl sm:text-7xl lg:text-8xl leading-[0.95] tracking-tight text-slate-900 dark:text-white mb-6">
+            Dibuja con lápiz. <br />
+            <span className="text-cyan-700 dark:text-cyan-400">Mira la física</span> <br />
+            sobre tu papel.
+          </h1>
 
-            <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-none mb-3">
-              PaperLab
-            </h1>
+          <p className="text-base sm:text-xl text-slate-700 dark:text-slate-300 max-w-xl font-normal leading-relaxed mb-8">
+            El alumno dibuja circuitos, planos inclinados y teoremas a mano en su cuaderno escolar. La cámara de su móvil reconoce los trazos y superpone el comportamiento real sin cables ni sensores caros.
+          </p>
 
-            <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-lg mb-6">
-              El laboratorio de ciencias que no necesita pantallas táctiles. Dibuja a mano con lápiz sobre tu cuaderno real y la Realidad Aumentada superpone la física en vivo.
-            </p>
-
-            {/* 4 Disciplines Summary Pill List */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8">
-              {[
-                { name: 'Física', icon: Atom, color: '#00f0ff' },
-                { name: 'Circuitos', icon: Zap, color: '#f59e0b' },
-                { name: 'Algoritmos', icon: GitBranch, color: '#10b981' },
-                { name: 'Geometría', icon: Triangle, color: '#a855f7' }
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={item.name}
-                    className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2 text-xs font-mono text-slate-200"
-                  >
-                    <Icon className="w-4 h-4 shrink-0" style={{ color: item.color }} />
-                    <span className="font-bold">{item.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Open Notebook CTA */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
             <button
-              onClick={handleOpenNotebook}
-              disabled={isOpening}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black text-sm tracking-wide transition-all shadow-xl shadow-cyan-400/25 active:scale-95 cursor-pointer"
+              onClick={handleStart}
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-cyan-400 dark:hover:bg-cyan-300 text-white dark:text-slate-950 font-display font-black text-base tracking-wide transition-all shadow-lg active:scale-95 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-slate-950" />
-              <span>{isOpening ? 'Abriendo Cuaderno...' : 'Abrir Cuaderno de Trabajo'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Abrir Laboratorio</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
+          </div>
+        </div>
+
+        {/* Right Column: Interactive Optical Reticle Preview */}
+        <div className="lg:col-span-5 relative">
+          <div className="relative rounded-2xl border border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] p-6 shadow-xl overflow-hidden text-left">
+            {/* Holographic Laser Line */}
+            <div className="absolute left-0 right-0 h-0.5 bg-cyan-500 dark:bg-cyan-400 shadow-[0_0_12px_#00f0ff] z-20 pointer-events-none animate-laser" />
+
+            {/* Corner Framing Marks */}
+            <div className="flex justify-between text-[11px] font-telemetry text-slate-400 dark:text-slate-500 mb-4">
+              <span>CALIBRE: CUADERNO 5mm</span>
+              <span>ESTADO: LISTO</span>
+            </div>
+
+            {/* Visual Diagram Preview: Notebook Paper under AR */}
+            <div className="relative w-full h-56 rounded-xl bg-[#faf7ee] dark:bg-[#090d16] bg-notebook-grid border border-slate-300 dark:border-slate-800 p-4 flex flex-col justify-between overflow-hidden">
+              <div className="text-[10px] font-telemetry text-slate-500">
+                // DETECCIÓN ÓPTICA DE GRAFITO
+              </div>
+
+              {/* Hand-drawn Ramp with Live AR Vector Projection */}
+              <svg className="w-full h-32" viewBox="0 0 240 120" fill="none">
+                {/* Pencil Drawn Ramp */}
+                <path d="M 20 100 L 180 30 L 180 100 Z" stroke="#64748b" strokeWidth="2.5" strokeDasharray="4 2" fill="none" />
+                <text x="140" y="94" fill="#94a3b8" fontSize="10" fontFamily="DM Mono">θ = 30°</text>
+
+                {/* Augmented Ball with dynamic velocity arrow */}
+                <circle cx="100" cy="65" r="9" className="fill-cyan-500 dark:fill-cyan-400" />
+                <line x1="100" y1="65" x2="65" y2="80" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+                <text x="50" y="98" fill="#f59e0b" fontSize="10" fontFamily="DM Mono" fontWeight="bold">v = 3.2 m/s</text>
+              </svg>
+
+              <div className="flex items-center justify-between text-[10px] font-telemetry text-cyan-700 dark:text-cyan-400">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Trazo Reconocido</span>
+                </span>
+                <span>60 FPS</span>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs font-telemetry text-slate-600 dark:text-slate-400 flex items-center justify-between">
+              <span>4 Áreas de Simulación</span>
+              <span className="text-slate-900 dark:text-white font-bold">Lápiz B2/HB</span>
+            </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="w-full max-w-5xl mx-auto flex items-center justify-between text-[11px] font-mono text-slate-500 pt-4 border-t border-slate-800">
-        <span>TECNOLOGÍA: WEBAR 100% EN DISPOSITIVO</span>
-        <span className="font-hand text-sm text-slate-400">"El lápiz es el mejor sensor"</span>
+      <footer className="w-full max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs font-telemetry text-slate-500 dark:text-slate-400 pt-6 border-t border-[#d8cebd] dark:border-[#212c42] gap-2">
+        <span>MOTOR WEBAR OFFLINE • PRIVACIDAD 100% LOCAL</span>
+        <span>PAPERLAB EXPERIMENTAL OPTICS</span>
       </footer>
     </div>
   );

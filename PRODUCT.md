@@ -1,22 +1,21 @@
 # Product Context: PaperLab
 
 ## Purpose
-PaperLab transforma el aprendizaje científico tradicional al fusionar el trazo manual con lápiz sobre papel físico con simulaciones de Realidad Aumentada (WebAR) superpuestas en tiempo real, ejecutadas 100% en el dispositivo móvil sin servidores externos.
+PaperLab es una aplicación WebAR de aprendizaje científico que transforma el dibujo a mano con lápiz en papel físico en simulaciones interactivas superpuestas directamente a través de la cámara del celular, 100% en el dispositivo y sin latencia de red.
 
 ## Platform
 web
 
-## Primary Users & Jobs
-- **Estudiantes de ciencias e ingeniería**: Dibujan esquemas a mano en sus cuadernos escolares con lápiz de grafito (B2/HB) y observan cómo cobran vida con física, corrientes y código.
-- **Educadores**: Enseñan conceptos de física, electrónica, algoritmos y geometría sin necesidad de laboratorios costosos ni sensores frágiles.
+## Target Audience
+Estudiantes y docentes de ciencias, física y programación en educación secundaria y universitaria.
 
 ## Core Modules
-1. **Simulaciones de física**: Mecánica clásica, planos inclinados, péndulos, vectores y conservación de energía.
-2. **Circuitos eléctricos**: El grafito como conductor, Ley de Ohm, interruptores, LEDs y flujo de electrones.
-3. **Diagramas de flujo y pseudocódigo**: Nodos lógicos dibujados que ejecutan un token de datos y compilan a código real.
-4. **Matemáticas y geometría**: Teorema de Pitágoras con áreas cuadradas proyectadas, trigonometría y cálculo de ángulos.
+1. **Física**: Cinemática, vectores de velocidad y aceleración, y planos inclinados.
+2. **Circuitos**: Grafito conductor, Ley de Ohm ($V = I \cdot R$) e interruptores interactivos.
+3. **Diagramas de flujo**: Nodos de decisión, bifurcaciones y ejecución visual de algoritmos.
+4. **Geometría**: Teorema de Pitágoras con áreas proyectadas y medición dinámica de ángulos.
 
-## Key Constraints & Commitments
-- **Offline & Local**: Todo el procesamiento de visión y simulación ocurre en el cliente.
-- **Identidad Visual Distintiva (No Genérica)**: Evitar la plantilla estándar de SaaS oscuro con tarjetas redondeadas idénticas y orbes de neón flotantes. La estética debe honrar la mesa de dibujo técnico, el cuaderno de laboratorio físico encuadernado en espiral, las marcas de regla y grafito real, contrastadas con vectores holográficos de precisión militar y científica.
-
+## Visual Commitments
+- **Estandarizado y limpio**: Sin textos inflados ni orbes decorativos artificiales.
+- **Soporte completo Modo Día y Modo Noche**: Alto contraste, tipografía nítida y legibilidad garantizada en aulas iluminadas o ambientes oscuros.
+- **Activación real de cámara**: Invocación directa a `getUserMedia` con permisos del navegador y visor WebAR en tiempo real.

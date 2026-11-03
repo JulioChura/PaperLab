@@ -1,105 +1,96 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SplashScreen } from './components/SplashScreen';
-import { LabDraftingDesk } from './components/LabDraftingDesk';
-import { PaletteModal } from './components/PaletteModal';
+import { Header } from './components/Header';
+import { ModuleSelector } from './components/ModuleSelector';
+import { ARCameraView } from './components/ARCameraView';
 import { audioJuice } from './utils/audioJuice';
 
+type ViewMode = 'splash' | 'menu' | 'camera';
+
 export function App() {
-  const [inSplash, setInSplash] = useState<boolean>(true);
+  const [currentView, setCurrentView] = useState<ViewMode>('splash');
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
-  const [isPaletteOpen, setIsPaletteOpen] = useState<boolean>(false);
+
+  // Robust Dark Mode / Day Mode with system detection and persistence
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('paperlab-theme');
+      if (saved) return saved === 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false; // Default to clean studio day mode or system
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+      localStorage.setItem('paperlab-theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
+      localStorage.setItem('paperlab-theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    audioJuice.playTap();
+    setIsDarkMode((prev) => !prev);
+  };
 
   const handleEnterFromSplash = () => {
-    setInSplash(false);
+    setCurrentView('menu');
   };
 
   const handleSelectModule = (moduleId: string) => {
     setActiveModuleId(moduleId);
+    setCurrentView('camera');
   };
 
-  const handleGoBackToIndex = () => {
+  const handleGoHome = () => {
+    setCurrentView('menu');
     setActiveModuleId(null);
   };
 
-  const handleReturnToCover = () => {
+  const handleGoSplash = () => {
     audioJuice.playPaperFlip();
-    setInSplash(true);
+    setCurrentView('splash');
     setActiveModuleId(null);
   };
 
   return (
-    <div className="min-h-screen bg-[#12151e] text-white flex flex-col font-sans">
-      {inSplash ? (
+    <div className="min-h-screen bg-[#f5f0e6] dark:bg-[#070a11] text-[#14171f] dark:text-[#f8fafc] flex flex-col font-sans transition-colors duration-200">
+      {currentView === 'splash' ? (
         <SplashScreen
           onEnter={handleEnterFromSplash}
-          onOpenPalette={() => setIsPaletteOpen(true)}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
         />
       ) : (
         <>
-          {/* Header Bar */}
-          <header className="w-full bg-[#0d1017] border-b border-slate-800 px-4 sm:px-8 py-3 flex items-center justify-between text-xs font-mono">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleReturnToCover}
-                className="font-black text-sm tracking-tight text-white hover:text-cyan-400 transition-colors flex items-center gap-2 cursor-pointer"
-              >
-                <div className="w-6 h-6 rounded bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-xs">
-                  P
-                </div>
-                <span>PaperLab</span>
-              </button>
+          <Header
+            currentModule={activeModuleId}
+            onGoHome={handleGoHome}
+            onGoSplash={handleGoSplash}
+            isDarkMode={isDarkMode}
+            onToggleTheme={toggleTheme}
+          />
 
-              <span className="text-slate-600">/</span>
-              <button
-                onClick={handleGoBackToIndex}
-                className={`transition-colors cursor-pointer ${!activeModuleId ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-white'}`}
-              >
-                Índice
-              </button>
-
-              {activeModuleId && (
-                <>
-                  <span className="text-slate-600">/</span>
-                  <span className="text-cyan-400 font-bold capitalize">
-                    {activeModuleId}
-                  </span>
-                  <span className="text-amber-400 text-[10px] px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800">
-                    En Construcción
-                  </span>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  audioJuice.playTap();
-                  setIsPaletteOpen(true);
-                }}
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-              >
-                Paleta
-              </button>
-            </div>
-          </header>
-
-          {/* Main Drafting Desk Surface with Physical Notebook */}
           <main className="flex-1 flex flex-col">
-            <LabDraftingDesk
-              activeModuleId={activeModuleId}
-              onSelectModule={handleSelectModule}
-              onGoBackToIndex={handleGoBackToIndex}
-              onOpenPalette={() => setIsPaletteOpen(true)}
-            />
+            {currentView === 'menu' && (
+              <ModuleSelector onSelectModule={handleSelectModule} />
+            )}
+
+            {currentView === 'camera' && activeModuleId && (
+              <ARCameraView
+                moduleId={activeModuleId}
+                onBack={handleGoHome}
+              />
+            )}
           </main>
         </>
       )}
-
-      {/* Design System & Palette Modal */}
-      <PaletteModal
-        isOpen={isPaletteOpen}
-        onClose={() => setIsPaletteOpen(false)}
-      />
     </div>
   );
 }
