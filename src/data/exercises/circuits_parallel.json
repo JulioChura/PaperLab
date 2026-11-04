@@ -1,0 +1,40 @@
+{
+  "id": "circuits_parallel",
+  "name": "Resistencias en Paralelo",
+  "topicId": "circuits",
+  "topicName": "Circuitos y Electricidad",
+  "description": "Red con nodos de bifurcación donde dos o más resistores comparten los mismos terminales nodales manteniendo la misma diferencia de potencial.",
+  "visual_syntax": {
+    "primary_shapes": ["branching_nodes", "parallel_wire_rungs", "resistors_on_branches", "dc_source"],
+    "secondary_markings": ["branch_current_arrows_I1_I2", "node_dots", "labels_R1_R2"],
+    "bounding_box_cues": {
+      "nodes": "explicit solid junction dots splitting single conductor into 2 or more parallel paths",
+      "rungs": "parallel horizontal or vertical resistor lines"
+    }
+  },
+  "extracted_parameters": {
+    "voltage_source_v": { "type": "number", "unit": "V", "default": 12.0, "description": "Tensión común en todos los ramales" },
+    "resistors_ohms": {
+      "type": "array",
+      "items": "number",
+      "default": [100.0, 200.0],
+      "description": "Valores de resistencias de cada rama en paralelo"
+    }
+  },
+  "physics_model": {
+    "formula_equivalent_resistance": "1 / R_eq = sum(1 / R_i)",
+    "formula_branch_current": "I_i = V_source / R_i",
+    "formula_total_current": "I_tot = sum(I_i)",
+    "kirchhoff_current_law": "I_in = I_1 + I_2 + ... + I_n"
+  },
+  "simulation_render": {
+    "overlay_type": "parallel_branch_flow",
+    "branch_visualization": {
+      "flow_proportional": true,
+      "particle_colors": ["#06b6d4", "#3b82f6", "#8b5cf6"]
+    },
+    "telemetry_hud": ["R_equivalente", "I_total_mA", "I_rama1_mA", "I_rama2_mA", "potencia_total_W"],
+    "animation_mode": "divergent_current_particles"
+  }
+}
+

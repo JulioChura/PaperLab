@@ -1,0 +1,51 @@
+{
+  "id": "math_function_graph",
+  "name": "Gráfica de Funciones f(x)",
+  "topicId": "math",
+  "topicName": "Matemáticas y Geometría Pre-U",
+  "description": "Reconocimiento y ploteo exacto de funciones algebraicas y trascendentes manuscritas (cuadráticas, polinómicas, racionales, trigonométricas) con cálculo de raíces, vértices, asíntotas, dominio y rango.",
+  "visual_syntax": {
+    "primary_shapes": ["cartesian_grid_axes", "handwritten_function_formula", "approximate_curve_sketch"],
+    "secondary_markings": ["roots_intercepts_dots", "vertex_V", "asymptote_dashed_lines", "formula_f_of_x"],
+    "bounding_box_cues": {
+      "equation_text": "text expression starting with f(x)= or y=",
+      "axes_region": "grid area where function curve is mapped"
+    }
+  },
+  "extracted_parameters": {
+    "function_expression": { "type": "string", "default": "f(x) = x^2 - 4*x + 3", "description": "Expresión matemática de la función" },
+    "function_family": { "type": "string", "enum": ["lineal", "cuadratica", "cubica", "racional", "valor_absoluto", "seno", "coseno"], "default": "cuadratica" },
+    "coefficients": {
+      "type": "object",
+      "default": { "a": 1, "b": -4, "c": 3 }
+    },
+    "x_range": { "type": "array", "items": "number", "default": [-2, 6] }
+  },
+  "math_model": {
+    "quadratic_vertex": {
+      "h": "h = -b / (2 * a)",
+      "k": "k = f(h) = c - (b^2 / (4 * a))"
+    },
+    "roots_quadratic": "x = (-b +- sqrt(b^2 - 4*a*c)) / (2 * a)",
+    "discriminant": "Delta = b^2 - 4 * a * c",
+    "domain": "Dom(f) = (-inf, +inf)",
+    "range": "Ran(f) = [k, +inf) si a > 0 else (-inf, k]"
+  },
+  "simulation_render": {
+    "overlay_type": "high_precision_function_plotter",
+    "plot_curve": {
+      "color": "#38bdf8",
+      "stroke_width": 2.5,
+      "glow": true
+    },
+    "critical_points": [
+      { "id": "vertex", "label": "Vértice V(h,k)", "color": "#eab308" },
+      { "id": "root_1", "label": "Raíz x1", "color": "#10b981" },
+      { "id": "root_2", "label": "Raíz x2", "color": "#10b981" },
+      { "id": "y_intercept", "label": "Corte Y (0, c)", "color": "#a855f7" }
+    ],
+    "telemetry_hud": ["vertice_V", "raices_reales", "discriminante_Delta", "dominio", "rango"],
+    "animation_mode": "progressive_curve_sweep"
+  }
+}
+

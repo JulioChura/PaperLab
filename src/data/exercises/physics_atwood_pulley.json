@@ -1,0 +1,43 @@
+{
+  "id": "physics_atwood_pulley",
+  "name": "Máquina de Atwood (Poleas y Cuerdas)",
+  "topicId": "physics",
+  "topicName": "Física Clásica",
+  "description": "Sistema de dos masas suspendidas verticalmente a los extremos de una cuerda ideal que pasa por una polea fija de masa despreciable.",
+  "visual_syntax": {
+    "primary_shapes": ["ceiling_anchor", "circular_pulley", "inverted_u_string", "hanging_mass_m1", "hanging_mass_m2"],
+    "secondary_markings": ["tension_arrows_T", "mass_labels_m1_m2", "gravity_direction"],
+    "bounding_box_cues": {
+      "pulley": "circle mounted to a ceiling bracket",
+      "string": "tangential lines hanging downwards on left and right",
+      "masses": "rectangular or square boxes hanging on either side"
+    }
+  },
+  "extracted_parameters": {
+    "m1_kg": { "type": "number", "unit": "kg", "default": 3.0, "description": "Masa del cuerpo izquierdo (m1)" },
+    "m2_kg": { "type": "number", "unit": "kg", "default": 5.0, "description": "Masa del cuerpo derecho (m2)" },
+    "pulley_radius_m": { "type": "number", "unit": "m", "default": 0.1, "description": "Radio de la polea" },
+    "gravity": { "type": "number", "unit": "m/s^2", "default": 9.81, "description": "Aceleración de la gravedad" }
+  },
+  "physics_model": {
+    "formula_acceleration": "a = g * abs(m1 - m2) / (m1 + m2)",
+    "formula_tension": "T = (2 * m1 * m2 * g) / (m1 + m2)",
+    "direction": "descends on side with higher mass, ascends on lower mass",
+    "equations": [
+      "m2 * g - T = m2 * a",
+      "T - m1 * g = m1 * a"
+    ]
+  },
+  "simulation_render": {
+    "overlay_type": "pulley_rotation_system",
+    "vectors": [
+      { "id": "tension_left", "name": "Tensión Izquierda (T)", "color": "#06b6d4", "origin": "m1_top", "direction": "upward" },
+      { "id": "weight_left", "name": "Peso Izquierdo (m1*g)", "color": "#ef4444", "origin": "m1_center", "direction": "downward" },
+      { "id": "tension_right", "name": "Tensión Derecha (T)", "color": "#06b6d4", "origin": "m2_top", "direction": "upward" },
+      { "id": "weight_right", "name": "Peso Derecho (m2*g)", "color": "#ef4444", "origin": "m2_center", "direction": "downward" }
+    ],
+    "telemetry_hud": ["net_acceleration", "cord_tension", "v_instantaneous", "y_travel"],
+    "animation_mode": "coupled_counterweight_rotation"
+  }
+}
+

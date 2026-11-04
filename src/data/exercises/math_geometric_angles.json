@@ -1,0 +1,63 @@
+{
+  "id": "math_geometric_angles",
+  "name": "Cálculo de Ángulos en Figuras Geométricas",
+  "topicId": "math",
+  "topicName": "Matemáticas y Geometría Pre-U",
+  "description": "Resolución de incógnitas angulares en figuras clásicas de examen de admisión: rectas paralelas cortadas por secante, triángulos con cevianas/bisectrices y cuadriláteros inscriptibles.",
+  "visual_syntax": {
+    "primary_shapes": ["parallel_lines_L1_L2", "transversal_secant", "triangle_polygon", "angle_arcs_with_labels"],
+    "secondary_markings": ["parallel_indicators_arrows", "unknown_angle_x", "known_angles_alpha_theta_beta", "congruence_ticks"],
+    "bounding_box_cues": {
+      "geometry_frame": "interconnected straight line segments forming polygonal vertex intersections",
+      "angle_arcs": "small curved sectors inside vertices with variable or degree notations"
+    }
+  },
+  "extracted_parameters": {
+    "theorem_case": {
+      "type": "string",
+      "enum": ["rectas_paralelas_secante", "teorema_boomerang", "triangulo_angulo_exterior", "bisectriz_interior", "cuadrilatero_inscriptible"],
+      "default": "rectas_paralelas_secante"
+    },
+    "known_angles_deg": {
+      "type": "object",
+      "default": { "alpha": 65.0, "beta": 45.0 },
+      "description": "Valores conocidos de ángulos etiquetados en grados"
+    },
+    "unknown_target": {
+      "type": "string",
+      "default": "x",
+      "description": "Variable incógnita a despejar"
+    }
+  },
+  "math_model": {
+    "theorems": {
+      "rectas_paralelas_secante": {
+        "property": "Angulos alternos internos son congruentes; conjugados suman 180°",
+        "equation": "x + alpha = 180 si son conjugados; x = alpha si son alternos"
+      },
+      "teorema_boomerang": {
+        "property": "En el no convexo: x = alpha + beta + theta",
+        "formula": "x = alpha + beta + theta"
+      },
+      "triangulo_angulo_exterior": {
+        "property": "Angulo exterior es igual a la suma de los dos interiores no adyacentes",
+        "formula": "theta_ext = alpha + beta"
+      }
+    },
+    "solved_value_deg": 115.0
+  },
+  "simulation_render": {
+    "overlay_type": "geometric_proof_overlay",
+    "color_coded_angles": [
+      { "id": "known_alpha", "color": "#06b6d4", "type": "arc" },
+      { "id": "unknown_x", "color": "#f59e0b", "type": "highlighted_arc", "pulse": true }
+    ],
+    "deduction_callout": {
+      "theorem_applied": "Ángulos Conjugados Internos entre L1 // L2",
+      "equation_step": "x + 65° = 180°  ==>  x = 115°"
+    },
+    "telemetry_hud": ["teorema_detectado", "relacion_geometrica", "valor_incognita_x", "unidad_grados"],
+    "animation_mode": "arc_sweep_highlight"
+  }
+}
+

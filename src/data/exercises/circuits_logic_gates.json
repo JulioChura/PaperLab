@@ -1,0 +1,50 @@
+{
+  "id": "circuits_logic_gates",
+  "name": "Puertas Lógicas Básicas (AND, OR, NOT)",
+  "topicId": "circuits",
+  "topicName": "Circuitos y Electricidad",
+  "description": "Compuertas de lógica binaria combinacional evaluadas en tiempo real mediante álgebra de Boole con visualización de entradas, salidas y tabla de verdad.",
+  "visual_syntax": {
+    "primary_shapes": ["and_gate_d_shape", "or_gate_curved_shield", "not_gate_triangle_bubble"],
+    "secondary_markings": ["input_wires_A_B", "output_wire_Y", "binary_labels_0_1", "boolean_expression"],
+    "bounding_box_cues": {
+      "and_gate": "straight back with rounded curved front and two inputs",
+      "or_gate": "curved back with pointed curved nose",
+      "not_gate": "triangle pointing forward ending with a small inversion bubble"
+    }
+  },
+  "extracted_parameters": {
+    "gate_type": { "type": "string", "enum": ["AND", "OR", "NOT", "NAND", "NOR", "XOR"], "default": "AND", "description": "Familia de compuerta lógica identificada" },
+    "input_a": { "type": "number", "enum": [0, 1], "default": 1, "description": "Nivel lógico en terminal de entrada A" },
+    "input_b": { "type": "number", "enum": [0, 1], "default": 0, "description": "Nivel lógico en terminal de entrada B (no aplica para NOT)" }
+  },
+  "physics_model": {
+    "boolean_formulas": {
+      "AND": "Y = A * B",
+      "OR": "Y = A + B",
+      "NOT": "Y = !A",
+      "NAND": "Y = !(A * B)",
+      "NOR": "Y = !(A + B)",
+      "XOR": "Y = A ^ B"
+    },
+    "truth_table_lookup": {
+      "AND": { "0,0": 0, "0,1": 0, "1,0": 0, "1,1": 1 },
+      "OR": { "0,0": 0, "0,1": 1, "1,0": 1, "1,1": 1 },
+      "NOT": { "0": 1, "1": 0 }
+    }
+  },
+  "simulation_render": {
+    "overlay_type": "digital_logic_bus",
+    "wire_colors": {
+      "logic_high_1": "#10b981",
+      "logic_low_0": "#ef4444"
+    },
+    "interactive_inputs": true,
+    "floating_truth_table": {
+      "active_row_highlight": true
+    },
+    "telemetry_hud": ["tipo_compuerta", "valor_A", "valor_B", "salida_Y", "expresion_booleana"],
+    "animation_mode": "binary_pulse_propagation"
+  }
+}
+

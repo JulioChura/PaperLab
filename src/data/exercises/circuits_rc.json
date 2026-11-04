@@ -1,0 +1,44 @@
+{
+  "id": "circuits_rc",
+  "name": "Circuito RC (Carga y Descarga)",
+  "topicId": "circuits",
+  "topicName": "Circuitos y Electricidad",
+  "description": "Circuito de primer orden compuesto por resistencia y condensador, analizando constante de tiempo tau y curva exponencial transitoria.",
+  "visual_syntax": {
+    "primary_shapes": ["two_parallel_capacitor_plates", "resistor_zigzag", "voltage_source", "switch_symbol"],
+    "secondary_markings": ["label_C_uF", "label_R_kOhm", "tau_greek_letter", "charge_polarity_plus_minus"],
+    "bounding_box_cues": {
+      "capacitor": "two equal length parallel lines perpendicular to conductor path",
+      "resistor": "series resistor adjacent to capacitor terminal"
+    }
+  },
+  "extracted_parameters": {
+    "voltage_v": { "type": "number", "unit": "V", "default": 10.0, "description": "Tensión de carga máxima" },
+    "resistance_ohms": { "type": "number", "unit": "Ω", "default": 10000.0, "description": "Resistencia en serie" },
+    "capacitance_uf": { "type": "number", "unit": "μF", "default": 100.0, "description": "Capacidad del condensador" },
+    "mode": { "type": "string", "enum": ["charging", "discharging"], "default": "charging", "description": "Fase transitoria analizada" }
+  },
+  "physics_model": {
+    "formula_time_constant": "tau = R * C",
+    "formula_charge_voltage": "V_c(t) = V0 * (1 - exp(-t / tau))",
+    "formula_discharge_voltage": "V_c(t) = V0 * exp(-t / tau)",
+    "formula_transient_current": "i(t) = (V0 / R) * exp(-t / tau)",
+    "formula_stored_energy": "E_c = 0.5 * C * V_c^2"
+  },
+  "simulation_render": {
+    "overlay_type": "dielectric_charge_accumulation",
+    "plate_charges": {
+      "positive_color": "#ef4444",
+      "negative_color": "#3b82f6",
+      "charge_density_linked_to": "V_c(t)"
+    },
+    "realtime_oscilloscope_card": {
+      "x_axis": "time_seconds",
+      "y_axis": "Vc_volts",
+      "tau_marker": true
+    },
+    "telemetry_hud": ["constante_tau_ms", "Vc_instantaneo_V", "Ic_instantaneo_mA", "energia_almacenada_mJ"],
+    "animation_mode": "transient_exponential"
+  }
+}
+

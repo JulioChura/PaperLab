@@ -1,0 +1,41 @@
+{
+  "id": "circuits_series",
+  "name": "Resistencias en Serie",
+  "topicId": "circuits",
+  "topicName": "Circuitos y Electricidad",
+  "description": "Cadena de múltiples resistores conectados secuencialmente sobre la misma rama compartiendo la misma corriente eléctrica.",
+  "visual_syntax": {
+    "primary_shapes": ["closed_loop_track", "dc_voltage_source", "multiple_resistors_in_line"],
+    "secondary_markings": ["labels_R1_R2_R3", "voltage_probes_V1_V2", "polarity_marks"],
+    "bounding_box_cues": {
+      "resistor_chain": "two or more zigzag segments positioned sequentially along the same wire segment without branching"
+    }
+  },
+  "extracted_parameters": {
+    "voltage_source_v": { "type": "number", "unit": "V", "default": 12.0, "description": "Tensión total de la fuente" },
+    "resistors_ohms": {
+      "type": "array",
+      "items": "number",
+      "default": [100.0, 220.0, 470.0],
+      "description": "Lista de valores resistivos en serie (R1, R2, R3...)"
+    }
+  },
+  "physics_model": {
+    "formula_equivalent_resistance": "R_eq = sum(R_i)",
+    "formula_current": "I = V_source / R_eq",
+    "formula_voltage_drop": "V_i = I * R_i",
+    "formula_total_power": "P_tot = sum(I^2 * R_i)",
+    "conservation": "sum(V_i) == V_source"
+  },
+  "simulation_render": {
+    "overlay_type": "series_voltage_divider",
+    "overlays": [
+      { "type": "floating_voltmeter", "target": "R1", "color": "#06b6d4" },
+      { "type": "floating_voltmeter", "target": "R2", "color": "#06b6d4" },
+      { "type": "floating_voltmeter", "target": "R3", "color": "#06b6d4" }
+    ],
+    "telemetry_hud": ["R_equivalente", "corriente_comun_mA", "V1_drop", "V2_drop", "V3_drop"],
+    "animation_mode": "uniform_speed_electrons"
+  }
+}
+

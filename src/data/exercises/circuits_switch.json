@@ -1,0 +1,47 @@
+{
+  "id": "circuits_switch",
+  "name": "Circuito con Interruptor Interactivo (Switch)",
+  "topicId": "circuits",
+  "topicName": "Circuitos y Electricidad",
+  "description": "Circuito eléctrico con llave de paso / interruptor mecánico interactivo conmutado mediante interacción táctil WebAR.",
+  "visual_syntax": {
+    "primary_shapes": ["open_or_closed_lever_switch", "two_contact_terminals", "lamp_or_load", "power_source"],
+    "secondary_markings": ["labels_SW1_or_S", "arrow_indicating_throw", "on_off_labels"],
+    "bounding_box_cues": {
+      "switch_terminals": "two hollow/solid circles separated by a gap",
+      "lever": "diagonal line pivoting on one terminal"
+    }
+  },
+  "extracted_parameters": {
+    "initial_state": { "type": "string", "enum": ["OPEN", "CLOSED"], "default": "OPEN", "description": "Estado inicial del interruptor en el dibujo" },
+    "voltage_v": { "type": "number", "unit": "V", "default": 5.0, "description": "Voltaje de alimentación" },
+    "load_resistance_ohms": { "type": "number", "unit": "Ω", "default": 100.0, "description": "Resistencia de la carga conectada" }
+  },
+  "physics_model": {
+    "state_closed": {
+      "r_switch": 0.001,
+      "current": "I = V / R_load",
+      "status": "conduction"
+    },
+    "state_open": {
+      "r_switch": 1000000000,
+      "current": 0.0,
+      "status": "cutoff"
+    }
+  },
+  "simulation_render": {
+    "overlay_type": "interactive_tactile_switch",
+    "interactive_touch_target": {
+      "region": "switch_lever_bounds",
+      "action": "toggle_state",
+      "feedback": "haptic_and_spark_effect"
+    },
+    "spark_effect": {
+      "enabled": true,
+      "color": "#38bdf8"
+    },
+    "telemetry_hud": ["estado_switch", "corriente_mA", "estado_bombilla"],
+    "animation_mode": "state_driven_loop"
+  }
+}
+

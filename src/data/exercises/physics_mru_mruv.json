@@ -1,0 +1,42 @@
+{
+  "id": "physics_mru_mruv",
+  "name": "Cinemática Rectilínea (MRU y MRUV)",
+  "topicId": "physics",
+  "topicName": "Física Clásica",
+  "description": "Movimiento unidimensional sobre pista recta con velocidad constante (MRU) o aceleración uniforme constante (MRUV), proyectando marcas milimétricas y vectores.",
+  "visual_syntax": {
+    "primary_shapes": ["horizontal_track_line", "mobile_sphere_or_car", "velocity_arrow_vector"],
+    "secondary_markings": ["position_ticks_x0_xf", "time_marks_t", "label_v", "label_a"],
+    "bounding_box_cues": {
+      "track": "straight horizontal line indicating displacement axis",
+      "mobile": "one or two spheres/boxes placed on the track",
+      "velocity_arrow": "arrow over mobile indicating direction and magnitude of v"
+    }
+  },
+  "extracted_parameters": {
+    "motion_mode": { "type": "string", "enum": ["MRU", "MRUV"], "default": "MRUV", "description": "Modo cinemático detectado" },
+    "v0_mps": { "type": "number", "unit": "m/s", "default": 2.0, "description": "Velocidad inicial del móvil" },
+    "a_mps2": { "type": "number", "unit": "m/s^2", "default": 1.5, "description": "Aceleración uniforme (0 si es MRU)" },
+    "x0_m": { "type": "number", "unit": "m", "default": 0.0, "description": "Posición de origen de partida" },
+    "target_distance_m": { "type": "number", "unit": "m", "default": 10.0, "description": "Distancia total de la pista dibujada" }
+  },
+  "physics_model": {
+    "formula_mru_distance": "x(t) = x0 + v * t",
+    "formula_mruv_position": "x(t) = x0 + v0 * t + 0.5 * a * t^2",
+    "formula_mruv_velocity": "v(t) = v0 + a * t",
+    "formula_mruv_torricelli": "vf^2 = v0^2 + 2 * a * d",
+    "constraints": {
+      "linear_path": "y(t) = 0"
+    }
+  },
+  "simulation_render": {
+    "overlay_type": "linear_track_runner",
+    "vectors": [
+      { "id": "velocity_vector", "name": "Velocidad (v)", "color": "#06b6d4", "origin": "mobile_center", "direction": "horizontal_forward" },
+      { "id": "acceleration_vector", "name": "Aceleración (a)", "color": "#10b981", "origin": "mobile_center", "direction": "horizontal_forward" }
+    ],
+    "telemetry_hud": ["pos_x", "vel_v", "acc_a", "time_elapsed", "stopwatch"],
+    "animation_mode": "linear_interpolated_speed"
+  }
+}
+

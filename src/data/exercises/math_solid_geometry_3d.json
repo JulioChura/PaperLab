@@ -1,0 +1,53 @@
+{
+  "id": "math_solid_geometry_3d",
+  "name": "Geometría del Espacio (Estereometría 3D)",
+  "topicId": "math",
+  "topicName": "Matemáticas y Geometría Pre-U",
+  "description": "Proyección isométrica/caballera dibujada en papel de sólidos en el espacio (cilindro, cono, pirámide, prisma, esfera) proyectada como holograma 3D interactivo con cálculo de volumen y áreas.",
+  "visual_syntax": {
+    "primary_shapes": ["isometric_cylinder", "conical_funnel", "polyhedral_prism", "sphere_with_equator_ellipse", "dashed_hidden_edges"],
+    "secondary_markings": ["radius_r_arrow", "height_h_dimension", "generatrix_g", "base_perimeter"],
+    "bounding_box_cues": {
+      "solid_contour": "perspective outline of 3D geometry with dashed internal occluded edges",
+      "dimension_ticks": "perpendicular dimension lines indicating r, h, or side length a"
+    }
+  },
+  "extracted_parameters": {
+    "solid_type": { "type": "string", "enum": ["cilindro", "cono", "esfera", "piramide", "prisma_triangular", "cubo"], "default": "cilindro", "description": "Familia de sólido identificada" },
+    "radius_r": { "type": "number", "unit": "cm", "default": 4.0, "description": "Radio de la base o de la esfera" },
+    "height_h": { "type": "number", "unit": "cm", "default": 10.0, "description": "Altura del cuerpo geométrico" },
+    "side_a": { "type": "number", "unit": "cm", "default": 5.0, "description": "Lado de la base en poliedros" }
+  },
+  "math_model": {
+    "cilindro": {
+      "area_lateral": "A_L = 2 * pi * r * h",
+      "area_total": "A_T = 2 * pi * r * (h + r)",
+      "volumen": "V = pi * r^2 * h"
+    },
+    "cono": {
+      "generatriz": "g = sqrt(r^2 + h^2)",
+      "area_lateral": "A_L = pi * r * g",
+      "area_total": "A_T = pi * r * (g + r)",
+      "volumen": "V = (1/3) * pi * r^2 * h"
+    },
+    "esfera": {
+      "area_superficie": "A = 4 * pi * r^2",
+      "volumen": "V = (4/3) * pi * r^3"
+    }
+  },
+  "simulation_render": {
+    "overlay_type": "three_dimensional_wireframe_mesh",
+    "lighting": "holographic_cyan_luminescence",
+    "rotation_control": {
+      "interactive_touch_orbit": true,
+      "auto_spin_speed": 0.5
+    },
+    "slice_cross_section": {
+      "enabled": true,
+      "show_base_disc": true
+    },
+    "telemetry_hud": ["solido_detectado", "volumen_cm3", "area_lateral_cm2", "area_total_cm2"],
+    "animation_mode": "orbit_3d_projection"
+  }
+}
+

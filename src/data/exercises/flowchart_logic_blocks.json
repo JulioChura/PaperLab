@@ -1,0 +1,60 @@
+{
+  "id": "flowchart_logic_blocks",
+  "name": "Diagramas de Flujo y Bloques Lógicos",
+  "topicId": "algorithms",
+  "topicName": "Algoritmos y Lógica",
+  "description": "Red de diagramación de flujo secuencial y condicional con óvalos de inicio/fin, paralelogramos I/O, rectángulos de proceso y rombos de decisión con token de datos luminoso.",
+  "visual_syntax": {
+    "primary_shapes": ["oval_terminator", "parallelogram_io", "rectangle_process", "rhombus_decision", "flow_arrows"],
+    "secondary_markings": ["branch_labels_si_no", "assignment_expressions", "loopback_arrows", "variable_names"],
+    "bounding_box_cues": {
+      "start_end": "rounded stadium or oval block labeled Inicio / Fin",
+      "input_output": "skewed parallelogram containing Leer / Escribir",
+      "process": "quadrilateral with 90 deg corners containing math operations",
+      "decision": "diamond rhombus with condition text and 2 outbound directional arrows"
+    }
+  },
+  "extracted_parameters": {
+    "nodes": {
+      "type": "array",
+      "default": [
+        { "id": "n1", "type": "start", "label": "Inicio" },
+        { "id": "n2", "type": "input", "label": "Leer N", "var": "N" },
+        { "id": "n3", "type": "decision", "label": "¿N > 0?", "condition": "N > 0" },
+        { "id": "n4", "type": "process", "label": "Resultado = N * 2" },
+        { "id": "n5", "type": "end", "label": "Fin" }
+      ],
+      "description": "Lista de nodos identificados en el grafo del diagrama"
+    },
+    "test_input_values": {
+      "type": "object",
+      "default": { "N": 5 },
+      "description": "Valores de prueba suministrados para la simulación"
+    }
+  },
+  "computational_model": {
+    "execution_engine": "directed_graph_interpreter",
+    "supported_statements": ["assignment", "conditional_branch", "while_loop", "print_output"],
+    "generated_code_languages": ["python", "javascript"]
+  },
+  "simulation_render": {
+    "overlay_type": "graph_token_walker",
+    "token_particle": {
+      "shape": "glowing_orb",
+      "color": "#38bdf8",
+      "trail": true
+    },
+    "node_status_highlight": {
+      "current_executing": "#eab308",
+      "passed": "#10b981",
+      "branch_taken": "#06b6d4"
+    },
+    "virtual_ide_hud": {
+      "show_code_translation": true,
+      "variables_watch_table": true
+    },
+    "telemetry_hud": ["nodo_actual", "variables_en_memoria", "salida_consola", "paso_contador"],
+    "animation_mode": "token_flow_step"
+  }
+}
+

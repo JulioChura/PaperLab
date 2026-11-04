@@ -1,0 +1,41 @@
+{
+  "id": "math_analytic_geometry",
+  "name": "Geometría Analítica en el Plano Cartesiano",
+  "topicId": "math",
+  "topicName": "Matemáticas y Geometría Pre-U",
+  "description": "Análisis sobre plano XY cuadriculado de puntos coordenados, distancia euclidiana, punto medio, pendiente angular de rectas y ecuaciones canónicas de cónicas.",
+  "visual_syntax": {
+    "primary_shapes": ["orthogonal_xy_axes", "coordinate_points_A_B", "connecting_segment", "conic_curve"],
+    "secondary_markings": ["axis_arrows_X_Y", "origin_O", "inclination_angle_theta", "point_labels_with_coords"],
+    "bounding_box_cues": {
+      "axes": "perpendicular intersecting lines with arrows at right and top ends",
+      "points": "distinct dots accompanied by alphanumeric coordinates (x, y)"
+    }
+  },
+  "extracted_parameters": {
+    "point_A": { "type": "array", "items": "number", "default": [1.0, 2.0], "description": "Coordenadas (x1, y1)" },
+    "point_B": { "type": "array", "items": "number", "default": [7.0, 10.0], "description": "Coordenadas (x2, y2)" },
+    "curve_mode": { "type": "string", "enum": ["linea_recta", "circunferencia", "parabola", "elipse"], "default": "linea_recta" }
+  },
+  "math_model": {
+    "formula_distance": "d = sqrt((x2 - x1)^2 + (y2 - y1)^2)",
+    "formula_midpoint": "M = ((x1 + x2)/2, (y1 + y2)/2)",
+    "formula_slope": "m = (y2 - y1) / (x2 - x1)",
+    "formula_angle": "theta = atan(m) * (180 / pi)",
+    "line_general_form": "Ax + By + C = 0",
+    "line_point_slope": "y - y1 = m * (x - x1)",
+    "circle_canonical": "(x - h)^2 + (y - k)^2 = r^2"
+  },
+  "simulation_render": {
+    "overlay_type": "cartesian_geometry_overlay",
+    "geometric_elements": [
+      { "id": "segment_AB", "type": "line", "color": "#06b6d4", "dashed": false },
+      { "id": "delta_x_leg", "type": "line", "color": "#64748b", "dashed": true },
+      { "id": "delta_y_leg", "type": "line", "color": "#64748b", "dashed": true },
+      { "id": "midpoint_marker", "type": "dot", "color": "#10b981" }
+    ],
+    "telemetry_hud": ["distancia_d", "punto_medio_M", "pendiente_m", "angulo_inclinacion_deg", "ecuacion_general"],
+    "animation_mode": "construction_step_draw"
+  }
+}
+

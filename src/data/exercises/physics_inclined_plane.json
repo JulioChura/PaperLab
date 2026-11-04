@@ -1,0 +1,45 @@
+{
+  "id": "physics_inclined_plane",
+  "name": "Plano Inclinado con Fricción",
+  "topicId": "physics",
+  "topicName": "Física Clásica",
+  "description": "Bloque deslizándose sobre una rampa inclinada con ángulo theta considerando coeficiente de fricción cinético y descomposición vectorial.",
+  "visual_syntax": {
+    "primary_shapes": ["right_triangle", "inclined_ramp", "rectangular_block"],
+    "secondary_markings": ["horizontal_ground", "angle_arc_theta", "label_m", "label_mu"],
+    "bounding_box_cues": {
+      "ramp": "triangular region with acute angle at base and hypotenuse slope",
+      "block": "quadrilateral resting along the hypotenuse surface",
+      "labels": "numeric text indicating angle, mass m (kg/g) or mu coefficient"
+    }
+  },
+  "extracted_parameters": {
+    "theta_deg": { "type": "number", "unit": "deg", "default": 30.0, "description": "Ángulo de elevación de la rampa" },
+    "mass_kg": { "type": "number", "unit": "kg", "default": 2.0, "description": "Masa del bloque" },
+    "mu_k": { "type": "number", "unit": "dimensionless", "default": 0.15, "description": "Coeficiente de rozamiento cinético" },
+    "initial_velocity": { "type": "number", "unit": "m/s", "default": 0.0, "description": "Velocidad inicial en la rampa" },
+    "gravity": { "type": "number", "unit": "m/s^2", "default": 9.81, "description": "Aceleración de la gravedad" }
+  },
+  "physics_model": {
+    "formula_acceleration": "a = g * (sin(theta) - mu_k * cos(theta))",
+    "formula_normal": "N = m * g * cos(theta)",
+    "formula_friction": "f_r = mu_k * N",
+    "formula_weight_x": "P_x = m * g * sin(theta)",
+    "formula_weight_y": "P_y = m * g * cos(theta)",
+    "constraints": {
+      "slide_condition": "tan(theta) > mu_k"
+    }
+  },
+  "simulation_render": {
+    "overlay_type": "dynamic_rigid_body",
+    "vectors": [
+      { "id": "weight", "name": "Peso (P)", "color": "#ef4444", "origin": "block_center", "direction": "downward" },
+      { "id": "normal", "name": "Normal (N)", "color": "#06b6d4", "origin": "block_center", "direction": "normal_to_ramp" },
+      { "id": "friction", "name": "Fuerza de Fricción (f_r)", "color": "#f59e0b", "origin": "contact_surface", "direction": "ramp_upward" },
+      { "id": "acceleration", "name": "Aceleración Resultante (a)", "color": "#10b981", "origin": "block_center", "direction": "ramp_downward" }
+    ],
+    "telemetry_hud": ["a", "v", "x", "Normal", "Friccion"],
+    "animation_mode": "continuous_euler"
+  }
+}
+

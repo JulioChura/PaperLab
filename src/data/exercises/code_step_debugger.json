@@ -1,0 +1,58 @@
+{
+  "id": "code_step_debugger",
+  "name": "Análisis de Código y Debugger Paso a Paso",
+  "topicId": "algorithms",
+  "topicName": "Algoritmos y Lógica",
+  "description": "OCR y análisis semántico de pseudocódigo o código manuscrito en libreta escolar, con barra de ejecución iluminada e inspector dinámico de variables en memoria.",
+  "visual_syntax": {
+    "primary_shapes": ["indented_handwritten_lines", "line_numbers", "control_structures", "assignment_operators"],
+    "secondary_markings": ["variable_names", "loop_brackets", "curly_braces", "semicolons"],
+    "bounding_box_cues": {
+      "code_block": "rectangular region of aligned handwritten text lines",
+      "line_stripes": "sequential horizontal bands containing statements"
+    }
+  },
+  "extracted_parameters": {
+    "source_lines": {
+      "type": "array",
+      "items": "string",
+      "default": [
+        "x = 5",
+        "y = 10",
+        "suma = 0",
+        "para i = 1 hasta x:",
+        "  suma = suma + y",
+        "imprimir(suma)"
+      ],
+      "description": "Líneas manuscritas reconocidas mediante OCR"
+    },
+    "language_mode": { "type": "string", "enum": ["pseudocodigo", "python", "javascript"], "default": "pseudocodigo" }
+  },
+  "computational_model": {
+    "runtime": "ast_stepper_evaluator",
+    "call_stack": true,
+    "memory_scope": "local_heap",
+    "breakpoints_allowed": true
+  },
+  "simulation_render": {
+    "overlay_type": "handwritten_line_debugger",
+    "laser_execution_pointer": {
+      "color": "#eab308",
+      "glow": "gaussian_spread_4px",
+      "follow_handwriting_baseline": true
+    },
+    "memory_inspector_hud": {
+      "position": "right_margin_anchor",
+      "format": "variable_table_card",
+      "changed_var_badge": "#10b981"
+    },
+    "step_controls": {
+      "step_over": true,
+      "continue": true,
+      "reset": true
+    },
+    "telemetry_hud": ["linea_activa", "stack_memoria", "salida_stdout", "iteracion_bucle"],
+    "animation_mode": "step_by_step_manual"
+  }
+}
+

@@ -1,0 +1,42 @@
+{
+  "id": "physics_pendulum",
+  "name": "Péndulo Simple",
+  "topicId": "physics",
+  "topicName": "Física Clásica",
+  "description": "Masa puntual suspendida de un hilo inextensible oscilando bajo la acción de la gravedad con análisis de período armónico y tensión.",
+  "visual_syntax": {
+    "primary_shapes": ["ceiling_line_hatched", "pivot_point", "cord_line", "pendulum_bob"],
+    "secondary_markings": ["vertical_dashed_reference", "angle_theta_arc", "label_L", "label_m"],
+    "bounding_box_cues": {
+      "pivot": "anchor at top ceiling line with diagonal hatching",
+      "string": "line connecting pivot to bob center",
+      "bob": "solid or shaded circle at cord terminus"
+    }
+  },
+  "extracted_parameters": {
+    "length_m": { "type": "number", "unit": "m", "default": 0.8, "description": "Longitud de la cuerda (calibrada con cuadrícula de papel)" },
+    "mass_kg": { "type": "number", "unit": "kg", "default": 0.5, "description": "Masa de la lenteja del péndulo" },
+    "theta_max_deg": { "type": "number", "unit": "deg", "default": 25.0, "description": "Ángulo de amplitud inicial" },
+    "damping": { "type": "number", "unit": "dimensionless", "default": 0.02, "description": "Coeficiente de amortiguamiento del aire" },
+    "gravity": { "type": "number", "unit": "m/s^2", "default": 9.81, "description": "Aceleración de la gravedad" }
+  },
+  "physics_model": {
+    "formula_period": "T = 2 * pi * sqrt(L / g)",
+    "formula_frequency": "f = 1 / T",
+    "formula_angular_freq": "omega = sqrt(g / L)",
+    "formula_max_velocity": "v_max = sqrt(2 * g * L * (1 - cos(theta_max)))",
+    "formula_tension_bottom": "T_bot = m * (g + (v_max^2 / L))",
+    "differential_equation": "d2theta/dt2 + (g/L)*sin(theta) = 0"
+  },
+  "simulation_render": {
+    "overlay_type": "pendulum_oscillator",
+    "vectors": [
+      { "id": "tension", "name": "Tensión Cuerda (T)", "color": "#06b6d4", "origin": "bob_center", "direction": "along_string_to_pivot" },
+      { "id": "gravity", "name": "Peso (mg)", "color": "#ef4444", "origin": "bob_center", "direction": "downward" },
+      { "id": "velocity", "name": "Velocidad Tangencial (v)", "color": "#10b981", "origin": "bob_center", "direction": "tangent_to_arc" }
+    ],
+    "telemetry_hud": ["period_T", "frequency_f", "v_instant", "theta_instant", "tension_N"],
+    "animation_mode": "verlet_angular"
+  }
+}
+

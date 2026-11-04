@@ -1,0 +1,42 @@
+{
+  "id": "circuits_simple_loop",
+  "name": "Circuito Simple de Malla Única",
+  "topicId": "circuits",
+  "topicName": "Circuitos y Electricidad",
+  "description": "Circuito eléctrico cerrado básico con una fuente de tensión continua (DC), una resistencia de carga y un indicador de luz/LED.",
+  "visual_syntax": {
+    "primary_shapes": ["closed_rectangle_trace", "battery_symbol", "zigzag_resistor", "circle_cross_lamp_or_led"],
+    "secondary_markings": ["polarity_plus_minus", "current_arrow_I", "label_V", "label_R"],
+    "bounding_box_cues": {
+      "battery": "two parallel lines of alternating lengths (+ long, - short)",
+      "resistor": "continuous zigzag path along one branch",
+      "lamp": "circle with internal cross or triangle LED with arrows"
+    }
+  },
+  "extracted_parameters": {
+    "voltage_v": { "type": "number", "unit": "V", "default": 9.0, "description": "Voltaje de la batería DC" },
+    "resistance_ohms": { "type": "number", "unit": "Ω", "default": 220.0, "description": "Resistencia del circuito" },
+    "led_forward_drop_v": { "type": "number", "unit": "V", "default": 2.0, "description": "Caída de tensión del LED" },
+    "internal_resistance": { "type": "number", "unit": "Ω", "default": 0.5, "description": "Resistencia interna de la fuente" }
+  },
+  "physics_model": {
+    "formula_current": "I = (V_source - V_led) / (R + r_internal)",
+    "formula_power_resistor": "P_R = I^2 * R",
+    "formula_total_power": "P_tot = V_source * I",
+    "kirchhoff_voltage_law": "V_source - I*R - V_led = 0"
+  },
+  "simulation_render": {
+    "overlay_type": "luminous_electron_flow",
+    "electron_particles": {
+      "speed_multiplier": "proportional_to_current",
+      "color": "#38bdf8",
+      "density": 18
+    },
+    "component_auras": [
+      { "component": "lamp_led", "glow_color": "#eab308", "state": "lit_when_current_positive" }
+    ],
+    "telemetry_hud": ["corriente_mA", "voltaje_fuente", "potencia_mW", "caida_R"],
+    "animation_mode": "looping_closed_current"
+  }
+}
+

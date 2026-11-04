@@ -1,0 +1,46 @@
+{
+  "id": "math_equation_solver",
+  "name": "Solver de Ecuaciones Paso a Paso",
+  "topicId": "math",
+  "topicName": "Matemáticas y Geometría Pre-U",
+  "description": "OCR de ecuaciones algebraicas manuscritas con desglose deductivo paso a paso: método de aspa simple, fórmula general, despeje algebraico y conjunto solución (C.S.).",
+  "visual_syntax": {
+    "primary_shapes": ["algebraic_equation_text", "equals_sign", "polynomial_powers", "variable_terms"],
+    "secondary_markings": ["cross_multiplication_lines_aspa", "system_bracket", "solution_set_cs_label"],
+    "bounding_box_cues": {
+      "equation_line": "horizontal line of handwritten algebra with equality sign ="
+    }
+  },
+  "extracted_parameters": {
+    "raw_equation": { "type": "string", "default": "2*x^2 - 7*x + 3 = 0", "description": "Texto exacto de la ecuación manuscrita" },
+    "equation_type": { "type": "string", "enum": ["lineal", "cuadratica", "sistema_2x2", "exponencial", "logaritmica"], "default": "cuadratica" },
+    "target_variable": { "type": "string", "default": "x" }
+  },
+  "math_model": {
+    "quadratic_resolution": {
+      "standard_form": "a*x^2 + b*x + c = 0",
+      "discriminant": "Delta = b^2 - 4*a*c = (-7)^2 - 4(2)(3) = 49 - 24 = 25",
+      "nature_of_roots": "Delta > 0: Dos raíces reales y distintas",
+      "aspa_simple_factors": "(2x - 1)(x - 3) = 0",
+      "roots": ["x1 = 1/2", "x2 = 3"],
+      "solution_set": "C.S. = {1/2, 3}"
+    }
+  },
+  "simulation_render": {
+    "overlay_type": "step_by_step_deduction_tree",
+    "steps_display": [
+      { "step_num": 1, "title": "Identificar coeficientes", "latex": "a = 2,\\; b = -7,\\; c = 3" },
+      { "step_num": 2, "title": "Cálculo del Discriminante", "latex": "\\Delta = (-7)^2 - 4(2)(3) = 25" },
+      { "step_num": 3, "title": "Factorización por Aspa Simple", "latex": "(2x - 1)(x - 3) = 0" },
+      { "step_num": 4, "title": "Igualar cada factor a cero", "latex": "2x - 1 = 0 \\implies x_1 = 1/2 \\quad|\\quad x - 3 = 0 \\implies x_2 = 3" },
+      { "step_num": 5, "title": "Conjunto Solución", "latex": "C.S. = \\{1/2,\\; 3\\}" }
+    ],
+    "holographic_aspa_lines": {
+      "enabled": true,
+      "color": "#eab308"
+    },
+    "telemetry_hud": ["tipo_ecuacion", "discriminante_Delta", "numero_soluciones", "conjunto_solucion_CS"],
+    "animation_mode": "sequential_reveal"
+  }
+}
+

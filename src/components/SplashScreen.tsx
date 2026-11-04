@@ -99,7 +99,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
             {/* Corner Framing Marks */}
             <div className="flex justify-between text-[11px] font-telemetry text-slate-400 dark:text-slate-500 mb-4">
-              <span>CALIBRE: CUADERNO 5mm</span>
+              <span>PAPEL FÍSICO</span>
               <span>ESTADO: LISTO</span>
             </div>
 
@@ -126,7 +126,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Trazo Reconocido</span>
                 </span>
-                <span>60 FPS</span>
+                <span>WebAR Activo</span>
               </div>
             </div>
 

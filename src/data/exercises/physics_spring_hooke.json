@@ -1,0 +1,42 @@
+{
+  "id": "physics_spring_hooke",
+  "name": "Sistema Masa-Resorte (Ley de Hooke)",
+  "topicId": "physics",
+  "topicName": "Física Clásica",
+  "description": "Oscilador armónico simple horizontal o vertical compuesto por un resorte elástico lineal y un bloque inercial.",
+  "visual_syntax": {
+    "primary_shapes": ["vertical_wall_hatched", "helical_zigzag_spring", "mass_block"],
+    "secondary_markings": ["horizontal_surface", "equilibrium_dashed_line_x0", "amplitude_arrow_x", "label_k", "label_m"],
+    "bounding_box_cues": {
+      "wall": "vertical barrier anchoring the spring",
+      "spring": "periodic zig-zag stroke with n coils",
+      "mass": "square block attached to the free spring end"
+    }
+  },
+  "extracted_parameters": {
+    "k_spring_npm": { "type": "number", "unit": "N/m", "default": 50.0, "description": "Constante de elasticidad del resorte (k)" },
+    "mass_kg": { "type": "number", "unit": "kg", "default": 1.5, "description": "Masa del bloque sujeto al resorte" },
+    "amplitude_m": { "type": "number", "unit": "m", "default": 0.25, "description": "Desplazamiento inicial respecto a la posición de equilibrio" },
+    "damping_ratio": { "type": "number", "unit": "dimensionless", "default": 0.05, "description": "Amortiguamiento viscoso" }
+  },
+  "physics_model": {
+    "formula_restoring_force": "F = -k * x",
+    "formula_angular_freq": "omega = sqrt(k / m)",
+    "formula_period": "T = 2 * pi * sqrt(m / k)",
+    "formula_freq": "f = omega / (2 * pi)",
+    "formula_potential_energy": "E_p = 0.5 * k * x^2",
+    "formula_kinetic_energy": "E_k = 0.5 * m * v^2",
+    "total_energy": "E_tot = 0.5 * k * A^2"
+  },
+  "simulation_render": {
+    "overlay_type": "harmonic_oscillator",
+    "vectors": [
+      { "id": "restoring_force", "name": "Fuerza Elástica (F_e)", "color": "#f59e0b", "origin": "mass_center", "direction": "towards_equilibrium" },
+      { "id": "velocity", "name": "Velocidad (v)", "color": "#10b981", "origin": "mass_center", "direction": "motion_direction" },
+      { "id": "acceleration", "name": "Aceleración (a)", "color": "#ef4444", "origin": "mass_center", "direction": "towards_equilibrium" }
+    ],
+    "telemetry_hud": ["period_T", "frequency_f", "x_displacement", "energy_kinetic", "energy_potential"],
+    "animation_mode": "spring_mesh_deform"
+  }
+}
+
