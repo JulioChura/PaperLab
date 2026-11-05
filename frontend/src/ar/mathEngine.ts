@@ -4,6 +4,8 @@
  * así nunca se dibuja sobre la hoja un número inventado por el modelo.
  */
 
+import type { FigureSpec } from '../sims/types';
+
 export type Fn = (x: number) => number;
 
 // ------------------------------------------------------------------
@@ -44,12 +46,14 @@ export interface GraphSpec {
 }
 
 export interface SolutionPlan {
-  kind: 'quadratic' | 'linear' | 'function' | 'generic';
+  kind: 'quadratic' | 'linear' | 'function' | 'generic' | 'simulation';
   lines: SolutionLine[];
   graph: GraphSpec | null;
   /** Prioridad de la gráfica en el layout (en function_graph es el contenido principal). */
   graphPrimary: boolean;
   summary: string;
+  /** Simulación animada/interactiva dibujada sobre la hoja (física, circuitos, debugger…). */
+  figure?: FigureSpec;
 }
 
 const t = (s: string): MathToken => ({ k: 't', s });
@@ -572,20 +576,47 @@ function linearPlan(p: Polynomial): SolutionPlan {
   };
 }
 
-function plainTextTokens(s: string): MathToken[] {
-  // Convierte "x^2" → x + superíndice y normaliza signos menos para la tipografía manuscrita
-  const out: MathToken[] = [];
+export function plainTextTokens(s: string): MathToken[] {
+  // "x^2" → superíndice, "√(…)" → raíz dibujada, "Δ" → triángulo dibujado, "≈" → símbolo a mano
   const clean = s.replace(/\$/g, '').replace(/\\[a-z]+/gi, '').replace(/[{}]/g, '').replace(/-/g, MINUS);
-  const re = /\^(\(?[0-9a-z+–]+\)?)/gi;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(clean))) {
-    if (m.index > last) out.push(t(clean.slice(last, m.index)));
-    out.push(sup(m[1].replace(/[()]/g, '')));
-    last = m.index + m[0].length;
-  }
-  if (last < clean.length) out.push(t(clean.slice(last)));
-  return out;
+  const parse = (str: string): MathToken[] => {
+    const out: MathToken[] = [];
+    let buf = '';
+    const flush = () => {
+      if (buf) out.push(t(buf));
+      buf = '';
+    };
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (ch === '√' && str[i + 1] === '(') {
+        let depth = 0;
+        let j = i + 1;
+        for (; j < str.length; j++) {
+          if (str[j] === '(') depth++;
+          else if (str[j] === ')' && --depth === 0) break;
+        }
+        flush();
+        out.push({ k: 'sqrt', body: parse(str.slice(i + 2, j)) });
+        i = j;
+      } else if (ch === 'Δ') {
+        flush();
+        out.push({ k: 'delta' });
+      } else if (ch === '≈') {
+        flush();
+        out.push({ k: 'approx' });
+      } else if (ch === '^') {
+        const m = /^\^(\(([^)]*)\)|[0-9a-z+–]+)/i.exec(str.slice(i));
+        if (m) {
+          flush();
+          out.push(sup(m[2] ?? m[1]));
+          i += m[0].length - 1;
+        } else buf += ch;
+      } else buf += ch;
+    }
+    flush();
+    return out;
+  };
+  return parse(clean);
 }
 
 export interface EquationSolverData {

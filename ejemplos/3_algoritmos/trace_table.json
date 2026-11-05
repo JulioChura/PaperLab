@@ -1,0 +1,76 @@
+{
+  "title": "Traza del factorial",
+  "exercise_id": "trace_table",
+  "exercise_type": "trace_table",
+  "exercise_name": "Traza del factorial",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "trace_table",
+    "watched_variables": [
+      "i",
+      "f"
+    ],
+    "rows": [
+      {
+        "iteration": 0,
+        "variables": {
+          "i": "1",
+          "f": "1"
+        },
+        "condition_evaluated": "i<=4 V"
+      },
+      {
+        "iteration": 1,
+        "variables": {
+          "i": "2",
+          "f": "1"
+        },
+        "condition_evaluated": "i<=4 V"
+      },
+      {
+        "iteration": 2,
+        "variables": {
+          "i": "3",
+          "f": "2"
+        },
+        "condition_evaluated": "i<=4 V"
+      },
+      {
+        "iteration": 3,
+        "variables": {
+          "i": "4",
+          "f": "6"
+        },
+        "condition_evaluated": "i<=4 V"
+      },
+      {
+        "iteration": 4,
+        "variables": {
+          "i": "5",
+          "f": "24"
+        },
+        "condition_evaluated": "i<=4 F"
+      }
+    ],
+    "initial_memory": {
+      "i": "1",
+      "f": "1"
+    },
+    "final_memory": {
+      "i": "5",
+      "f": "24"
+    }
+  },
+  "explanation": "Traza de f = f * i para i = 1..4.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

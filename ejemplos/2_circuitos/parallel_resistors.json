@@ -1,0 +1,33 @@
+{
+  "title": "Resistencias en paralelo",
+  "exercise_id": "parallel_resistors",
+  "exercise_type": "parallel_resistors",
+  "exercise_name": "Resistencias en paralelo",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "parallel_resistors",
+    "voltage_v": 6,
+    "resistors_ohms": [
+      20,
+      30
+    ],
+    "equivalent_resistance_ohms": 12,
+    "branch_currents_a": [
+      0.3,
+      0.2
+    ],
+    "total_current_a": 0.5
+  },
+  "explanation": "Dos resistencias en paralelo con 6 V.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

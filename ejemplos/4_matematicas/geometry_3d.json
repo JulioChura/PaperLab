@@ -1,0 +1,28 @@
+{
+  "title": "Cilindro",
+  "exercise_id": "geometry_3d",
+  "exercise_type": "geometry_3d",
+  "exercise_name": "Cilindro",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "geometry_3d",
+    "solid_type": "cylinder",
+    "radius_units": 3,
+    "height_units": 5,
+    "volume_units3": 141.37,
+    "total_area_units2": 150.8,
+    "formulas_applied": []
+  },
+  "explanation": "Cilindro de radio 3 y altura 5.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "title": "¿Aprobado o desaprobado?",
+  "exercise_id": "conditional_flowchart",
+  "exercise_type": "conditional_flowchart",
+  "exercise_name": "¿Aprobado o desaprobado?",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "conditional_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Leer nota"
+      },
+      {
+        "id": "n3",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "nota >= 11"
+      },
+      {
+        "id": "n4",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "\"Aprobado\""
+      },
+      {
+        "id": "n5",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "\"Desaprobado\""
+      },
+      {
+        "id": "n6",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4",
+        "condition_label": "Sí"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n5",
+        "condition_label": "No"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n6"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n6"
+      }
+    ],
+    "decision_condition": "nota >= 11",
+    "true_branch_node_id": "n4",
+    "false_branch_node_id": "n5",
+    "generated_code_py": "",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "Se lee nota = 14 (ejemplo)",
+        "variables": {
+          "nota": "14"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "¿14 >= 11? → verdadero, rama Sí",
+        "variables": {
+          "nota": "14"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n4",
+        "description": "Imprime \"Aprobado\"",
+        "variables": {
+          "nota": "14"
+        },
+        "output": "Aprobado"
+      },
+      {
+        "step": 5,
+        "node_id": "n6",
+        "description": "Fin",
+        "variables": {
+          "nota": "14"
+        }
+      }
+    ]
+  },
+  "explanation": "Lee una nota y decide si aprueba (nota ≥ 11).",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

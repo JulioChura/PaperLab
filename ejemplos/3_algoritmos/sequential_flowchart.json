@@ -1,0 +1,127 @@
+{
+  "title": "Área de un rectángulo",
+  "exercise_id": "sequential_flowchart",
+  "exercise_type": "sequential_flowchart",
+  "exercise_name": "Área de un rectángulo",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "sequential_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Leer b, h"
+      },
+      {
+        "id": "n3",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "A = b * h"
+      },
+      {
+        "id": "n4",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir A"
+      },
+      {
+        "id": "n5",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n5"
+      }
+    ],
+    "variables": [
+      "b",
+      "h",
+      "A"
+    ],
+    "generated_code_py": "b, h = 5, 3\nA = b * h\nprint(A)",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio del algoritmo",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "Se leen b = 5 y h = 3 (valores de ejemplo)",
+        "variables": {
+          "b": "5",
+          "h": "3"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "A = 5 * 3 = 15",
+        "variables": {
+          "b": "5",
+          "h": "3",
+          "A": "15"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n4",
+        "description": "Se imprime el área",
+        "variables": {
+          "b": "5",
+          "h": "3",
+          "A": "15"
+        },
+        "output": "15"
+      },
+      {
+        "step": 5,
+        "node_id": "n5",
+        "description": "Fin",
+        "variables": {
+          "b": "5",
+          "h": "3",
+          "A": "15"
+        }
+      }
+    ]
+  },
+  "explanation": "Lee base y altura, calcula el área e imprime.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

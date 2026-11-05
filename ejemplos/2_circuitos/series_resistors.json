@@ -1,0 +1,35 @@
+{
+  "title": "Resistencias en serie",
+  "exercise_id": "series_resistors",
+  "exercise_type": "series_resistors",
+  "exercise_name": "Resistencias en serie",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "series_resistors",
+    "voltage_v": 12,
+    "resistors_ohms": [
+      100,
+      220,
+      330
+    ],
+    "equivalent_resistance_ohms": 650,
+    "current_a": 0.018,
+    "voltage_drops_v": [
+      1.8,
+      4.1,
+      6.1
+    ]
+  },
+  "explanation": "Tres resistencias en serie alimentadas con 12 V.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

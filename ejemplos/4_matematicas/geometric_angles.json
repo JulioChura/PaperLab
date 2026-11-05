@@ -1,0 +1,35 @@
+{
+  "title": "Ángulos en un triángulo",
+  "exercise_id": "geometric_angles",
+  "exercise_type": "geometric_angles",
+  "exercise_name": "Ángulos en un triángulo",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "geometric_angles",
+    "problem_type": "triangle_cevian",
+    "known_angles_deg": {
+      "A": 50,
+      "B": 70
+    },
+    "unknown_variable": "x",
+    "solved_value_deg": 60,
+    "theorem_applied": "Suma de ángulos internos del triángulo",
+    "proof_steps": [
+      "La suma de ángulos internos es 180°",
+      "50° + 70° + x = 180°",
+      "x = 180° − 120°"
+    ]
+  },
+  "explanation": "Triángulo con ángulos de 50° y 70°; hallar x.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Anchor, Check, ChevronDown, ChevronUp, FastForward, RotateCcw, ScanLine, Search, Camera } from 'lucide-react';
+import {
+  Anchor, BatteryCharging, Camera, Check, ChevronDown, ChevronUp, FastForward, Pause, Play, Power, RotateCcw, ScanLine,
+  Search, SkipBack, SkipForward, Zap,
+} from 'lucide-react';
+import { FigureCanvas } from '../../sims/figureCanvas';
+import type { ControlIcon, FigureRuntime, Readout } from '../../sims/types';
 import { PaperARScene, type MediaSource, type TrackingStatus } from '../../ar/arScene';
 import type { HybridPaperTracker } from '../../ar/paperTracker';
 import { layoutSolution } from '../../ar/arLayout';
@@ -71,6 +76,12 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
   const [active, setActive] = useState(0);
   const [done, setDone] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [runtime, setRuntime] = useState<FigureRuntime | null>(null);
+  const [simState, setSimState] = useState<{ readouts: Readout[]; caption: string; values: Record<string, number | boolean> }>({
+    readouts: [],
+    caption: '',
+    values: {},
+  });
   const [status, setStatus] = useState<TrackingStatus>(
     session.tracker ? (session.tracker.state === 'tracking' ? 'tracking' : 'lost') : 'static',
   );
@@ -106,12 +117,44 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
       setActive(scene.layerCount - 1);
     };
 
+    // La simulación se crea antes del layout: así el panel ya muestra sus controles
+    // y su tamaño real se descuenta del espacio disponible en la hoja.
+    const rt = plan.figure ? plan.figure.create() : null;
+    setRuntime(rt);
+
     (async () => {
       await ensureHandwritingFont();
+      // dejar que el panel termine de pintarse (controles y lecturas) antes de medirlo
+      await new Promise((r) => setTimeout(r, 120));
       if (life.cancelled) return;
-      const placed = layoutSolution(plan, profile, uiBlockedRects(host, panelRef.current, media));
-      placed.forEach((p) => scene.addLayer(p.layer.canvas, p.place, p.duration));
-      setTitles(placed.map((p) => p.title));
+      const { layers, figure } = layoutSolution(plan, profile, uiBlockedRects(host, panelRef.current, media));
+      const titlesList: string[] = [];
+
+      if (rt && plan.figure && figure) {
+        const aspect = plan.figure.aspect;
+        const W = aspect >= 1 ? 1000 : Math.round(1000 * aspect);
+        const H = Math.round(W / aspect);
+        const u = figure.charH * (W / figure.place.w);
+        const fc = new FigureCanvas(W, H, u, profile.strokeRatio);
+        rt.draw(fc);
+        const handle = scene.addAnimatedLayer(fc.ink, fc.light, figure.place, 1.8);
+        const clock = { acc: 0 };
+        scene.onFrame = (dt) => {
+          rt.update(dt);
+          clock.acc += dt;
+          if (clock.acc >= 1 / 30) {
+            clock.acc = 0;
+            fc.begin();
+            rt.draw(fc);
+            scene.markDirty(handle);
+          }
+        };
+        titlesList.push(plan.figure.title);
+      }
+      // la simulación (si hay) se dibuja primero; luego el texto y la gráfica
+      layers.forEach((p) => scene.addLayer(p.layer.canvas, p.place, p.duration));
+      titlesList.push(...layers.map((p) => p.title));
+      setTitles(titlesList);
       scene.play(0);
       console.info('[PaperLab AR] Perfil de tinta:', profile, 'Plan:', plan.summary);
     })();
@@ -123,6 +166,20 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
       sceneRef.current = null;
     };
   }, [session, accent]);
+
+  useEffect(() => {
+    if (!runtime) return;
+    const tick = () =>
+      setSimState({ readouts: runtime.readouts(), caption: runtime.caption?.() ?? '', values: { ...runtime.values } });
+    tick();
+    const id = window.setInterval(tick, 200);
+    return () => window.clearInterval(id);
+  }, [runtime]);
+
+  const control = (id: string, value?: number | boolean) => {
+    runtime?.onControl(id, value);
+    if (runtime) setSimState((s) => ({ ...s, values: { ...runtime.values }, caption: runtime.caption?.() ?? '' }));
+  };
 
   const statusCopy = STATUS_COPY[status];
   const mindarLabel =
@@ -219,6 +276,68 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
             ))}
           </div>
 
+          {runtime && (
+            <div className="px-3 pb-2.5 space-y-2 border-t border-slate-800 pt-2.5">
+              {simState.readouts.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {simState.readouts.map((r) => (
+                    <span key={r.label} className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 font-telemetry text-[11px]">
+                      <span className="text-slate-400">{r.label}</span> <span className="text-white">{r.value}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {simState.caption && (
+                <p className="text-[11px] font-telemetry text-slate-200 leading-snug line-clamp-2" style={{ borderLeft: `2px solid ${accent}`, paddingLeft: 8 }}>
+                  {simState.caption}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {runtime.controls
+                  .filter((c) => c.kind !== 'slider')
+                  .map((c) => {
+                    const on = c.kind === 'toggle' && !!simState.values[c.id];
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => control(c.id)}
+                        title={c.label}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-telemetry cursor-pointer transition-colors"
+                        style={on ? { background: `${accent}33`, borderColor: accent, color: '#fff' } : { borderColor: '#334155', color: '#cbd5e1' }}
+                      >
+                        <ControlGlyph icon={c.icon} on={on} />
+                        <span>{toggleLabel(c.id, c.label, on)}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+              {runtime.controls
+                .filter((c) => c.kind === 'slider')
+                .map((c) => {
+                  const v = Number(simState.values[c.id] ?? c.min ?? 0);
+                  return (
+                    <label key={c.id} className="flex items-center gap-2 text-[11px] font-telemetry text-slate-300">
+                      <span className="w-24 shrink-0 truncate">{c.label}</span>
+                      <input
+                        type="range"
+                        min={c.min}
+                        max={c.max}
+                        step={c.step}
+                        value={v}
+                        onChange={(e) => control(c.id, Number(e.target.value))}
+                        className="flex-1 cursor-pointer"
+                        style={{ accentColor: accent }}
+                      />
+                      <span className="w-16 text-right text-white">
+                        {Number.isInteger(c.step) ? v.toFixed(0) : v.toFixed(2).replace(/\.?0+$/, '')}
+                        {c.unit ? ` ${c.unit}` : ''}
+                      </span>
+                    </label>
+                  );
+                })}
+            </div>
+          )}
+
           <div className="grid grid-cols-3 border-t border-slate-800 text-[11px] font-telemetry">
             <button
               onClick={() => sceneRef.current?.play(0)}
@@ -246,3 +365,33 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
     </>
   );
 };
+
+function toggleLabel(id: string, label: string, on: boolean): string {
+  if (id === 'play') return on ? 'Pausar' : label;
+  if (id === 'closed') return on ? 'Abrir' : 'Cerrar';
+  if (id === 'charging') return on ? 'Descargar' : 'Cargar';
+  return label;
+}
+
+const ControlGlyph: React.FC<{ icon?: ControlIcon; on: boolean }> = ({ icon, on }) => {
+  const cls = 'w-3.5 h-3.5';
+  switch (icon) {
+    case 'play':
+      return on ? <Pause className={cls} /> : <Play className={cls} />;
+    case 'reset':
+      return <RotateCcw className={cls} />;
+    case 'prev':
+      return <SkipBack className={cls} />;
+    case 'next':
+      return <SkipForward className={cls} />;
+    case 'switch':
+      return <Power className={cls} />;
+    case 'charge':
+      return <BatteryCharging className={cls} />;
+    case 'bolt':
+      return <Zap className={cls} />;
+    default:
+      return null;
+  }
+};
+

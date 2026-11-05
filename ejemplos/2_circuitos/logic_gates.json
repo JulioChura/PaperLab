@@ -1,0 +1,59 @@
+{
+  "title": "Compuerta AND",
+  "exercise_id": "logic_gates",
+  "exercise_type": "logic_gates",
+  "exercise_name": "Compuerta AND",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "logic_gates",
+    "gate_type": "AND",
+    "inputs": [
+      1,
+      0
+    ],
+    "output": 0,
+    "boolean_expression": "A · B",
+    "truth_table": [
+      {
+        "inputs": [
+          0,
+          0
+        ],
+        "output": 0
+      },
+      {
+        "inputs": [
+          0,
+          1
+        ],
+        "output": 0
+      },
+      {
+        "inputs": [
+          1,
+          0
+        ],
+        "output": 0
+      },
+      {
+        "inputs": [
+          1,
+          1
+        ],
+        "output": 1
+      }
+    ]
+  },
+  "explanation": "Compuerta AND con entradas A = 1 y B = 0.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "title": "Burbuja: una pasada",
+  "exercise_id": "code_debugger",
+  "exercise_type": "code_debugger",
+  "exercise_name": "Burbuja: una pasada",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "code_debugger",
+    "source_code": "a = [4, 1, 3]\nfor i in range(2):\n    if a[i] > a[i+1]:\n        a[i], a[i+1] = a[i+1], a[i]\nprint(a)",
+    "detected_language": "python",
+    "steps": [
+      {
+        "step_number": 1,
+        "line_number": 1,
+        "line_code": "a = [4, 1, 3]",
+        "variable_updates": {
+          "a": "[4, 1, 3]"
+        }
+      }
+    ],
+    "final_output": "[1, 3, 4]",
+    "execution": [
+      {
+        "step": 1,
+        "line_number": 1,
+        "description": "Se crea el arreglo a",
+        "variables": {
+          "a": "[4, 1, 3]"
+        }
+      },
+      {
+        "step": 2,
+        "line_number": 2,
+        "description": "i = 0",
+        "variables": {
+          "a": "[4, 1, 3]",
+          "i": "0"
+        }
+      },
+      {
+        "step": 3,
+        "line_number": 3,
+        "description": "¿a[0] > a[1]? 4 > 1 verdadero",
+        "variables": {
+          "a": "[4, 1, 3]",
+          "i": "0"
+        }
+      },
+      {
+        "step": 4,
+        "line_number": 4,
+        "description": "Intercambia a[0] y a[1]",
+        "variables": {
+          "a": "[1, 4, 3]",
+          "i": "0"
+        }
+      },
+      {
+        "step": 5,
+        "line_number": 2,
+        "description": "i = 1",
+        "variables": {
+          "a": "[1, 4, 3]",
+          "i": "1"
+        }
+      },
+      {
+        "step": 6,
+        "line_number": 3,
+        "description": "¿a[1] > a[2]? 4 > 3 verdadero",
+        "variables": {
+          "a": "[1, 4, 3]",
+          "i": "1"
+        }
+      },
+      {
+        "step": 7,
+        "line_number": 4,
+        "description": "Intercambia a[1] y a[2]",
+        "variables": {
+          "a": "[1, 3, 4]",
+          "i": "1"
+        }
+      },
+      {
+        "step": 8,
+        "line_number": 5,
+        "description": "Imprime el arreglo",
+        "variables": {
+          "a": "[1, 3, 4]",
+          "i": "1"
+        },
+        "output": "[1, 3, 4]"
+      }
+    ]
+  },
+  "explanation": "Una pasada del ordenamiento burbuja sobre un arreglo de 3 elementos.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

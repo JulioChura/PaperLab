@@ -1,0 +1,28 @@
+{
+  "title": "Malla simple con foco",
+  "exercise_id": "single_loop",
+  "exercise_type": "single_loop",
+  "exercise_name": "Malla simple con foco",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "single_loop",
+    "voltage_v": 9,
+    "resistance_ohms": 30,
+    "current_a": 0.3,
+    "power_w": 2.7,
+    "has_led": true,
+    "led_color": "yellow"
+  },
+  "explanation": "Pila de 9 V con una resistencia de 30 Ω y un foco.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

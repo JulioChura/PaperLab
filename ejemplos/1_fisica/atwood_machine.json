@@ -1,0 +1,28 @@
+{
+  "title": "Máquina de Atwood",
+  "exercise_id": "atwood_machine",
+  "exercise_type": "atwood_machine",
+  "exercise_name": "Máquina de Atwood",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "atwood_machine",
+    "mass_1_kg": 3,
+    "mass_2_kg": 5,
+    "pulley_radius_m": 0.1,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 2.45,
+    "tension_n": 36.75
+  },
+  "explanation": "Polea ideal con masas de 3 kg y 5 kg.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

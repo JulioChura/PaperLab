@@ -10,13 +10,15 @@ import {
   X,
   Code,
   Image as ImageIcon,
+  BookOpen,
 } from 'lucide-react';
 import { moduleThemeConfig } from '../data/colorPalette';
 import { audioJuice } from '../utils/audioJuice';
 import { analyzeDrawing } from '../services/analysisApi';
 import type { ClassificationResult } from '../services/analysisApi';
 import { analyzePaper, type NormRect } from '../ar/paperVision';
-import { planFromEquation, planFromFunction, type SolutionPlan } from '../ar/mathEngine';
+import { buildSimulationPlan } from '../sims';
+import { examplesFor, exampleToResult, renderExamplePhoto, type Example } from '../demo/examples';
 import { compileTargetFromCanvas, loadMindAR } from '../ar/mindar';
 import type { HybridPaperTracker } from '../ar/paperTracker';
 import type { ARSolverSession } from './ARSolver/ARSolverOverlay';
@@ -47,12 +49,8 @@ function scaledCanvas(source: CanvasImageSource, sw: number, sh: number, maxDim:
   return canvas;
 }
 
-function buildPlan(result: ClassificationResult): SolutionPlan | null {
-  const data = result.parameters as Record<string, unknown>;
-  if (result.exercise_type === 'equation_solver') return planFromEquation(data);
-  if (result.exercise_type === 'function_graph') return planFromFunction(data);
-  return null;
-}
+const buildPlan = (result: ClassificationResult) =>
+  buildSimulationPlan(result.exercise_type, result.parameters as Record<string, unknown>);
 
 let sessionCounter = 0;
 
@@ -84,7 +82,12 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const [shutter, setShutter] = useState<{ key: number; thumb: string } | null>(null);
 
   const mod = moduleThemeConfig[moduleId as keyof typeof moduleThemeConfig] || moduleThemeConfig.physics;
-  const supportsArSolver = moduleId === 'math';
+  // Los 4 módulos tienen solución/simulación sobre la hoja
+  const supportsArSolver = true;
+  const examples = examplesFor(moduleId);
+  const [showExamples, setShowExamples] = useState(false);
+  /** Ejemplo activo: su JSON sustituye al análisis de la IA (no gasta llamadas). */
+  const [mockExample, setMockExample] = useState<Example | null>(null);
 
   useEffect(() => () => trackerRef.current?.dispose(), []);
 
@@ -167,6 +170,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
     const reader = new FileReader();
     reader.onload = (e) => {
       resetAr();
+      setMockExample(null);
       setUploadedImage(e.target?.result as string);
     };
     reader.readAsDataURL(file);
@@ -175,8 +179,18 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const handleClearUploadedImage = () => {
     audioJuice.playTap();
     resetAr();
+    setMockExample(null);
     setUploadedImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handlePickExample = async (ex: Example) => {
+    audioJuice.playPaperFlip();
+    setShowExamples(false);
+    resetAr();
+    const photo = await renderExamplePhoto(ex);
+    setMockExample(ex);
+    setUploadedImage(photo);
   };
 
   /** Toma el fotograma actual SIN detener el video. */
@@ -226,7 +240,9 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
     }
 
     try {
-      const result = await analyzeDrawing(dataUrl, moduleId);
+      const result = mockExample && uploadedImage
+        ? await new Promise<ClassificationResult>((r) => setTimeout(() => r(exampleToResult(mockExample)), 900))
+        : await analyzeDrawing(dataUrl, moduleId);
       console.info('[PaperLab AI] Ejercicio identificado:', result.exercise_type, result.parameters);
       const plan = supportsArSolver ? buildPlan(result) : null;
       const media = freeze ? frozenRef.current : live ? videoRef.current : imageRef.current;
@@ -324,7 +340,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
       {uploadedImage && (
         <div className="absolute top-16 right-4 z-20 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-600 text-slate-200 font-telemetry text-xs flex items-center gap-2 backdrop-blur-md">
           <ImageIcon className="w-3.5 h-3.5" />
-          <span>Foto del cuaderno</span>
+          <span>{mockExample ? `Ejemplo: ${mockExample.title}` : 'Foto del cuaderno'}</span>
           <button onClick={handleClearUploadedImage} className="ml-1 hover:text-white cursor-pointer" title="Volver a la cámara">
             <X className="w-3.5 h-3.5" />
           </button>
@@ -430,6 +446,16 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
         </div>
 
         <div className="flex items-center gap-2">
+          {examples.length > 0 && (
+            <button
+              onClick={() => setShowExamples((v) => !v)}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-lg backdrop-blur-md cursor-pointer"
+              title="Ejercicios de ejemplo (sin gastar análisis de IA)"
+            >
+              <BookOpen className="w-4 h-4" style={{ color: mod.accent }} />
+              <span className="hidden sm:inline">Ejemplos</span>
+            </button>
+          )}
           <button
             onClick={() => fileInputRef.current?.click()}
             className="p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-lg backdrop-blur-md cursor-pointer"
@@ -477,6 +503,34 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           </span></div>
         </div>
       </div>
+
+      {/* Selector de ejemplos: foto + JSON de prueba */}
+      {showExamples && (
+        <div className="absolute top-16 right-4 z-40 w-[min(22rem,calc(100%-2rem))] rounded-2xl bg-slate-950/95 border border-slate-700 backdrop-blur-xl shadow-2xl text-white overflow-hidden animate-entrance">
+          <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <p className="font-display font-bold text-sm">Ejercicios de ejemplo</p>
+              <p className="text-[10px] font-telemetry text-slate-400">Foto y datos de prueba · no usa el analizador de IA</p>
+            </div>
+            <button onClick={() => setShowExamples(false)} className="text-slate-400 hover:text-white cursor-pointer">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <ul className="max-h-[50vh] overflow-y-auto p-1.5">
+            {examples.map((ex) => (
+              <li key={ex.exercise_type}>
+                <button
+                  onClick={() => void handlePickExample(ex)}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/5 cursor-pointer"
+                >
+                  <span className="block text-sm font-display font-semibold">{ex.title}</span>
+                  <span className="block text-[11px] font-telemetry text-slate-400 truncate">{ex.explanation}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Resultado sin solver AR (otros módulos o tipos de ejercicio) */}
       {classificationResult && !inAr && (
@@ -531,7 +585,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
             style={isScanning ? undefined : { backgroundColor: mod.accent }}
           >
             <Sparkles className={`w-4 h-4 ${isScanning ? 'animate-spin' : ''}`} />
-            <span>{isScanning ? 'Analizando…' : supportsArSolver ? 'Escanear y resolver' : 'Escanear e identificar'}</span>
+            <span>{isScanning ? 'Analizando…' : 'Escanear y resolver'}</span>
           </button>
         </div>
       )}

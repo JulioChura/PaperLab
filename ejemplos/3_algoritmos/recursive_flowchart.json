@@ -1,0 +1,126 @@
+{
+  "title": "Factorial recursivo",
+  "exercise_id": "recursive_flowchart",
+  "exercise_type": "recursive_flowchart",
+  "exercise_name": "Factorial recursivo",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "recursive_flowchart",
+    "function_name": "fact",
+    "base_case": "n <= 1 → 1",
+    "recursive_call": "n * fact(n - 1)",
+    "call_stack_trace": [
+      "fact(3)",
+      "fact(2)",
+      "fact(1)"
+    ],
+    "generated_code_py": "def fact(n):\n    if n <= 1:\n        return 1\n    return n * fact(n - 1)\n\nprint(fact(3))",
+    "execution": [
+      {
+        "step": 1,
+        "line_number": 6,
+        "description": "Se llama fact(3)",
+        "variables": {
+          "n": "3"
+        },
+        "call_stack": [
+          "main",
+          "fact(3)"
+        ]
+      },
+      {
+        "step": 2,
+        "line_number": 4,
+        "description": "3 > 1 → llama fact(2)",
+        "variables": {
+          "n": "2"
+        },
+        "call_stack": [
+          "main",
+          "fact(3)",
+          "fact(2)"
+        ]
+      },
+      {
+        "step": 3,
+        "line_number": 4,
+        "description": "2 > 1 → llama fact(1)",
+        "variables": {
+          "n": "1"
+        },
+        "call_stack": [
+          "main",
+          "fact(3)",
+          "fact(2)",
+          "fact(1)"
+        ]
+      },
+      {
+        "step": 4,
+        "line_number": 3,
+        "description": "Caso base: fact(1) retorna 1",
+        "variables": {
+          "n": "1",
+          "retorno": "1"
+        },
+        "call_stack": [
+          "main",
+          "fact(3)",
+          "fact(2)",
+          "fact(1)"
+        ]
+      },
+      {
+        "step": 5,
+        "line_number": 4,
+        "description": "fact(2) = 2 * 1 = 2",
+        "variables": {
+          "n": "2",
+          "retorno": "2"
+        },
+        "call_stack": [
+          "main",
+          "fact(3)",
+          "fact(2)"
+        ]
+      },
+      {
+        "step": 6,
+        "line_number": 4,
+        "description": "fact(3) = 3 * 2 = 6",
+        "variables": {
+          "n": "3",
+          "retorno": "6"
+        },
+        "call_stack": [
+          "main",
+          "fact(3)"
+        ]
+      },
+      {
+        "step": 7,
+        "line_number": 6,
+        "description": "Imprime 6",
+        "variables": {
+          "retorno": "6"
+        },
+        "output": "6",
+        "call_stack": [
+          "main"
+        ]
+      }
+    ]
+  },
+  "explanation": "fact(n) = n * fact(n-1), caso base n <= 1.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

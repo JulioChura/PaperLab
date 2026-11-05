@@ -1,0 +1,28 @@
+{
+  "title": "Masa-resorte",
+  "exercise_id": "mass_spring",
+  "exercise_type": "mass_spring",
+  "exercise_name": "Masa-resorte",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "mass_spring",
+    "spring_constant_k_n_m": 80,
+    "mass_kg": 1.2,
+    "initial_displacement_m": 0.15,
+    "damping_coefficient": 0.3,
+    "angular_frequency_rad_s": 8.16,
+    "period_s": 0.77
+  },
+  "explanation": "Resorte de k = 80 N/m con masa de 1.2 kg estirado 0.15 m.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

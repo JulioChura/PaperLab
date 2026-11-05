@@ -1,0 +1,33 @@
+{
+  "title": "Ecuación cuadrática",
+  "exercise_id": "equation_solver",
+  "exercise_type": "equation_solver",
+  "exercise_name": "Ecuación cuadrática",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "equation_solver",
+    "equation_latex": "x^2 + 2x - 3 = 0",
+    "equation_plain": "x^2 + 2x - 3 = 0",
+    "equation_type": "quadratic",
+    "discriminant_delta": 16,
+    "steps": [
+      "Δ = 16"
+    ],
+    "solution_set": [
+      "-3",
+      "1"
+    ]
+  },
+  "explanation": "Resolver x² + 2x − 3 = 0.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

@@ -25,6 +25,29 @@ class FlowEdge(BaseModel):
     condition_label: Optional[str] = Field(default=None, description="Etiqueta de rama (ej: 'SÍ', 'NO', 'True', 'False')")
 
 
+class ExecutionStep(BaseModel):
+    """Un paso de la traza de ejecución que alimenta el debugger WebAR."""
+    step: int = Field(..., ge=1, description="Número ordinal del paso")
+    node_id: Optional[str] = Field(default=None, description="ID del nodo del diagrama activo en este paso")
+    line_number: Optional[int] = Field(default=None, ge=1, description="Línea de código activa en este paso")
+    description: str = Field(..., description="Qué ocurre en este paso, en español breve (ej: 'i < 3 es verdadero')")
+    variables: dict[str, str] = Field(
+        default_factory=dict,
+        description=(
+            "SNAPSHOT COMPLETO de TODAS las variables tras ejecutar el paso (no solo las que cambian). "
+            "Los arreglos/listas van como JSON, ej: '[5, 2, 9]'; los textos entre comillas, ej: '\"hola\"'"
+        ),
+    )
+    output: Optional[str] = Field(default=None, description="Texto impreso en consola en este paso, si lo hay")
+    call_stack: list[str] = Field(default_factory=list, description="Marcos activos de la pila, ej: ['fact(3)', 'fact(2)']")
+
+
+EXECUTION_DESCRIPTION = (
+    "Traza completa de ejecución paso a paso (máx. 40 pasos) para el debugger: un paso por nodo/línea ejecutada, "
+    "con el snapshot completo de variables en cada paso. Usa valores de entrada de ejemplo si el diagrama lee datos."
+)
+
+
 class SequentialFlowchartSimulation(BaseModel):
     """3.1. Diagrama de Flujo Secuencial."""
     exercise_type: Literal["sequential_flowchart"] = "sequential_flowchart"
@@ -33,6 +56,7 @@ class SequentialFlowchartSimulation(BaseModel):
     variables: list[str] = Field(default_factory=list, description="Variables declaradas o manipuladas")
     generated_code_py: str = Field(..., description="Código generado equivalente en Python")
     generated_code_js: str = Field(..., description="Código generado equivalente en JavaScript")
+    execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 
 class ConditionalFlowchartSimulation(BaseModel):
@@ -45,6 +69,7 @@ class ConditionalFlowchartSimulation(BaseModel):
     false_branch_node_id: str = Field(..., description="ID del nodo al que va la rama 'NO'")
     generated_code_py: str = Field(..., description="Código Python con if/else")
     generated_code_js: str = Field(..., description="Código JavaScript con if/else")
+    execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 
 class LoopFlowchartSimulation(BaseModel):
@@ -56,6 +81,7 @@ class LoopFlowchartSimulation(BaseModel):
     loop_variable: str = Field(..., description="Variable iteradora de control")
     generated_code_py: str = Field(..., description="Código Python representativo del bucle")
     generated_code_js: str = Field(..., description="Código JavaScript representativo del bucle")
+    execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 
 class DebugStep(BaseModel):
@@ -74,6 +100,7 @@ class CodeDebuggerSimulation(BaseModel):
     detected_language: str = Field(default="python", description="Lenguaje detectado (python, pseudocodigo, javascript)")
     steps: list[DebugStep] = Field(..., min_length=1, description="Secuencia de pasos para ejecución paso a paso")
     final_output: str = Field(default="", description="Resultado final tras la ejecución completa")
+    execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 
 class TraceTableRow(BaseModel):
@@ -90,6 +117,7 @@ class TraceTableSimulation(BaseModel):
     rows: list[TraceTableRow] = Field(..., min_length=1, description="Filas cronológicas de la traza")
     initial_memory: dict[str, str] = Field(default_factory=dict, description="Estado de memoria inicial")
     final_memory: dict[str, str] = Field(default_factory=dict, description="Estado de memoria al concluir")
+    execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 
 class RecursiveFlowchartSimulation(BaseModel):
@@ -100,6 +128,7 @@ class RecursiveFlowchartSimulation(BaseModel):
     recursive_call: str = Field(..., description="Llamada recursiva recursiva (ej: 'n * fact(n - 1)')")
     call_stack_trace: list[str] = Field(..., description="Visualización de la pila de llamadas para un valor ejemplo")
     generated_code_py: str = Field(..., description="Implementación en Python")
+    execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 
 FlowchartSimulationData = Annotated[

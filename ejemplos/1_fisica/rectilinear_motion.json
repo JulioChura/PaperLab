@@ -1,0 +1,29 @@
+{
+  "title": "MRUV",
+  "exercise_id": "rectilinear_motion",
+  "exercise_type": "rectilinear_motion",
+  "exercise_name": "MRUV",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "rectilinear_motion",
+    "motion_type": "MRUV",
+    "initial_position_m": 0,
+    "initial_velocity_m_s": 4,
+    "acceleration_m_s2": 2,
+    "total_time_s": 6,
+    "final_velocity_m_s": 16,
+    "distance_traveled_m": 60
+  },
+  "explanation": "Móvil que parte con 4 m/s y acelera 2 m/s² durante 6 s.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

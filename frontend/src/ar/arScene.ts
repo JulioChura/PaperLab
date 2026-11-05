@@ -83,6 +83,22 @@ void main() {
 }
 `;
 
+// Capa de LUZ holográfica: color con transparencia, compuesto encima de la tinta
+const LIGHT_FRAG = /* glsl */ `
+uniform sampler2D map;
+uniform float progress;
+uniform float opacity;
+varying vec2 vUv;
+void main() {
+  const float soft = 0.06;
+  float p = progress * (1.0 + 2.0 * soft) - soft;
+  float reveal = 1.0 - smoothstep(p - soft, p, vUv.x);
+  vec4 c = texture2D(map, vUv);
+  float a = c.a * reveal * opacity;
+  gl_FragColor = vec4(c.rgb * a, a); // premultiplicado: luz holográfica visible sobre papel claro u oscuro
+}
+`;
+
 /** Textura de "diente" del papel / grano de grafito, procedural. */
 function createGrainTexture(): THREE.Texture {
   const size = 256;
@@ -121,6 +137,13 @@ export class PaperARScene {
   private scene = new THREE.Scene();
   private camera = new THREE.OrthographicCamera(0, 1, 0, 1, -10, 10);
   private anchor = new THREE.Group();
+  private lightRenderer: THREE.WebGLRenderer;
+  private lightScene = new THREE.Scene();
+  private lightAnchor = new THREE.Group();
+  private lightLayers: { material: THREE.ShaderMaterial; layer: number }[] = [];
+  private animated: { textures: THREE.Texture[]; dirty: boolean }[] = [];
+  /** Se llama en cada fotograma antes de renderizar (simulaciones). */
+  onFrame?: (dt: number) => void;
   private grain: THREE.Texture;
   private layers: SceneLayer[] = [];
   private ink: InkUniforms;
@@ -178,6 +201,23 @@ export class PaperARScene {
     } satisfies Partial<CSSStyleDeclaration>);
     container.appendChild(this.canvas);
 
+    this.lightRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: true });
+    this.lightRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.lightRenderer.setClearColor(0x000000, 0);
+    Object.assign(this.lightRenderer.domElement.style, {
+      position: 'absolute',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      mixBlendMode: 'normal',
+      pointerEvents: 'none',
+      opacity: '0',
+      transition: 'opacity 450ms ease',
+    } satisfies Partial<CSSStyleDeclaration>);
+    container.appendChild(this.lightRenderer.domElement);
+    this.lightAnchor.matrixAutoUpdate = false;
+    this.lightScene.add(this.lightAnchor);
+
     this.anchor.matrixAutoUpdate = false;
     this.scene.add(this.anchor);
     this.grain = createGrainTexture();
@@ -188,6 +228,7 @@ export class PaperARScene {
 
     requestAnimationFrame(() => {
       this.canvas.style.opacity = '1';
+      this.lightRenderer.domElement.style.opacity = '1';
     });
     this.lastTime = performance.now();
     this.raf = requestAnimationFrame(this.tick);
@@ -202,6 +243,7 @@ export class PaperARScene {
     const cw = this.container.clientWidth || 1;
     const ch = this.container.clientHeight || 1;
     this.renderer.setSize(cw, ch, false);
+    this.lightRenderer.setSize(cw, ch, false);
     this.camera.left = 0;
     this.camera.right = cw;
     this.camera.top = 0;
@@ -268,6 +310,52 @@ export class PaperARScene {
     return this.layers.length - 1;
   }
 
+  /**
+   * Capa animada (simulación): `ink` se mezcla como tinta y `light` como luz. Ambos lienzos se
+   * vuelven a subir a la GPU cuando se llama a `markDirty`.
+   */
+  addAnimatedLayer(ink: HTMLCanvasElement, light: HTMLCanvasElement, place: LayerPlacement, durationSec: number): number {
+    const index = this.addLayer(ink, place, durationSec);
+    const inkTex = this.layers[index].material.uniforms.map.value as THREE.Texture;
+    inkTex.generateMipmaps = false;
+    inkTex.minFilter = THREE.LinearFilter;
+
+    const sw = this.space.width;
+    const w = place.w * sw;
+    const h = place.h * sw;
+    const tex = new THREE.CanvasTexture(light);
+    tex.colorSpace = THREE.NoColorSpace;
+    tex.generateMipmaps = false;
+    tex.minFilter = THREE.LinearFilter;
+    const material = new THREE.ShaderMaterial({
+      vertexShader: VERT,
+      fragmentShader: LIGHT_FRAG,
+      uniforms: { map: { value: tex }, progress: { value: 0 }, opacity: { value: 1 } },
+      side: THREE.DoubleSide,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.AddEquation,
+      blendSrc: THREE.OneFactor,
+      blendDst: THREE.OneMinusSrcAlphaFactor,
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), material);
+    mesh.scale.y = -1;
+    mesh.frustumCulled = false;
+    const src = this.layers[index].mesh.position;
+    mesh.position.set(src.x, src.y, 0);
+    this.lightAnchor.add(mesh);
+    this.lightLayers.push({ material, layer: index });
+    this.animated.push({ textures: [inkTex, tex], dirty: true });
+    return this.animated.length - 1;
+  }
+
+  markDirty(handle: number) {
+    const a = this.animated[handle];
+    if (a) a.dirty = true;
+  }
+
   /** Reproduce la escritura de todas las capas desde `from` (las anteriores quedan escritas). */
   play(from = 0) {
     this.layers.forEach((layer, i) => {
@@ -321,6 +409,13 @@ export class PaperARScene {
       }
     }
 
+    this.onFrame?.(dt);
+    for (const a of this.animated) {
+      if (!a.dirty) continue;
+      for (const t of a.textures) t.needsUpdate = true;
+      a.dirty = false;
+    }
+
     // Homografía: px del fotograma capturado → px de pantalla
     const t = this.tracker;
     const h = t ? t.getHomography() : [1, 0, 0, 0, 1, 0, 0, 0, 1];
@@ -347,14 +442,21 @@ export class PaperARScene {
       m[6], m[7], 0, m[8],
     );
     this.anchor.matrixWorldNeedsUpdate = true;
+    this.lightAnchor.matrix.copy(this.anchor.matrix);
+    this.lightAnchor.matrixWorldNeedsUpdate = true;
 
     // Si se pierde la hoja, la tinta se desvanece en lugar de flotar en el aire
     const lostFor = this.lostSince ? now - this.lostSince : 0;
     const targetOpacity = this.status === 'lost' && lostFor > 350 ? 0.1 : 1;
     this.globalOpacity += (targetOpacity - this.globalOpacity) * Math.min(1, dt * 6);
     for (const layer of this.layers) layer.material.uniforms.opacity.value = this.globalOpacity;
+    for (const l of this.lightLayers) {
+      l.material.uniforms.opacity.value = this.globalOpacity;
+      l.material.uniforms.progress.value = this.layers[l.layer].progress;
+    }
 
     this.renderer.render(this.scene, this.camera);
+    if (this.lightLayers.length) this.lightRenderer.render(this.lightScene, this.camera);
     this.raf = requestAnimationFrame(this.tick);
   };
 
@@ -367,8 +469,14 @@ export class PaperARScene {
       (layer.material.uniforms.map.value as THREE.Texture).dispose();
       layer.material.dispose();
     }
+    for (const l of this.lightLayers) {
+      (l.material.uniforms.map.value as THREE.Texture).dispose();
+      l.material.dispose();
+    }
     this.grain.dispose();
     this.renderer.dispose();
+    this.lightRenderer.dispose();
     this.canvas.remove();
+    this.lightRenderer.domElement.remove();
   }
 }

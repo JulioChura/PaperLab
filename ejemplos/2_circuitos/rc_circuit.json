@@ -1,0 +1,28 @@
+{
+  "title": "Circuito RC",
+  "exercise_id": "rc_circuit",
+  "exercise_type": "rc_circuit",
+  "exercise_name": "Circuito RC",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "rc_circuit",
+    "voltage_v": 5,
+    "resistance_ohms": 2000,
+    "capacitance_uf": 470,
+    "time_constant_tau_s": 0.94,
+    "max_charge_uc": 2350,
+    "mode": "charging"
+  },
+  "explanation": "Carga de un condensador de 470 μF a través de 2 kΩ con 5 V.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

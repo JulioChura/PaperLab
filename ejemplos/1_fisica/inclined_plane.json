@@ -1,0 +1,30 @@
+{
+  "title": "Plano inclinado con fricción",
+  "exercise_id": "inclined_plane",
+  "exercise_type": "inclined_plane",
+  "exercise_name": "Plano inclinado con fricción",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "inclined_plane",
+    "angle_degrees": 30,
+    "mass_kg": 2,
+    "friction_coefficient": 0.2,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 3.2,
+    "weight_n": 19.6,
+    "normal_force_n": 17,
+    "friction_force_n": 3.4
+  },
+  "explanation": "Bloque de 2 kg sobre una rampa de 30° con μ = 0.2.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

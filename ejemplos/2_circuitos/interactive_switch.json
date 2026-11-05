@@ -1,0 +1,27 @@
+{
+  "title": "Circuito con interruptor",
+  "exercise_id": "interactive_switch",
+  "exercise_type": "interactive_switch",
+  "exercise_name": "Circuito con interruptor",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "interactive_switch",
+    "initial_state": "open",
+    "voltage_v": 9,
+    "load_resistance_ohms": 45,
+    "current_open_a": 0,
+    "current_closed_a": 0.2
+  },
+  "explanation": "Interruptor abierto que controla un foco con 9 V y 45 Ω.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

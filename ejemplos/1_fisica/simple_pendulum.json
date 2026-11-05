@@ -1,0 +1,29 @@
+{
+  "title": "Péndulo simple",
+  "exercise_id": "simple_pendulum",
+  "exercise_type": "simple_pendulum",
+  "exercise_name": "Péndulo simple",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "simple_pendulum",
+    "length_m": 1.5,
+    "initial_angle_degrees": 20,
+    "mass_kg": 0.5,
+    "gravity_m_s2": 9.8,
+    "period_s": 2.46,
+    "max_velocity_m_s": 1.33,
+    "tension_at_lowest_point_n": 5.5
+  },
+  "explanation": "Péndulo de 1.5 m soltado desde 20°.",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}
