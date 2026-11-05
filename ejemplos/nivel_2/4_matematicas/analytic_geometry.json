@@ -35,5 +35,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La pendiente −3/4 es negativa: la recta baja de izquierda a derecha.",
+    "socratic_challenge": "¿En qué punto corta esta recta al eje Y?",
+    "hint": "Reemplaza x = 0 en la ecuación de la recta.",
+    "fun_fact": "Los GPS calculan distancias entre puntos con la misma fórmula, pero sobre una esfera.",
+    "mistakes": []
+  }
 }

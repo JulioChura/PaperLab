@@ -67,5 +67,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Para hallar S se evalúa la red de izquierda a derecha, compuerta por compuerta.",
+    "socratic_challenge": "¿Existe alguna combinación de A, B y C que haga S = 0?",
+    "hint": "Revisa la tabla de verdad fila por fila.",
+    "fun_fact": "Con solo compuertas NAND se puede construir cualquier otra compuerta: por eso se la llama \"universal\".",
+    "mistakes": []
+  }
 }

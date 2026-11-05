@@ -181,5 +181,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Cada llamada se divide en dos: por eso fib(n) recursivo repite muchos cálculos.",
+    "socratic_challenge": "¿Cuántas veces se calcula fib(1) al evaluar fib(3)?",
+    "hint": "Dibuja el árbol de llamadas y cuenta las hojas.",
+    "fun_fact": "La secuencia de Fibonacci aparece en las espirales de los girasoles y de las piñas.",
+    "mistakes": []
+  }
 }

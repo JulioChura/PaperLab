@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sun, Moon, ArrowLeft } from 'lucide-react';
 import { Logo } from './Logo';
+import { XpChip } from '../game/GameUI';
 
 interface HeaderProps {
   currentModule: string | null;
@@ -8,6 +9,7 @@ interface HeaderProps {
   onGoSplash: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
+  onOpenProfile: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,13 +17,14 @@ export const Header: React.FC<HeaderProps> = ({
   onGoHome,
   onGoSplash,
   isDarkMode,
-  onToggleTheme
+  onToggleTheme,
+  onOpenProfile,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full bg-[#f5f0e6]/90 dark:bg-[#070a11]/90 backdrop-blur-md border-b border-[#d8cebd] dark:border-[#212c42] px-4 sm:px-8 py-3 transition-colors">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
         {/* Brand & Breadcrumb */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onGoSplash}
             className="cursor-pointer hover:opacity-90 transition-opacity"
@@ -31,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {currentModule && (
-            <div className="flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-slate-800 text-xs font-telemetry">
+            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-slate-800 text-xs font-telemetry">
               <button
                 onClick={onGoHome}
                 className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
@@ -49,6 +52,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5">
+          <XpChip onOpen={onOpenProfile} />
           {/* Day / Night Theme Toggle */}
           <button
             onClick={onToggleTheme}

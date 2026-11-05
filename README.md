@@ -24,7 +24,7 @@ PaperLab/
 ## 📋 Requisitos Previos
 
 - **Node.js** v18 o superior y **npm** (para el Frontend).
-- **Python** 3.10 o superior (para el Backend).
+- **Python** 3.10 a 3.14 (para el Backend). En 3.15 todavía no hay ruedas de `pyyaml` (dependencia de `uvicorn[standard]`) y la instalación falla.
 - Clave de API de **Google Gemini** (gratuita en [Google AI Studio](https://aistudio.google.com/)).
 
 ---
@@ -158,16 +158,86 @@ Flujo: el alumno encuadra su hoja → **Escanear y resolver** congela la captura
 | Rastreo | `frontend/src/ar/paperTracker.ts` | Flujo óptico Lucas-Kanade (**jsfeat**) + RANSAC con realineación contra la captura (sin deriva); **MindAR** como relocalizador cuando la hoja se pierde. |
 | Render | `frontend/src/ar/arScene.ts` | **Three.js** con homografía en pantalla y `mix-blend-mode: multiply`: la tinta virtual hereda la luz, sombras y textura del papel real. |
 
-Tipos soportados hoy: `equation_solver` (lineales, cuadráticas, y numéricas como `2^x = 8`) y `function_graph`. Los demás módulos muestran los parámetros validados por el backend.
+Los **23 tipos** tienen solución o simulación interactiva sobre la hoja (`frontend/src/sims/`): física, circuitos, debugger de algoritmos y figuras matemáticas. Los valores se recalculan siempre con los datos de entrada: nunca se anima un número mal calculado por la IA.
 
 ---
 
-## 🧪 Pruebas del Backend
+## 🧠 Tutor Socrático "Lumi"
 
-Para ejecutar la suite automatizada de pruebas unitarias y determinísticas:
+![Expresiones de Lumi](docs/lumi/lumi-expresiones.png)
+
+Lumi es un avatar holográfico (SVG propio, 0 KB de imágenes) que **siempre está en la cámara**: saluda, da consejos de encuadre, comenta cada resultado, cuenta datos curiosos verificables y propone retos. Tiene 7 expresiones y mueve la boca mientras habla.
+
+Cuando el alumno se equivoca, la app **no falla ni devuelve un error 400**: superpone un **holograma de advertencia** sobre el dibujo y Lumi hace una **pregunta socrática** (con pista opcional), sin darle la solución.
+
+| Error del alumno | Código | Pregunta de Lumi |
+|---|---|---|
+| Cable directo entre (+) y (−) | `short_circuit` | ¿Qué ocurriría con la batería si cerramos este circuito? |
+| Malla interrumpida | `open_circuit` | ¿Qué necesita un circuito para que la corriente circule de forma continua? |
+| LED sin resistencia | `led_overcurrent` | ¿Qué resistencia mínima necesitas para no superar 20 mA? |
+| Rampa con ángulo negativo | `negative_angle` | ¿Qué valores puede tomar el ángulo para que siga siendo una rampa? |
+| μ ≥ tan θ (el bloque no desliza) | `static_friction` | ¿Qué ángulo mínimo necesitas para que comience a deslizar? |
+| Fricción o aceleración dibujada al revés | `inverted_force` | Si la fricción se opone al movimiento, ¿hacia dónde debe apuntar? |
+| Bucle cuya variable nunca cambia | `infinite_loop` | ¿Qué instrucción haría que la condición algún día sea falsa? |
+| Ángulos que ya suman ≥ 180° | `impossible_triangle` | ¿Cuánto espacio le queda al tercer ángulo? |
+| Raíz real con Δ < 0 | `no_real_roots` | ¿Qué le pasa a √ de un número negativo en los reales? |
+
+**Cómo funciona:**
+- Todos los contratos Pydantic incluyen el campo `tutor` (`pedagogical_feedback`, `socratic_challenge`, `hint`, `fun_fact`, `mood`, `has_error`, `error_type`, `mistakes`). Las instrucciones comunes están en `backend/modules/analysis/domain/skills/tutor_prompt.md`; cada `prompt.md` lista los errores típicos de su módulo.
+- Los esquemas permiten reportar el dibujo **tal como está** (ángulos negativos, R = 0, `circuit_closed = false`, `student_solution`…), así el LLM no "corrige" el error del alumno.
+- `backend/modules/analysis/domain/pedagogy.py` detecta los errores con **reglas determinísticas**. Si el LLM no comentó un error, el backend le pide **una** verificación de lectura (¿lo dibujó así el alumno o fue OCR?) y, si se confirma, escribe él mismo la retroalimentación con los números exactos.
+- `validators.py` queda solo para incoherencias del LLM (listas desalineadas, flechas a nodos inexistentes…), que sí provocan reintento.
+
+## 🔊 Audio-Explicación STEM (accesibilidad)
+
+Botón **🔊 Escuchar** en el panel AR y en el globo de Lumi. Usa la Web Speech API nativa (`window.speechSynthesis`, 0 KB de dependencias) con voz en español.
+
+> "Simulación en curso: Péndulo simple. El péndulo de 1,5 metros oscila con un período de 2,46 segundos. Su velocidad máxima es de 1,33 metros por segundo en el punto de equilibrio. Telemetría en este instante: …"
+
+- `frontend/src/a11y/narration.ts` describe cada uno de los 23 fenómenos en lenguaje natural, lee la **telemetría en vivo** y convierte unidades y símbolos en palabras (m/s² → "metros por segundo al cuadrado", θ → "theta", Ω → "ohmios").
+- `frontend/src/a11y/speech.ts` trocea el texto en frases (Chrome corta locuciones largas) y anima la boca de Lumi mientras habla.
+- En el perfil se puede activar la **lectura automática** de cada simulación y de cada mensaje del tutor. Las animaciones respetan `prefers-reduced-motion`.
+
+## 🎯 Modo Reto / Misiones (gamificación en papel)
+
+El sistema propone misiones que el alumno resuelve **dibujando en su cuaderno**. Tras escanear, la condición se evalúa de forma determinística (recalculando la física con los datos leídos) y, si se cumple, aparece un **sello holográfico "¡Misión Cumplida! +100 XP" con confeti**.
+
+| Módulo | Misiones |
+|---|---|
+| Física | La bandera a 12 metros (tiro parabólico) · El péndulo que marca segundos (T = 2 s) · El bloque que no se rinde (equilibrio estático) |
+| Circuitos | Un interruptor, dos destinos (apaga un LED y deja el otro encendido) · LED a salvo (10–25 mA) |
+| Algoritmos | La suma de Gauss (salida 55) · ¿Par o impar? |
+| Matemáticas | Vértice en (2, −1) · La lata de un litro |
+
+- **XP y 8 niveles**, **14 logros**, **racha diaria** 🔥 y **misión del día** (×2 XP). Todo se guarda en el dispositivo (`localStorage`), sin cuentas.
+- **Notificaciones**: toasts en la app y, si el alumno las activa en su perfil, **notificaciones del sistema** (Notification API + Service Worker `public/sw.js`) para logros, niveles y misiones.
+- Si la misión no se cumple, Lumi dice cuánto falta ("tu proyectil cae a 10.2 m: te faltan 1.8 m") y hace una pregunta para el siguiente intento.
+- Código: `frontend/src/game/` (`missions.ts`, `progress.ts`, `notify.ts`, `GameUI.tsx`).
+
+---
+
+## 🧪 Pruebas
+
+### Backend (unitarias + contrato + API con LLM simulado)
 ```bash
 cd backend
-python -m unittest tests.test_api
+python -m unittest discover -s tests
+```
+Incluye la detección de cada error pedagógico, que un error del alumno devuelve **200 con pregunta socrática** (no 400/422), y un **test de contrato** que valida los 65 JSON de `ejemplos/` contra los esquemas Pydantic reales.
+
+### End-to-end (Playwright, navegador real)
+```bash
+cd frontend
+npx playwright install chromium   # solo la primera vez
+npm run test:e2e
+```
+Levanta el **backend real** con un LLM simulado (`backend/tests/e2e_server.py`) y el frontend con cámara falsa de Chromium. Recorre los 65 ejemplos de los 4 módulos (nivel 1, nivel 2, errores y misiones), sube fotos al backend, comprueba el holograma y la pregunta socrática, la audio-explicación, las misiones (sello, XP, logros) y el perfil, en escritorio y móvil (`@mobile`). Con un Chrome instalado se puede usar `PW_CHANNEL=chrome npm run test:e2e`.
+
+### Regenerar los ejemplos
+```bash
+cd frontend
+npm run export:examples           # JSON de todos + fotos que falten + imágenes de Lumi (docs/lumi/)
+npm run export:examples -- --photos   # también vuelve a dibujar todas las fotos
 ```
 
 ---
@@ -180,9 +250,16 @@ PaperLab/
 │   ├── public/                      ← Assets estáticos y favicon
 │   ├── src/                         ← Código fuente React (Componentes, Visor WebAR, Theme)
 │   │   ├── components/              ← ARCameraView, ModuleSelector, SplashScreen, Header, etc.
+│   │   ├── tutor/                   ← Lumi: avatar SVG, globo de diálogo, datos curiosos
+│   │   ├── a11y/                    ← Audio-explicación (Web Speech API) y narrador STEM
+│   │   ├── game/                    ← Misiones, XP, niveles, logros y notificaciones
+│   │   ├── sims/                    ← Simulaciones de los 23 tipos de ejercicio
+│   │   ├── demo/                    ← Ejemplos (foto + JSON) y guiones del tutor
 │   │   ├── data/                    ← Paletas de colores y configuración
 │   │   └── utils/                   ← Efectos de sonido y utilidades WebAR
 │   ├── package.json                 ← Dependencias y scripts del frontend
+│   ├── e2e/                         ← Pruebas end-to-end (Playwright)
+│   ├── scripts/                     ← Exportación de ejemplos e imágenes de Lumi
 │   └── vite.config.ts               ← Configuración de Vite y Tailwind v4
 │
 ├── backend/                         ← Monolito modular FastAPI
@@ -193,11 +270,14 @@ PaperLab/
 │   ├── shared/                      ← Excepciones, tipos comunes y logging
 │   ├── modules/
 │   │   └── analysis/                ← Módulo vertical de análisis (API, Service, Skills, Adapters)
-│   │   │   ├── domain/skills/       ← Especialistas: physics, circuit, flowchart, math_geo
+│   │   │   ├── domain/skills/       ← Especialistas: physics, circuit, flowchart, math_geo (+ tutor_prompt.md)
+│   │   │   ├── domain/pedagogy.py   ← Tutor Socrático: detección determinística de errores del alumno
 │   │   │   ├── adapters/            ← Adaptador Google Gemini (SDK google-genai)
 │   │   │   └── ports/               ← Interfaz abstracta LLMClient
-│   └── tests/                       ← Tests unitarios determinísticos
+│   └── tests/                       ← Tests unitarios, de contrato y servidor e2e
 │
+├── ejemplos/                        ← Fotos + JSON: nivel 1, nivel 2, errores y misiones
+├── docs/lumi/                       ← Expresiones del avatar Lumi (SVG + PNG)
 ├── RUBRICA_EJERCICIOS.md            ← Catálogo canónico oficial de ejercicios de PaperLab
 └── README.md                        ← Este documento
 ```

@@ -32,5 +32,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Como los ángulos internos suman 180°, x = 180° − 50° − 70° = 60°.",
+    "socratic_challenge": "¿Cuánto mediría el ángulo exterior junto a x?",
+    "hint": "Un ángulo exterior suma 180° con su ángulo interior adyacente.",
+    "fun_fact": "En la superficie de una esfera, los ángulos de un triángulo suman MÁS de 180°.",
+    "mistakes": []
+  }
 }

@@ -7,12 +7,17 @@ import {
   Camera, 
   ArrowRight,
   ChevronRight,
-  Upload
+  Upload,
+  Target
 } from 'lucide-react';
 import { audioJuice } from '../utils/audioJuice';
+import { MissionCard } from '../game/GameUI';
+import { missionsFor, type Mission } from '../game/missions';
 
 interface ModuleSelectorProps {
   onSelectModule: (moduleId: string) => void;
+  onStartMission: (mission: Mission) => void;
+  onOpenMissions: () => void;
 }
 
 interface ExerciseCardItem {
@@ -23,7 +28,7 @@ interface ExerciseCardItem {
   drawnSyntax: string;
 }
 
-export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule }) => {
+export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule, onStartMission, onOpenMissions }) => {
   const [activeTab, setActiveTab] = useState<string>('physics');
 
   const disciplines = [
@@ -55,7 +60,7 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule }
       accent: '#059669',
       darkAccent: '#10b981',
       icon: GitBranch,
-      exerciseCount: 2
+      exerciseCount: 6
     },
     {
       id: 'math',
@@ -160,11 +165,25 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule }
     ],
     flowcharts: [
       {
-        id: 'flowchart_logic_blocks',
+        id: 'flowchart_sequential',
+        emoji: '➡️',
+        name: 'Diagrama de Flujo Secuencial',
+        formula: 'Inicio → Leer → Proceso → Mostrar',
+        drawnSyntax: 'Óvalos de Inicio/Fin, paralelogramos de lectura/salida y rectángulos de proceso.'
+      },
+      {
+        id: 'flowchart_conditional',
         emoji: '🔀',
-        name: 'Diagramas de Flujo y Bloques',
-        formula: 'Token de datos y bifurcación',
-        drawnSyntax: 'Óvalos de Inicio/Fin, paralelogramos I/O, rectángulos y rombos de condición.'
+        name: 'Decisiones IF / ELSE',
+        formula: '¿condición? → SÍ | NO',
+        drawnSyntax: 'Rombo de decisión con dos salidas rotuladas SÍ / NO.'
+      },
+      {
+        id: 'flowchart_loop',
+        emoji: '🔁',
+        name: 'Bucles While / For',
+        formula: 'mientras i < n: i = i + 1',
+        drawnSyntax: 'Rombo con flecha de retorno; Lumi avisa si el bucle nunca termina.'
       },
       {
         id: 'code_step_debugger',
@@ -172,6 +191,20 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule }
         name: 'Debugger de Código Manuscrito',
         formula: 'Puntero de ejecución + Memoria',
         drawnSyntax: 'Líneas de pseudocódigo manuscrito tabulado con variables, bucles e inspector.'
+      },
+      {
+        id: 'code_trace_table',
+        emoji: '📋',
+        name: 'Tabla de Traza',
+        formula: 'iteración | variables | condición',
+        drawnSyntax: 'Tabla con columnas por variable que se completa fila a fila.'
+      },
+      {
+        id: 'flowchart_recursive',
+        emoji: '🪆',
+        name: 'Recursión y Pila de Llamadas',
+        formula: 'fact(n) = n · fact(n − 1)',
+        drawnSyntax: 'Función con caso base y llamada recursiva; se anima el call stack.'
       }
     ],
     math: [
@@ -340,6 +373,24 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule }
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Misiones de la disciplina */}
+          <div className="mb-6 rounded-xl border border-fuchsia-300/60 dark:border-fuchsia-500/30 bg-fuchsia-50/60 dark:bg-fuchsia-500/[0.04] p-4" data-testid="menu-missions">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h4 className="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                <Target className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-300" />
+                Misiones en papel
+              </h4>
+              <button onClick={onOpenMissions} className="font-telemetry text-[11px] text-fuchsia-700 dark:text-fuchsia-300 hover:underline cursor-pointer">
+                Ver todas →
+              </button>
+            </div>
+            <ul className="space-y-2 [&_li]:bg-slate-950 [&_li]:text-white">
+              {missionsFor(currentDiscipline.id).map((m) => (
+                <MissionCard key={m.id} m={m} onStart={onStartMission} compact />
+              ))}
+            </ul>
           </div>
 
           {/* Quick Footer Info */}

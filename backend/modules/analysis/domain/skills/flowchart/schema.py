@@ -2,7 +2,7 @@
 
 from typing import Annotated, Literal, Optional, Union
 from pydantic import BaseModel, Field
-from shared.types import BaseAnalysisResult, BoundingBox, SkillId
+from shared.types import BaseAnalysisResult, BoundingBox, SkillId, TutorFeedback, tutor_field
 
 
 class FlowNode(BaseModel):
@@ -98,7 +98,7 @@ class CodeDebuggerSimulation(BaseModel):
     exercise_type: Literal["code_debugger"] = "code_debugger"
     source_code: str = Field(..., description="Código o pseudocódigo manuscrito extraído completo")
     detected_language: str = Field(default="python", description="Lenguaje detectado (python, pseudocodigo, javascript)")
-    steps: list[DebugStep] = Field(..., min_length=1, description="Secuencia de pasos para ejecución paso a paso")
+    steps: list[DebugStep] = Field(default_factory=list, description="(Formato antiguo) pasos de depuración; usa preferentemente `execution`")
     final_output: str = Field(default="", description="Resultado final tras la ejecución completa")
     execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
@@ -168,4 +168,5 @@ class FlowchartAnalysisResult(BaseModel):
     explanation: str = Field(..., description="Explicación lógica de la rutina o algoritmo")
     raw_annotations: list[str] = Field(default_factory=list, description="Textos manuscritos de los bloques")
     simulation_data: FlowchartSimulationData = Field(..., description="Topología y código listo para la animación WebAR")
+    tutor: TutorFeedback = tutor_field()
 

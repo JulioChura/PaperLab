@@ -33,5 +33,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El vértice (2, −1) está justo a mitad de camino entre las raíces 1 y 3: la parábola es simétrica.",
+    "socratic_challenge": "¿Qué cambia en la gráfica si el coeficiente de x² fuera negativo?",
+    "hint": null,
+    "fun_fact": "Las antenas parabólicas tienen esta forma porque todas las señales que llegan rebotan hacia un mismo punto: el foco.",
+    "mistakes": []
+  }
 }

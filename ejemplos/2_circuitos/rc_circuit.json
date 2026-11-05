@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El condensador se carga rápido al principio y cada vez más lento: tras un τ (0.94 s) ya alcanza el 63 % de los 5 V.",
+    "socratic_challenge": "¿Qué pasaría con el tiempo de carga si duplicas la resistencia?",
+    "hint": "τ = R·C.",
+    "fun_fact": "El flash de una cámara usa un condensador que se carga en unos segundos y se descarga en una fracción de milisegundo.",
+    "mistakes": []
+  }
 }

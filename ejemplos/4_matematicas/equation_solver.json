@@ -30,5 +30,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Δ = 16 es un cuadrado perfecto, por eso las raíces son enteras: x = −3 y x = 1.",
+    "socratic_challenge": "¿Cómo podrías comprobar tus soluciones sin volver a resolver la ecuación?",
+    "hint": "Reemplaza cada raíz en la ecuación, o usa suma (−b/a) y producto (c/a) de raíces.",
+    "fun_fact": "La palabra \"álgebra\" viene del árabe al-ŷabr, del libro de al-Juarismi del siglo IX.",
+    "mistakes": []
+  }
 }

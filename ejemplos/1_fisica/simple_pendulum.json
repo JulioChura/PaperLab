@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Muy bien! El período (2.46 s) solo depende de la longitud del hilo y de g: la masa no influye.",
+    "socratic_challenge": "¿Qué longitud debería tener el hilo para que el período fuera exactamente el doble?",
+    "hint": "T es proporcional a √L: para duplicar T, ¿cuántas veces más largo debe ser L?",
+    "fun_fact": "En 1851, Léon Foucault colgó un péndulo de 67 m en el Panteón de París y demostró que la Tierra gira.",
+    "mistakes": []
+  }
 }

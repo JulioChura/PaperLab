@@ -1,0 +1,39 @@
+{
+  "title": "Misión: un interruptor, dos destinos",
+  "exercise_id": "interactive_switch",
+  "exercise_type": "interactive_switch",
+  "exercise_name": "Misión: un interruptor, dos destinos",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "interactive_switch",
+    "initial_state": "closed",
+    "voltage_v": 12,
+    "load_resistance_ohms": 24,
+    "current_open_a": 0,
+    "current_closed_a": 1.5,
+    "second_load_ohms": 12,
+    "second_switch_state": "open"
+  },
+  "explanation": "Dos focos en paralelo con 12 V: S1 en el tramo común y S2 solo en la rama del foco 2.",
+  "question": "¿S2 apaga solo un foco?",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Gran diseño! Cada foco tiene su propia rama, así que S2 solo corta la del foco 2.",
+    "socratic_challenge": "¿Qué cambiaría si movieras S2 al tramo común, junto a la batería?",
+    "fun_fact": "Así se cablean las casas: cada lámpara tiene su propio interruptor en su rama.",
+    "mistakes": []
+  }
+}

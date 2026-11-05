@@ -27,5 +27,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Muy bien! La masa sobre la mesa añade inercia y fricción: el sistema acelera menos que una Atwood simple.",
+    "socratic_challenge": "¿Qué valor de μ haría que el sistema quedara en reposo?",
+    "hint": "Compara (m2 − m1)·g con μ·m3·g.",
+    "fun_fact": "Los ascensores usan un contrapeso, como en una máquina de Atwood, para que el motor haga mucho menos esfuerzo.",
+    "mistakes": []
+  }
 }

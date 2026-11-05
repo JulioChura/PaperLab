@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Circuito cerrado! Por la malla circulan 0.3 A y el foco disipa 2.7 W.",
+    "socratic_challenge": "Si cambias la resistencia por una de 60 Ω, ¿qué pasa con la corriente y con el brillo del foco?",
+    "hint": "I = V/R y P = V·I.",
+    "fun_fact": "Georg Ohm publicó su ley V = I·R en 1827, y al principio muchos científicos no le creyeron.",
+    "mistakes": []
+  }
 }

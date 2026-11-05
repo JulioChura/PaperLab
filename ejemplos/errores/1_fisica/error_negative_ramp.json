@@ -1,0 +1,47 @@
+{
+  "title": "Rampa con ángulo negativo",
+  "exercise_id": "inclined_plane",
+  "exercise_type": "inclined_plane",
+  "exercise_name": "Rampa con ángulo negativo",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "inclined_plane",
+    "angle_degrees": -30,
+    "mass_kg": 2,
+    "friction_coefficient": 0.1,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": -5.75,
+    "weight_n": 19.6,
+    "normal_force_n": 16.97,
+    "friction_force_n": 1.7
+  },
+  "explanation": "El alumno rotuló la rampa con θ = −30°.",
+  "question": "Hallar la aceleración del bloque",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "negative_angle",
+    "pedagogical_feedback": "¡Cuidado! Tu rampa tiene un ángulo de −30°: con un ángulo negativo ya no es una pendiente hacia abajo y la fórmula a = g(sen θ − μ cos θ) da una aceleración \"hacia arriba\" sin sentido físico.",
+    "socratic_challenge": "Si el ángulo se mide desde el suelo horizontal, ¿qué valores puede tomar para que la superficie siga siendo una rampa?",
+    "hint": "En un triángulo rectángulo, el ángulo agudo junto al suelo siempre está entre 0° y 90°.",
+    "fun_fact": "La pendiente máxima de una calle en el mundo, en Gales, ronda los 20° y ya es difícil subirla caminando.",
+    "mistakes": [
+      {
+        "code": "negative_angle",
+        "severity": "critical",
+        "description": "La rampa tiene un ángulo de −30°."
+      }
+    ]
+  }
+}

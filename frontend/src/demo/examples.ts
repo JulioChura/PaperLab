@@ -5,10 +5,22 @@
  */
 import rough from 'roughjs';
 import type { ClassificationResult } from '../services/analysisApi';
+import type { TutorFeedback } from '../tutor/types';
+import { scriptedTutor } from './tutorScripts';
+
+/** 1 = básico, 2 = más exigente, 'error' = con un error del alumno, 'mission' = propuesta para una misión. */
+export type ExampleLevel = 1 | 2 | 'error' | 'mission';
 
 export interface Example {
-  /** 1 = básico, 2 = más exigente. */
-  level?: 1 | 2;
+  level?: ExampleLevel;
+  /** Identificador único (por defecto, el tipo de ejercicio). */
+  id?: string;
+  /** Misión que resuelve (o intenta resolver) este ejemplo. */
+  missionId?: string;
+  /** Tutor Socrático (igual que el campo `tutor` del backend). */
+  tutor?: TutorFeedback;
+  /** Zona del dibujo en la foto (normalizada). */
+  box?: { x: number; y: number; width: number; height: number };
   module: 'physics' | 'circuits' | 'flowcharts' | 'math';
   skill: 'physics' | 'circuit' | 'flowchart' | 'math_geo';
   exercise_type: string;
@@ -187,6 +199,11 @@ export async function renderExamplePhoto(ex: Example): Promise<string> {
   return canvas.toDataURL('image/jpeg', 0.92);
 }
 
+export function exampleTutor(ex: Example): TutorFeedback | undefined {
+  if (ex.tutor) return ex.tutor;
+  return ex.level === 1 || ex.level === 2 ? scriptedTutor(ex.level, ex.exercise_type) : undefined;
+}
+
 export function exampleToResult(ex: Example): ClassificationResult {
   return {
     exercise_id: ex.exercise_type,
@@ -199,7 +216,8 @@ export function exampleToResult(ex: Example): ClassificationResult {
     explanation: ex.explanation,
     question: ex.question ?? QUESTIONS[ex.exercise_type],
     // zona del dibujo (parte superior izquierda de la hoja) como pista para el análisis de la hoja
-    bounding_boxes: [{ x: 0.16, y: 0.08, width: 0.45, height: 0.22, label: 'ejercicio' }],
+    bounding_boxes: [{ ...(ex.box ?? { x: 0.16, y: 0.08, width: 0.45, height: 0.22 }), label: 'ejercicio' }],
+    tutor: exampleTutor(ex),
   };
 }
 
@@ -1361,11 +1379,551 @@ const EXAMPLES_L2: Example[] = [
   },
 ];
 
+// ===================================================================================
+// ERRORES DEL ALUMNO: el Tutor Socrático los detecta y pregunta en vez de fallar
+// ===================================================================================
+const mistake = (
+  code: string,
+  severity: 'info' | 'warning' | 'critical',
+  description: string,
+  feedback: string,
+  challenge: string,
+  hint: string,
+  fact: string,
+  mood: TutorFeedback['mood'] = 'warning',
+): TutorFeedback => ({
+  mood,
+  has_error: true,
+  error_type: code,
+  pedagogical_feedback: feedback,
+  socratic_challenge: challenge,
+  hint,
+  fun_fact: fact,
+  mistakes: [{ code, severity, description }],
+});
+
+/** Rampa: punta alta a la izquierda y ángulo θ abajo a la derecha (como en el nivel 1). */
+function ramp(s: Sketch, deg: number, label: string, blockLabel = 'm') {
+  const B: [number, number] = [X0, 290];
+  const base = 300;
+  const A: [number, number] = [X0, 290 - base * Math.tan((Math.abs(deg) * Math.PI) / 180)];
+  const C: [number, number] = [X0 + base, 290];
+  s.hatch(X0 - 30, 290, X0 + base + 50, 290);
+  s.poly([A, B, C]);
+  s.rect(X0, 272, 18, 18);
+  const th = Math.atan2(B[1] - A[1], C[0] - A[0]);
+  const t = 0.42, bx = A[0] + (C[0] - A[0]) * t, by = A[1] + (C[1] - A[1]) * t, w = 60;
+  const ux = Math.cos(th), uy = Math.sin(th), nx = uy, ny = -ux;
+  s.poly([[bx, by], [bx + ux * w, by + uy * w], [bx + ux * w + nx * w * 0.8, by + uy * w + ny * w * 0.8], [bx + nx * w * 0.8, by + ny * w * 0.8]]);
+  s.text(bx + ux * w * 0.5 + nx * w * 0.4, by + uy * w * 0.5 + ny * w * 0.4 + 12, blockLabel, 30, 'center');
+  s.arc(C[0], C[1], 70, Math.PI, Math.PI + th);
+  s.text(C[0] - 150, C[1] - 14, label, 34);
+  return { A, C, th, bx, by, ux, uy, nx, ny, w };
+}
+
+const loopNodes = (body: { id: string; shape: string; role: string; label: string }[]) => [
+  fnode('n1', 'oval', 'start', 'Inicio'),
+  fnode('n2', 'rectangle', 'process', 'i = 0'),
+  fnode('n3', 'diamond', 'decision', 'i < 5'),
+  ...body,
+  fnode('n9', 'oval', 'end', 'Fin'),
+];
+
+const EXAMPLES_ERROR: Example[] = [
+  // ------------------------------------------------------------------ física
+  {
+    id: 'error_static_friction', module: 'physics', skill: 'physics', exercise_type: 'inclined_plane', title: 'El bloque que no desliza',
+    explanation: 'Bloque de 3 kg sobre una rampa de 20° con μ = 0.5: el alumno espera que acelere.',
+    question: 'Hallar la aceleración del bloque',
+    data: { angle_degrees: 20, mass_kg: 3, friction_coefficient: 0.5, gravity_m_s2: 9.8, acceleration_m_s2: 0, weight_n: 29.4, normal_force_n: 27.63, friction_force_n: 10.06 },
+    tutor: mistake(
+      'static_friction', 'warning', 'μ = 0.5 ≥ tan 20° = 0.36: el bloque queda en reposo.',
+      '¡Atención! Tu bloque no se mueve porque la fricción estática máxima (μ·N = 13.8 N) supera a la componente del peso a lo largo de la rampa (m·g·sen 20° = 10.1 N).',
+      '¿Qué ángulo mínimo necesitas para que el bloque comience a deslizar?',
+      'El bloque arranca cuando tan θ supera a μ: busca θ con tan θ = 0.5 (un poco más de 26.6°).',
+      'Los esquiadores usan ceras distintas según la nieve para bajar el coeficiente de fricción y deslizar más rápido.',
+      'surprised',
+    ),
+    sketch: (s) => {
+      ramp(s, 20, '20°');
+      s.text(X0 + 420, 120, 'Datos:', 44);
+      s.text(X0 + 440, 170, 'm = 3 kg      μ = 0.5', 42);
+      s.text(X0 + 440, 220, 'θ = 20°', 42);
+      s.text(X0 + 420, 280, 'Hallar: a', 44);
+    },
+  },
+  {
+    id: 'error_negative_ramp', module: 'physics', skill: 'physics', exercise_type: 'inclined_plane', title: 'Rampa con ángulo negativo',
+    explanation: 'El alumno rotuló la rampa con θ = −30°.',
+    question: 'Hallar la aceleración del bloque',
+    data: { angle_degrees: -30, mass_kg: 2, friction_coefficient: 0.1, gravity_m_s2: 9.8, acceleration_m_s2: -5.75, weight_n: 19.6, normal_force_n: 16.97, friction_force_n: 1.7 },
+    tutor: mistake(
+      'negative_angle', 'critical', 'La rampa tiene un ángulo de −30°.',
+      '¡Cuidado! Tu rampa tiene un ángulo de −30°: con un ángulo negativo ya no es una pendiente hacia abajo y la fórmula a = g(sen θ − μ cos θ) da una aceleración "hacia arriba" sin sentido físico.',
+      'Si el ángulo se mide desde el suelo horizontal, ¿qué valores puede tomar para que la superficie siga siendo una rampa?',
+      'En un triángulo rectángulo, el ángulo agudo junto al suelo siempre está entre 0° y 90°.',
+      'La pendiente máxima de una calle en el mundo, en Gales, ronda los 20° y ya es difícil subirla caminando.',
+    ),
+    sketch: (s) => {
+      ramp(s, 30, 'θ = −30°');
+      s.text(X0 + 420, 120, 'Datos:', 44);
+      s.text(X0 + 440, 170, 'm = 2 kg      μ = 0.1', 42);
+      s.text(X0 + 440, 220, 'θ = −30°', 42);
+      s.text(X0 + 420, 280, 'Hallar: a', 44);
+    },
+  },
+  {
+    id: 'error_atwood_arrow', module: 'physics', skill: 'physics', exercise_type: 'atwood_machine', title: 'Atwood con la flecha al revés',
+    explanation: 'm1 = 5 kg y m2 = 3 kg, pero el alumno dibujó la aceleración haciendo bajar a m2.',
+    question: 'Hallar la aceleración y la tensión',
+    data: { mass_1_kg: 5, mass_2_kg: 3, pulley_radius_m: 0.1, gravity_m_s2: 9.8, acceleration_m_s2: 2.45, tension_n: 36.75, drawn_acceleration_toward: 'mass_2' },
+    tutor: mistake(
+      'inverted_force', 'warning', 'La flecha de aceleración indica que baja m2, la masa más liviana.',
+      '¡Cuidado! Dibujaste la aceleración haciendo bajar a m2, pero es la masa más liviana (3 kg frente a 5 kg): el sistema se mueve justo al revés.',
+      'Si ambas masas sienten la misma tensión, ¿cuál de las dos tiene más peso tirando hacia abajo?',
+      'Compara m1·g = 49 N con m2·g = 29.4 N: gana el lado con más peso.',
+      'Los ascensores usan un contrapeso, como en una máquina de Atwood, para que el motor haga mucho menos esfuerzo.',
+    ),
+    sketch: (s) => {
+      const cx = X0 + 110, cy = 140, r = 44;
+      s.hatch(cx - 90, 80, cx + 90, 80, -1);
+      s.line(cx, 80, cx, cy);
+      s.circle(cx, cy, r * 2);
+      s.circle(cx, cy, 10);
+      s.line(cx - r, cy, cx - r, 260);
+      s.line(cx + r, cy, cx + r, 230);
+      s.rect(cx - r - 32, 260, 64, 58);
+      s.rect(cx + r - 28, 230, 56, 50);
+      s.text(cx - r, 298, 'm1', 30, 'center');
+      s.text(cx + r, 264, 'm2', 30, 'center');
+      s.arrow(cx + r + 50, 230, cx + r + 50, 290); // flecha (incorrecta): m2 baja
+      s.text(cx + r + 60, 270, 'a', 32);
+      s.text(X0 + 360, 120, 'Datos:', 44);
+      s.text(X0 + 380, 170, 'm1 = 5 kg    m2 = 3 kg', 42);
+      s.text(X0 + 380, 220, 'g = 9.8 m/s²', 42);
+      s.text(X0 + 360, 280, 'Hallar: a y T', 44);
+    },
+  },
+  // ------------------------------------------------------------------ circuitos
+  {
+    id: 'error_short_circuit', module: 'circuits', skill: 'circuit', exercise_type: 'single_loop', title: 'Cortocircuito',
+    explanation: 'Una pila de 9 V con un cable que une directamente sus bornes, sin ninguna carga.',
+    question: 'Hallar la corriente del circuito',
+    data: { voltage_v: 9, resistance_ohms: 0, current_a: 0, power_w: 0, has_led: false, circuit_closed: true },
+    tutor: mistake(
+      'short_circuit', 'critical', 'Los bornes (+) y (−) quedan unidos por un camino sin carga.',
+      '¡Cuidado! Tu circuito tiene un camino directo entre los bornes (+) y (−) sin carga: es un cortocircuito.',
+      '¿Qué ocurriría con la batería si cerramos este circuito?',
+      'Según la ley de Ohm, I = V/R. ¿Qué pasa con I cuando R se acerca a 0 con 9 V?',
+      'Los fusibles y los interruptores térmicos de tu casa existen para cortar la corriente justo cuando hay un cortocircuito.',
+    ),
+    sketch: (s) => {
+      s.rect(X0, 100, 300, 170);
+      s.line(X0 - 26, 172, X0 + 26, 172); // placa larga (+)
+      s.line(X0 - 14, 192, X0 + 14, 192); // placa corta (−)
+      s.text(X0 - 40, 168, '+', 34, 'right');
+      s.text(X0 - 40, 210, '−', 34, 'right');
+      s.text(X0 - 40, 120, '9 V', 40, 'right');
+      s.text(X0 + 330, 160, 'Solo un cable', 40);
+      s.text(X0 + 330, 215, 'Hallar: I', 42);
+    },
+  },
+  {
+    id: 'error_open_circuit', module: 'circuits', skill: 'circuit', exercise_type: 'single_loop', title: 'Malla abierta',
+    explanation: 'Pila de 9 V, resistencia de 100 Ω y un foco, pero el cable superior no llega a cerrarse.',
+    question: 'Hallar la corriente y la potencia del foco',
+    data: { voltage_v: 9, resistance_ohms: 100, current_a: 0, power_w: 0, has_led: true, led_color: 'yellow', circuit_closed: false },
+    tutor: mistake(
+      'open_circuit', 'warning', 'La malla está interrumpida: el circuito está abierto.',
+      '¡Atención! Tu malla tiene un corte: los electrones no tienen un camino cerrado de vuelta a la batería, así que la corriente es 0 A y el foco no enciende.',
+      '¿Qué necesita un circuito para que la corriente pueda circular de forma continua?',
+      'Sigue el cable con el dedo desde (+) hasta (−): ¿llegas sin levantarlo?',
+      'Un interruptor no es más que un "corte a voluntad": abre la malla igual que el hueco de tu dibujo.',
+    ),
+    sketch: (s) => {
+      s.line(X0, 100, X0 + 120, 100);
+      s.line(X0 + 170, 100, X0 + 300, 100); // hueco entre 120 y 170
+      s.line(X0 + 300, 100, X0 + 300, 160);
+      s.circle(X0 + 300, 185, 44);
+      s.line(X0 + 300, 207, X0 + 300, 270);
+      s.line(X0 + 300, 270, X0, 270);
+      s.line(X0, 270, X0, 100);
+      s.zigzag(X0 + 190, 270, X0 + 280, 4, 10);
+      s.text(X0 - 10, 200, '9 V', 40, 'right');
+      s.text(X0 + 235, 320, 'R = 100 Ω', 34, 'center');
+      s.text(X0 + 360, 200, 'Hallar: I y P', 42);
+    },
+  },
+  {
+    id: 'error_led_no_resistor', module: 'circuits', skill: 'circuit', exercise_type: 'single_loop', title: 'LED sin resistencia',
+    explanation: 'Un LED rojo conectado a 9 V con solo 10 Ω en serie.',
+    question: 'Hallar la corriente del LED',
+    data: { voltage_v: 9, resistance_ohms: 10, current_a: 0.9, power_w: 8.1, has_led: true, is_diode_led: true, led_color: 'red', circuit_closed: true },
+    tutor: mistake(
+      'led_overcurrent', 'warning', 'I = 0.9 A atraviesa el LED: se quemaría.',
+      '¡Cuidado! Con solo 10 Ω pasarían 0.9 A por el LED; un LED típico soporta unos 0.02 A. ¡Se quemaría al instante!',
+      '¿Qué resistencia mínima necesitas para que la corriente no supere 20 mA?',
+      'Usa R = (V − 2 V)/0.02 A ≈ 350 Ω.',
+      'Los LED gastan hasta un 80 % menos energía que los focos incandescentes para dar la misma luz.',
+    ),
+    sketch: (s) => {
+      s.rect(X0, 100, 300, 170);
+      s.zigzag(X0 + 110, 100, X0 + 190, 3, 10);
+      s.poly([[X0 + 280, 165], [X0 + 320, 165], [X0 + 300, 200]]);
+      s.line(X0 + 280, 202, X0 + 320, 202);
+      s.text(X0 - 10, 200, '9 V', 40, 'right');
+      s.text(X0 + 150, 80, 'R = 10 Ω', 36, 'center');
+      s.text(X0 + 340, 190, 'LED', 36);
+      s.text(X0 + 420, 250, 'Hallar: I', 42);
+    },
+  },
+  // ------------------------------------------------------------------ algoritmos
+  {
+    id: 'error_infinite_loop', module: 'flowcharts', skill: 'flowchart', exercise_type: 'loop_flowchart', title: 'Bucle que nunca termina',
+    explanation: 'Mientras i < 5 imprime i, pero nunca incrementa i.',
+    question: 'Determinar qué imprime el diagrama',
+    data: {
+      nodes: loopNodes([fnode('n4', 'parallelogram', 'input_output', 'Imprimir i')]),
+      edges: [fedge('n1', 'n2'), fedge('n2', 'n3'), fedge('n3', 'n4', 'SÍ'), fedge('n4', 'n3'), fedge('n3', 'n9', 'NO')],
+      loop_condition: 'i < 5', loop_variable: 'i',
+      generated_code_py: 'i = 0\nwhile i < 5:\n    print(i)', generated_code_js: 'let i = 0;\nwhile (i < 5) {\n  console.log(i);\n}',
+      execution: [
+        { step: 1, node_id: 'n1', description: 'Inicio', variables: {} },
+        { step: 2, node_id: 'n2', description: 'i = 0', variables: { i: '0' } },
+        ...[0, 1, 2, 3].flatMap((k) => [
+          { step: 3 + k * 2, node_id: 'n3', description: '¿0 < 5? Sí (i no cambió)', variables: { i: '0' } },
+          { step: 4 + k * 2, node_id: 'n4', description: 'Imprime 0… otra vez', variables: { i: '0' }, output: '0' },
+        ]),
+      ],
+    },
+    tutor: mistake(
+      'infinite_loop', 'critical', "La variable de control 'i' nunca cambia dentro del bucle.",
+      "¡Cuidado! Dentro del bucle nunca se modifica 'i', así que 'i < 5' será siempre verdadera: tu algoritmo imprimiría 0 para siempre.",
+      "¿Qué instrucción tendrías que agregar dentro del bucle para que 'i < 5' algún día sea falsa?",
+      "Busca dónde debería ir algo como 'i = i + 1'.",
+      'Los sistemas operativos tienen "perros guardianes" (watchdogs) que reinician programas atrapados en bucles infinitos.',
+    ),
+    sketch: (s) => {
+      const cx = X0 + 110;
+      flowOval(s, cx, 50, 150, 'Inicio');
+      flowBox(s, cx, 108, 130, 'i = 0');
+      flowDiamond(s, cx, 180, 150, 'i < 5');
+      flowIO(s, cx, 262, 190, 'Imprimir i');
+      flowOval(s, cx + 260, 180, 110, 'Fin');
+      s.arrow(cx, 70, cx, 90);
+      s.arrow(cx, 126, cx, 150);
+      s.arrow(cx, 210, cx, 244);
+      s.text(cx + 12, 232, 'SÍ', 24);
+      s.arrow(cx + 75, 180, cx + 205, 180);
+      s.text(cx + 120, 170, 'NO', 24);
+      s.path([[cx - 95, 262], [cx - 130, 262], [cx - 130, 180]]);
+      s.arrow(cx - 130, 180, cx - 75, 180);
+    },
+  },
+  // ------------------------------------------------------------------ matemáticas
+  {
+    id: 'error_impossible_triangle', module: 'math', skill: 'math_geo', exercise_type: 'geometric_angles', title: 'Triángulo imposible',
+    explanation: 'Triángulo con ángulos de 100° y 95°; hallar x.',
+    question: 'Hallar el valor de x',
+    data: {
+      problem_type: 'triangle_cevian', known_angles_deg: { A: 100, B: 95 }, unknown_variable: 'x', solved_value_deg: -15,
+      theorem_applied: 'Suma de ángulos internos del triángulo',
+      proof_steps: ['La suma de ángulos internos es 180°', '100° + 95° + x = 180°', 'x = −15°: ¡imposible!'],
+    },
+    tutor: mistake(
+      'impossible_triangle', 'critical', 'Los ángulos conocidos ya suman 195°.',
+      '¡Cuidado! Los ángulos que escribiste ya suman 195°, y en un triángulo los tres ángulos internos suman exactamente 180°. Por eso x saldría negativo.',
+      'Si dos ángulos ya ocupan 180° o más, ¿cuánto espacio le queda al tercero?',
+      'Un triángulo solo puede tener UN ángulo obtuso (mayor de 90°).',
+      'En la superficie de una esfera sí existen triángulos cuyos ángulos suman más de 180°.',
+    ),
+    sketch: (s) => {
+      s.poly([[X0, 270], [X0 + 280, 270], [X0 + 110, 80]]);
+      s.arc(X0, 270, 46, -Math.atan2(190, 110), 0);
+      s.arc(X0 + 280, 270, 46, Math.PI, Math.PI + Math.atan2(190, 170));
+      s.text(X0 + 52, 258, '100°', 30);
+      s.text(X0 + 190, 258, '95°', 30);
+      s.text(X0 + 100, 140, 'x', 40);
+      s.text(X0 + 330, 180, 'Hallar x');
+    },
+  },
+  {
+    id: 'error_no_real_roots', module: 'math', skill: 'math_geo', exercise_type: 'equation_solver', title: 'Raíz real que no existe',
+    explanation: 'Resolver x² + 2x + 5 = 0; el alumno escribió x = 1.',
+    question: 'Resolver la ecuación',
+    data: {
+      equation_latex: 'x^2 + 2x + 5 = 0', equation_plain: 'x^2 + 2x + 5 = 0', equation_type: 'quadratic', discriminant_delta: -16,
+      steps: ['Δ = 2² − 4·1·5 = −16', 'Δ < 0: no hay raíces reales'], solution_set: ['-1 - 2i', '-1 + 2i'], student_solution: ['x = 1'],
+    },
+    tutor: mistake(
+      'no_real_roots', 'warning', 'Δ = −16 < 0, pero en la hoja aparece una solución real.',
+      '¡Cuidado! El discriminante vale Δ = −16, que es negativo, y aun así escribiste x = 1. Si reemplazas: 1 + 2 + 5 = 8, no 0.',
+      '¿Qué le pasa a la raíz cuadrada de un número negativo dentro de los números reales?',
+      'Cuando Δ < 0, la parábola y = x² + 2x + 5 nunca toca el eje X.',
+      'Los números complejos, como −1 + 2i, se usan para describir la corriente alterna en ingeniería eléctrica.',
+    ),
+    sketch: (s) => {
+      s.text(X0, 130, 'x² + 2x + 5 = 0', 66);
+      s.text(X0 + 40, 220, 'x = 1  ✓', 54);
+    },
+  },
+];
+
+// ===================================================================================
+// MISIONES: propuestas de alumnos para cada reto (una falla a propósito)
+// ===================================================================================
+const okTutor = (feedback: string, challenge: string, fact: string): TutorFeedback => ({
+  mood: 'happy', has_error: false, error_type: null, pedagogical_feedback: feedback, socratic_challenge: challenge, fun_fact: fact, mistakes: [],
+});
+
+function flagShot(s: Sketch, v0: number, deg: number) {
+  const ox = X0, oy = 300, sx = 26, sy = 26, g = 9.8, th = (deg * Math.PI) / 180;
+  const R = (v0 * v0 * Math.sin(2 * th)) / g;
+  const H = (v0 * v0 * Math.sin(th) ** 2) / (2 * g);
+  s.arrow(ox - 10, oy, ox + 13.5 * sx, oy);
+  s.arrow(ox, oy + 10, ox, oy - H * sy - 40);
+  const pts: [number, number][] = [];
+  for (let i = 0; i <= 24; i++) {
+    const x = (R * i) / 24;
+    pts.push([ox + x * sx, oy - (x * Math.tan(th) - (g * x * x) / (2 * v0 * v0 * Math.cos(th) ** 2)) * sy]);
+  }
+  s.curve(pts, true);
+  // bandera a 12 m
+  s.line(ox + 12 * sx, oy, ox + 12 * sx, oy - 90);
+  s.poly([[ox + 12 * sx, oy - 90], [ox + 12 * sx + 46, oy - 76], [ox + 12 * sx, oy - 62]]);
+  s.text(ox + 12 * sx, oy + 34, '12 m', 30, 'center');
+  s.arrow(ox, oy, ox + Math.cos(th) * 80, oy - Math.sin(th) * 80);
+  s.text(ox + Math.cos(th) * 80 + 6, oy - Math.sin(th) * 80 - 4, 'v0', 32);
+  s.text(X0 + 420, 120, 'Datos:', 44);
+  s.text(X0 + 440, 170, `v0 = ${v0} m/s    θ = ${deg}°`, 42);
+  s.text(X0 + 420, 240, '¿Llega a la bandera?', 40);
+}
+
+const EXAMPLES_MISSION: Example[] = [
+  {
+    id: 'mission_flag_12m', missionId: 'physics_flag_12m', module: 'physics', skill: 'physics', exercise_type: 'projectile_motion',
+    title: 'Misión: bandera a 12 m', explanation: 'Tiro desde el suelo con 11 m/s a 45° para alcanzar una bandera a 12 m.',
+    question: '¿El proyectil llega a la bandera a 12 m?',
+    data: { initial_velocity_m_s: 11, launch_angle_degrees: 45, initial_height_m: 0, gravity_m_s2: 9.8, max_height_m: 3.09, range_m: 12.35, flight_time_s: 1.59 },
+    tutor: okTutor('¡Buen diseño! A 45° el alcance es máximo para una rapidez dada, así que necesitas la menor v0 posible.', '¿Con qué otro ángulo, distinto de 45°, también podrías acertar si aumentas la rapidez?', 'En el golf, el efecto de la bola (backspin) la mantiene más tiempo en el aire que un proyectil ideal.'),
+    sketch: (s) => flagShot(s, 11, 45),
+  },
+  {
+    id: 'mission_flag_12m_miss', missionId: 'physics_flag_12m', module: 'physics', skill: 'physics', exercise_type: 'projectile_motion',
+    title: 'Misión: bandera a 12 m (se queda corto)', explanation: 'Tiro desde el suelo con 10 m/s a 45°: no llega a la bandera.',
+    question: '¿El proyectil llega a la bandera a 12 m?',
+    data: { initial_velocity_m_s: 10, launch_angle_degrees: 45, initial_height_m: 0, gravity_m_s2: 9.8, max_height_m: 2.55, range_m: 10.2, flight_time_s: 1.44 },
+    tutor: okTutor('¡Bien planteado! Tu proyectil describe una parábola perfecta, aunque cae antes de la bandera.', '¿Cuánto debería aumentar la rapidez para recorrer los 1.8 m que faltan?', 'Sin aire, el alcance crece con el cuadrado de la rapidez: el doble de v0 da cuatro veces más alcance.'),
+    sketch: (s) => flagShot(s, 10, 45),
+  },
+  {
+    id: 'mission_pendulum_2s', missionId: 'physics_pendulum_2s', module: 'physics', skill: 'physics', exercise_type: 'simple_pendulum',
+    title: 'Misión: péndulo de segundos', explanation: 'Péndulo de 0.99 m soltado desde 10°.',
+    question: '¿El período es de 2 segundos?',
+    data: { length_m: 0.99, initial_angle_degrees: 10, mass_kg: 0.2, gravity_m_s2: 9.8, period_s: 2.0, max_velocity_m_s: 0.55, tension_at_lowest_point_n: 1.99 },
+    tutor: okTutor('¡Muy bien! Con casi un metro de hilo, cada ida o vuelta dura un segundo.', '¿Funcionaría igual este péndulo en la Luna?', 'Durante siglos los relojes de péndulo de casi 1 m (el "péndulo de segundos") fueron los más precisos del mundo.'),
+    sketch: (s) => {
+      const px = X0 + 120, py = 80, L = 220, th = (10 * Math.PI) / 180;
+      s.hatch(px - 90, py, px + 90, py, -1);
+      s.dashed(px, py, px, py + L + 20);
+      const bx = px + Math.sin(th) * L, by = py + Math.cos(th) * L;
+      s.line(px, py, bx, by);
+      s.circle(bx, by, 36);
+      s.text(bx + 24, py + L * 0.5, 'L = 0.99 m', 34);
+      s.text(X0 + 380, 150, 'T = 2 s ?', 46);
+      s.text(X0 + 380, 210, 'θ0 = 10°', 42);
+    },
+  },
+  {
+    id: 'mission_ramp_still', missionId: 'physics_ramp_still', module: 'physics', skill: 'physics', exercise_type: 'inclined_plane',
+    title: 'Misión: bloque en equilibrio', explanation: 'Bloque de 2 kg en una rampa de 25° con μ = 0.5.',
+    question: '¿El bloque se queda quieto?',
+    data: { angle_degrees: 25, mass_kg: 2, friction_coefficient: 0.5, static_friction_coefficient: 0.5, gravity_m_s2: 9.8, acceleration_m_s2: 0, weight_n: 19.6, normal_force_n: 17.76, friction_force_n: 8.28 },
+    tutor: mistake(
+      'static_friction', 'warning', 'μ = 0.5 ≥ tan 25° = 0.47: el bloque queda en reposo.',
+      '¡Atención! El bloque no se mueve porque la fricción estática máxima (8.9 N) supera a la componente del peso a lo largo de la rampa (8.3 N).',
+      '¿Qué ángulo mínimo necesitas para que el bloque comience a deslizar?',
+      'Busca θ con tan θ = 0.5.',
+      'Las zapatillas de escalada usan gomas con coeficientes de fricción mayores que 1.',
+      'surprised',
+    ),
+    sketch: (s) => {
+      ramp(s, 25, '25°');
+      s.text(X0 + 420, 120, 'Datos:', 44);
+      s.text(X0 + 440, 170, 'm = 2 kg      μ = 0.5', 42);
+      s.text(X0 + 440, 220, 'θ = 25°', 42);
+      s.text(X0 + 420, 280, '¿Se queda quieto?', 42);
+    },
+  },
+  {
+    id: 'mission_switch_one_led', missionId: 'circuit_switch_one_led', module: 'circuits', skill: 'circuit', exercise_type: 'interactive_switch',
+    title: 'Misión: un interruptor, dos destinos', explanation: 'Dos focos en paralelo con 12 V: S1 en el tramo común y S2 solo en la rama del foco 2.',
+    question: '¿S2 apaga solo un foco?',
+    data: { initial_state: 'closed', voltage_v: 12, load_resistance_ohms: 24, current_open_a: 0, current_closed_a: 1.5, second_load_ohms: 12, second_switch_state: 'open' },
+    tutor: okTutor('¡Gran diseño! Cada foco tiene su propia rama, así que S2 solo corta la del foco 2.', '¿Qué cambiaría si movieras S2 al tramo común, junto a la batería?', 'Así se cablean las casas: cada lámpara tiene su propio interruptor en su rama.'),
+    sketch: (s) => {
+      s.rect(X0, 90, 380, 200);
+      s.line(X0 + 190, 90, X0 + 190, 290);
+      s.circle(X0 + 190, 190, 40);
+      s.circle(X0 + 380, 160, 40);
+      s.line(X0 + 380, 220, X0 + 410, 250); // S2 abierto
+      s.text(X0 + 420, 250, 'S2', 32);
+      s.line(X0 + 60, 90, X0 + 100, 66); // S1
+      s.text(X0 + 70, 60, 'S1', 32);
+      s.text(X0 - 10, 200, '12 V', 40, 'right');
+      s.text(X0 + 200, 250, '24 Ω', 30);
+      s.text(X0 + 300, 130, '12 Ω', 30);
+    },
+  },
+  {
+    id: 'mission_safe_led', missionId: 'circuit_safe_led', module: 'circuits', skill: 'circuit', exercise_type: 'single_loop',
+    title: 'Misión: LED a salvo', explanation: 'LED rojo con una resistencia de 390 Ω y una pila de 9 V.',
+    question: '¿La corriente queda entre 10 y 25 mA?',
+    data: { voltage_v: 9, resistance_ohms: 390, current_a: 0.023, power_w: 0.21, has_led: true, is_diode_led: true, led_color: 'red', circuit_closed: true },
+    tutor: okTutor('¡Bien elegida! La resistencia limita la corriente para que el LED brille sin quemarse.', 'Si cambias la pila por una de 5 V, ¿qué resistencia mantendría la misma corriente?', 'Los colores de los LED dependen del material del semiconductor, no del color del plástico.'),
+    sketch: (s) => {
+      s.rect(X0, 100, 300, 170);
+      s.zigzag(X0 + 100, 100, X0 + 200, 4, 12);
+      s.poly([[X0 + 280, 165], [X0 + 320, 165], [X0 + 300, 200]]);
+      s.line(X0 + 280, 202, X0 + 320, 202);
+      s.text(X0 - 10, 200, '9 V', 40, 'right');
+      s.text(X0 + 150, 80, 'R = 390 Ω', 36, 'center');
+      s.text(X0 + 340, 190, 'LED', 36);
+    },
+  },
+  {
+    id: 'mission_sum_1_10', missionId: 'flow_sum_1_10', module: 'flowcharts', skill: 'flowchart', exercise_type: 'loop_flowchart',
+    title: 'Misión: la suma de Gauss', explanation: 'Bucle mientras i <= 10 que acumula s = s + i.',
+    question: 'Hallar el valor final de s',
+    data: {
+      nodes: [
+        fnode('n1', 'oval', 'start', 'Inicio'),
+        fnode('n2', 'rectangle', 'process', 's = 0, i = 1'),
+        fnode('n3', 'diamond', 'decision', 'i <= 10'),
+        fnode('n4', 'rectangle', 'process', 's = s + i'),
+        fnode('n5', 'rectangle', 'process', 'i = i + 1'),
+        fnode('n6', 'parallelogram', 'input_output', 'Imprimir s'),
+        fnode('n7', 'oval', 'end', 'Fin'),
+      ],
+      edges: [fedge('n1', 'n2'), fedge('n2', 'n3'), fedge('n3', 'n4', 'SÍ'), fedge('n4', 'n5'), fedge('n5', 'n3'), fedge('n3', 'n6', 'NO'), fedge('n6', 'n7')],
+      loop_condition: 'i <= 10', loop_variable: 'i',
+      generated_code_py: 's, i = 0, 1\nwhile i <= 10:\n    s = s + i\n    i = i + 1\nprint(s)', generated_code_js: '',
+      execution: (() => {
+        const steps: Record<string, unknown>[] = [
+          { step: 1, node_id: 'n1', description: 'Inicio', variables: {} },
+          { step: 2, node_id: 'n2', description: 's = 0, i = 1', variables: { s: '0', i: '1' } },
+        ];
+        let sum = 0;
+        for (let i = 1; i <= 10; i++) {
+          sum += i;
+          steps.push({ step: steps.length + 1, node_id: 'n4', description: `${i} <= 10 → s = ${sum - i} + ${i} = ${sum}`, variables: { s: String(sum), i: String(i) } });
+          steps.push({ step: steps.length + 1, node_id: 'n5', description: `i = ${i + 1}`, variables: { s: String(sum), i: String(i + 1) } });
+        }
+        steps.push({ step: steps.length + 1, node_id: 'n3', description: '11 <= 10 es falso: sale del bucle', variables: { s: '55', i: '11' } });
+        steps.push({ step: steps.length + 1, node_id: 'n6', description: 'Imprime s', variables: { s: '55', i: '11' }, output: '55' });
+        steps.push({ step: steps.length + 1, node_id: 'n7', description: 'Fin', variables: { s: '55', i: '11' } });
+        return steps;
+      })(),
+    },
+    tutor: okTutor('¡Bucle perfecto! El acumulador s suma cada valor de i y el contador avanza hasta salir en i = 11.', '¿Cómo cambiarías el diagrama para sumar solo los números pares del 1 al 10?', 'De niño, Gauss sumó del 1 al 100 emparejando números: 50 parejas de 101 dan 5050.'),
+    sketch: (s) => {
+      const cx = X0 + 110;
+      flowOval(s, cx, 46, 150, 'Inicio');
+      flowBox(s, cx, 100, 190, 's = 0, i = 1');
+      flowDiamond(s, cx, 166, 150, 'i <= 10');
+      flowBox(s, cx, 236, 170, 's = s + i');
+      flowBox(s, cx, 290, 170, 'i = i + 1');
+      flowIO(s, cx + 290, 166, 190, 'Imprimir s');
+      s.arrow(cx, 66, cx, 82);
+      s.arrow(cx, 118, cx, 136);
+      s.arrow(cx, 196, cx, 218);
+      s.arrow(cx, 254, cx, 272);
+      s.path([[cx - 85, 290], [cx - 130, 290], [cx - 130, 166]]);
+      s.arrow(cx - 130, 166, cx - 75, 166);
+      s.arrow(cx + 75, 166, cx + 190, 166);
+      s.text(cx + 100, 156, 'NO', 24);
+      s.text(cx + 12, 212, 'SÍ', 24);
+    },
+  },
+  {
+    id: 'mission_even_odd', missionId: 'flow_even_odd', module: 'flowcharts', skill: 'flowchart', exercise_type: 'conditional_flowchart',
+    title: 'Misión: ¿par o impar?', explanation: 'Lee n y decide con n % 2 == 0.',
+    question: 'Determinar qué imprime con n = 7',
+    data: {
+      nodes: [
+        fnode('n1', 'oval', 'start', 'Inicio'),
+        fnode('n2', 'parallelogram', 'input_output', 'Leer n'),
+        fnode('n3', 'diamond', 'decision', 'n % 2 == 0'),
+        fnode('n4', 'parallelogram', 'input_output', 'Imprimir "par"'),
+        fnode('n5', 'parallelogram', 'input_output', 'Imprimir "impar"'),
+        fnode('n6', 'oval', 'end', 'Fin'),
+      ],
+      edges: [fedge('n1', 'n2'), fedge('n2', 'n3'), fedge('n3', 'n4', 'SÍ'), fedge('n3', 'n5', 'NO'), fedge('n4', 'n6'), fedge('n5', 'n6')],
+      decision_condition: 'n % 2 == 0', true_branch_node_id: 'n4', false_branch_node_id: 'n5',
+      generated_code_py: 'n = 7\nif n % 2 == 0:\n    print("par")\nelse:\n    print("impar")', generated_code_js: '',
+      execution: [
+        { step: 1, node_id: 'n1', description: 'Inicio', variables: {} },
+        { step: 2, node_id: 'n2', description: 'Se lee n = 7 (valor de ejemplo)', variables: { n: '7' } },
+        { step: 3, node_id: 'n3', description: '7 % 2 = 1 → la condición es falsa', variables: { n: '7' } },
+        { step: 4, node_id: 'n5', description: 'Rama NO: imprime "impar"', variables: { n: '7' }, output: 'impar' },
+        { step: 5, node_id: 'n6', description: 'Fin', variables: { n: '7' } },
+      ],
+    },
+    tutor: okTutor('¡Muy bien! El residuo de dividir entre 2 solo puede ser 0 (par) o 1 (impar).', '¿Cómo modificarías el diagrama para saber si un número es múltiplo de 3?', 'Las computadoras guardan los números en binario: un número es par si su último bit es 0.'),
+    sketch: (s) => {
+      const cx = X0 + 150;
+      flowOval(s, cx, 50, 150, 'Inicio');
+      flowIO(s, cx, 108, 170, 'Leer n');
+      flowDiamond(s, cx, 180, 220, 'n % 2 == 0');
+      flowIO(s, cx - 130, 262, 190, '"par"');
+      flowIO(s, cx + 150, 262, 190, '"impar"');
+      s.arrow(cx, 70, cx, 90);
+      s.arrow(cx, 126, cx, 150);
+      s.arrow(cx - 110, 180, cx - 130, 244);
+      s.arrow(cx + 110, 180, cx + 150, 244);
+      s.text(cx - 150, 212, 'SÍ', 24);
+      s.text(cx + 140, 212, 'NO', 24);
+    },
+  },
+  {
+    id: 'mission_vertex', missionId: 'math_vertex', module: 'math', skill: 'math_geo', exercise_type: 'function_graph',
+    title: 'Misión: vértice en (2, −1)', explanation: 'Graficar f(x) = (x − 2)² − 1 en forma canónica.',
+    question: 'Graficar y comprobar el vértice',
+    data: { function_expression: 'f(x) = (x - 2)^2 - 1', function_type: 'quadratic', domain: 'R', range_y: '[-1, +inf)', roots: [1, 3], y_intercept: 3, vertex: [2, -1], critical_points_explanation: 'Parábola que abre hacia arriba con eje de simetría x = 2.' },
+    tutor: okTutor('¡Excelente! En la forma canónica a(x − h)² + k, el vértice se lee directamente: (h, k) = (2, −1).', '¿Cómo cambiaría la parábola si a fuera 3 en lugar de 1?', 'Los faros de los autos tienen espejos parabólicos que envían la luz en rayos paralelos.'),
+    sketch: (s) => {
+      s.text(X0, 120, 'f(x) = (x − 2)² − 1', 64);
+      s.text(X0, 190, 'Vértice en (2, −1)', 44);
+    },
+  },
+  {
+    id: 'mission_liter_can', missionId: 'math_liter_can', module: 'math', skill: 'math_geo', exercise_type: 'geometry_3d',
+    title: 'Misión: la lata de un litro', explanation: 'Cilindro de radio 5 cm y altura 12.7 cm.',
+    question: 'Hallar el volumen',
+    data: { solid_type: 'cylinder', radius_units: 5, height_units: 12.7, volume_units3: 997.46, lateral_area_units2: 398.98, total_area_units2: 556.06, formulas_applied: ['V = π·r²·h'] },
+    tutor: okTutor('¡Bien calculado! π·5²·12.7 ≈ 997 cm³, prácticamente un litro.', '¿Qué medidas de lata usarían la menor cantidad de metal para guardar ese mismo litro?', 'La lata que usa menos metal para un volumen dado tiene la altura igual a su diámetro.'),
+    sketch: (s) => {
+      s.ellipse(X0 + 80, 80, 140, 40);
+      s.ellipse(X0 + 80, 260, 140, 40);
+      s.line(X0 + 10, 80, X0 + 10, 260);
+      s.line(X0 + 150, 80, X0 + 150, 260);
+      s.text(X0 + 200, 150, 'r = 5 cm   h = 12.7 cm', 42);
+      s.text(X0 + 200, 210, '¿V = 1 litro?', 42);
+    },
+  },
+];
+
 export const EXAMPLES: Example[] = [
   ...EXAMPLES_L1.map((e) => ({ ...e, level: 1 as const })),
   ...EXAMPLES_L2.map((e) => ({ ...e, level: 2 as const })),
+  ...EXAMPLES_ERROR.map((e) => ({ ...e, level: 'error' as const })),
+  ...EXAMPLES_MISSION.map((e) => ({ ...e, level: 'mission' as const })),
 ];
 
-export const examplesFor = (moduleId: string, level: 1 | 2 = 1) =>
+export const examplesFor = (moduleId: string, level: ExampleLevel = 1) =>
   EXAMPLES.filter((e) => e.module === moduleId && e.level === level);
+
+/** Ejemplo que CUMPLE la misión (para probarla sin dibujar). */
+export const exampleForMission = (missionId: string) =>
+  EXAMPLES.find((e) => e.level === 'mission' && e.missionId === missionId && !e.id?.endsWith('_miss')) ?? null;
 

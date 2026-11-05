@@ -1,0 +1,144 @@
+{
+  "title": "Misión: ¿par o impar?",
+  "exercise_id": "conditional_flowchart",
+  "exercise_type": "conditional_flowchart",
+  "exercise_name": "Misión: ¿par o impar?",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "conditional_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Leer n"
+      },
+      {
+        "id": "n3",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "n % 2 == 0"
+      },
+      {
+        "id": "n4",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir \"par\""
+      },
+      {
+        "id": "n5",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir \"impar\""
+      },
+      {
+        "id": "n6",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4",
+        "condition_label": "SÍ"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n5",
+        "condition_label": "NO"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n6"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n6"
+      }
+    ],
+    "decision_condition": "n % 2 == 0",
+    "true_branch_node_id": "n4",
+    "false_branch_node_id": "n5",
+    "generated_code_py": "n = 7\nif n % 2 == 0:\n    print(\"par\")\nelse:\n    print(\"impar\")",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "Se lee n = 7 (valor de ejemplo)",
+        "variables": {
+          "n": "7"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "7 % 2 = 1 → la condición es falsa",
+        "variables": {
+          "n": "7"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n5",
+        "description": "Rama NO: imprime \"impar\"",
+        "variables": {
+          "n": "7"
+        },
+        "output": "impar"
+      },
+      {
+        "step": 5,
+        "node_id": "n6",
+        "description": "Fin",
+        "variables": {
+          "n": "7"
+        }
+      }
+    ]
+  },
+  "explanation": "Lee n y decide con n % 2 == 0.",
+  "question": "Determinar qué imprime con n = 7",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Muy bien! El residuo de dividir entre 2 solo puede ser 0 (par) o 1 (impar).",
+    "socratic_challenge": "¿Cómo modificarías el diagrama para saber si un número es múltiplo de 3?",
+    "fun_fact": "Las computadoras guardan los números en binario: un número es par si su último bit es 0.",
+    "mistakes": []
+  }
+}

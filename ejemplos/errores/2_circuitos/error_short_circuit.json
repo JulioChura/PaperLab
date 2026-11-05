@@ -1,0 +1,45 @@
+{
+  "title": "Cortocircuito",
+  "exercise_id": "single_loop",
+  "exercise_type": "single_loop",
+  "exercise_name": "Cortocircuito",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "single_loop",
+    "voltage_v": 9,
+    "resistance_ohms": 0,
+    "current_a": 0,
+    "power_w": 0,
+    "has_led": false,
+    "circuit_closed": true
+  },
+  "explanation": "Una pila de 9 V con un cable que une directamente sus bornes, sin ninguna carga.",
+  "question": "Hallar la corriente del circuito",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "short_circuit",
+    "pedagogical_feedback": "¡Cuidado! Tu circuito tiene un camino directo entre los bornes (+) y (−) sin carga: es un cortocircuito.",
+    "socratic_challenge": "¿Qué ocurriría con la batería si cerramos este circuito?",
+    "hint": "Según la ley de Ohm, I = V/R. ¿Qué pasa con I cuando R se acerca a 0 con 9 V?",
+    "fun_fact": "Los fusibles y los interruptores térmicos de tu casa existen para cortar la corriente justo cuando hay un cortocircuito.",
+    "mistakes": [
+      {
+        "code": "short_circuit",
+        "severity": "critical",
+        "description": "Los bornes (+) y (−) quedan unidos por un camino sin carga."
+      }
+    ]
+  }
+}

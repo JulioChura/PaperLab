@@ -1,0 +1,46 @@
+{
+  "title": "Malla abierta",
+  "exercise_id": "single_loop",
+  "exercise_type": "single_loop",
+  "exercise_name": "Malla abierta",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "single_loop",
+    "voltage_v": 9,
+    "resistance_ohms": 100,
+    "current_a": 0,
+    "power_w": 0,
+    "has_led": true,
+    "led_color": "yellow",
+    "circuit_closed": false
+  },
+  "explanation": "Pila de 9 V, resistencia de 100 Ω y un foco, pero el cable superior no llega a cerrarse.",
+  "question": "Hallar la corriente y la potencia del foco",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "open_circuit",
+    "pedagogical_feedback": "¡Atención! Tu malla tiene un corte: los electrones no tienen un camino cerrado de vuelta a la batería, así que la corriente es 0 A y el foco no enciende.",
+    "socratic_challenge": "¿Qué necesita un circuito para que la corriente pueda circular de forma continua?",
+    "hint": "Sigue el cable con el dedo desde (+) hasta (−): ¿llegas sin levantarlo?",
+    "fun_fact": "Un interruptor no es más que un \"corte a voluntad\": abre la malla igual que el hueco de tu dibujo.",
+    "mistakes": [
+      {
+        "code": "open_circuit",
+        "severity": "warning",
+        "description": "La malla está interrumpida: el circuito está abierto."
+      }
+    ]
+  }
+}

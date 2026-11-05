@@ -1,0 +1,39 @@
+{
+  "title": "Misión: bandera a 12 m",
+  "exercise_id": "projectile_motion",
+  "exercise_type": "projectile_motion",
+  "exercise_name": "Misión: bandera a 12 m",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "projectile_motion",
+    "initial_velocity_m_s": 11,
+    "launch_angle_degrees": 45,
+    "initial_height_m": 0,
+    "gravity_m_s2": 9.8,
+    "max_height_m": 3.09,
+    "range_m": 12.35,
+    "flight_time_s": 1.59
+  },
+  "explanation": "Tiro desde el suelo con 11 m/s a 45° para alcanzar una bandera a 12 m.",
+  "question": "¿El proyectil llega a la bandera a 12 m?",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Buen diseño! A 45° el alcance es máximo para una rapidez dada, así que necesitas la menor v0 posible.",
+    "socratic_challenge": "¿Con qué otro ángulo, distinto de 45°, también podrías acertar si aumentas la rapidez?",
+    "fun_fact": "En el golf, el efecto de la bola (backspin) la mantiene más tiempo en el aire que un proyectil ideal.",
+    "mistakes": []
+  }
+}

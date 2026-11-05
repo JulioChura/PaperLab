@@ -8,7 +8,9 @@
     "dev:https": "cross-env HTTPS=1 vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "export:examples": "node scripts/export-examples.mjs"
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.1.4",
@@ -21,6 +23,7 @@
     "three": "^0.187.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/vite": "^4.3.4",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",

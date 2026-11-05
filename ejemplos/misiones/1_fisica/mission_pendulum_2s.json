@@ -1,0 +1,39 @@
+{
+  "title": "Misión: péndulo de segundos",
+  "exercise_id": "simple_pendulum",
+  "exercise_type": "simple_pendulum",
+  "exercise_name": "Misión: péndulo de segundos",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "simple_pendulum",
+    "length_m": 0.99,
+    "initial_angle_degrees": 10,
+    "mass_kg": 0.2,
+    "gravity_m_s2": 9.8,
+    "period_s": 2,
+    "max_velocity_m_s": 0.55,
+    "tension_at_lowest_point_n": 1.99
+  },
+  "explanation": "Péndulo de 0.99 m soltado desde 10°.",
+  "question": "¿El período es de 2 segundos?",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Muy bien! Con casi un metro de hilo, cada ida o vuelta dura un segundo.",
+    "socratic_challenge": "¿Funcionaría igual este péndulo en la Luna?",
+    "fun_fact": "Durante siglos los relojes de péndulo de casi 1 m (el \"péndulo de segundos\") fueron los más precisos del mundo.",
+    "mistakes": []
+  }
+}

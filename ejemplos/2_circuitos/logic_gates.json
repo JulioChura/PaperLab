@@ -56,5 +56,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Correcto! Una compuerta AND solo da 1 cuando TODAS sus entradas valen 1; con B = 0, la salida es 0.",
+    "socratic_challenge": "¿Qué combinaciones de A y B encienden la salida de una compuerta OR?",
+    "hint": "En una OR basta con que una sola entrada valga 1.",
+    "fun_fact": "Las compuertas lógicas de tu celular están hechas con miles de millones de transistores más pequeños que un virus.",
+    "mistakes": []
+  }
 }

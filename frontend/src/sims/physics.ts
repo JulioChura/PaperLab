@@ -673,7 +673,22 @@ export function physicsPlan(exerciseType: string, d: Record<string, unknown>): S
   const base = { graph: null, graphPrimary: false, kind: 'simulation' as const };
   switch (exerciseType) {
     case 'inclined_plane': {
-      const th = clamp(num(d.angle_degrees, 30), 1, 89);
+      const rawTh = num(d.angle_degrees, 30);
+      if (rawTh <= 0 || rawTh >= 90) {
+        // El tutor explica el error; la figura muestra la rampa con el ángulo en valor absoluto como referencia
+        const ref = clamp(Math.abs(rawTh) % 90 || 30, 5, 85);
+        const mu0 = Math.max(0, num(d.friction_coefficient, 0.1));
+        return {
+          ...base,
+          summary: 'Rampa con ángulo imposible',
+          lines: [
+            line('Ángulo dibujado', `θ = ${f(rawTh)}°  →  no es una pendiente válida (0° < θ < 90°)`),
+            line('Referencia', `Con θ = ${f(ref)}°: a = g(sen θ - μ cos θ) = ${f(Math.max(0, g * (Math.sin(ref * DEG) - mu0 * Math.cos(ref * DEG))))} m/s^2`, true),
+          ],
+          figure: spec('Plano inclinado', 1.5, () => new InclinedPlane(ref, mu0, Math.max(0.01, num(d.mass_kg, 1)), g)),
+        };
+      }
+      const th = clamp(rawTh, 1, 89);
       const mu = Math.max(0, num(d.friction_coefficient, 0.1));
       const m = Math.max(0.01, num(d.mass_kg, 1));
       const r = th * DEG;

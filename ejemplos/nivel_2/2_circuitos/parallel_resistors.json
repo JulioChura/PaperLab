@@ -32,5 +32,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Correcto! Req = 10 Ω, menor que la menor de las ramas (20 Ω): cada rama abre un nuevo camino.",
+    "socratic_challenge": "Si agregas una cuarta rama, ¿la corriente total sube o baja?",
+    "hint": null,
+    "fun_fact": "Por eso no debes conectar demasiados aparatos a una misma extensión: la corriente total crece con cada uno.",
+    "mistakes": []
+  }
 }

@@ -4,12 +4,23 @@ import { Header } from './components/Header';
 import { ModuleSelector } from './components/ModuleSelector';
 import { ARCameraView } from './components/ARCameraView';
 import { audioJuice } from './utils/audioJuice';
+import { MissionPanel, ProfilePanel, Toaster } from './game/GameUI';
+import { progress, getProgress } from './game/progress';
+import type { Mission } from './game/missions';
+import { registerNotificationWorker } from './game/notify';
 
 type ViewMode = 'splash' | 'menu' | 'camera';
 
 export function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('splash');
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showMissions, setShowMissions] = useState(false);
+
+  useEffect(() => {
+    // Si el alumno ya activó las notificaciones, el Service Worker debe estar listo
+    if (getProgress().settings.nativeNotifications) void registerNotificationWorker();
+  }, []);
 
   // Robust Dark Mode / Day Mode with system detection and persistence
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -48,6 +59,14 @@ export function App() {
     setCurrentView('camera');
   };
 
+  const handleStartMission = (m: Mission) => {
+    audioJuice.playTap();
+    progress.setActiveMission(m.id);
+    setShowMissions(false);
+    setActiveModuleId(m.module);
+    setCurrentView('camera');
+  };
+
   const handleGoHome = () => {
     setCurrentView('menu');
     setActiveModuleId(null);
@@ -75,11 +94,16 @@ export function App() {
             onGoSplash={handleGoSplash}
             isDarkMode={isDarkMode}
             onToggleTheme={toggleTheme}
+            onOpenProfile={() => setShowProfile(true)}
           />
 
           <main className="flex-1 flex flex-col">
             {currentView === 'menu' && (
-              <ModuleSelector onSelectModule={handleSelectModule} />
+              <ModuleSelector
+                onSelectModule={handleSelectModule}
+                onStartMission={handleStartMission}
+                onOpenMissions={() => setShowMissions(true)}
+              />
             )}
 
             {currentView === 'camera' && activeModuleId && (
@@ -92,6 +116,9 @@ export function App() {
           </main>
         </>
       )}
+      <Toaster />
+      {showProfile && <ProfilePanel onClose={() => setShowProfile(false)} />}
+      {showMissions && <MissionPanel onClose={() => setShowMissions(false)} onStart={handleStartMission} />}
     </div>
   );
 }

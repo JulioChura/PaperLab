@@ -30,5 +30,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Correcto! En paralelo todas las ramas reciben 6 V, y por la de 20 Ω pasa más corriente (0.3 A) que por la de 30 Ω (0.2 A).",
+    "socratic_challenge": "¿Por qué la resistencia equivalente (12 Ω) es menor que la más pequeña de las ramas?",
+    "hint": "Cada rama nueva abre otro camino para la corriente.",
+    "fun_fact": "Los enchufes de tu casa están en paralelo: por eso puedes apagar un aparato sin apagar los demás.",
+    "mistakes": []
+  }
 }

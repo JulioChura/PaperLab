@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Excelente! En el punto más alto la velocidad vertical es cero, pero la horizontal (16.07 m/s) se mantiene durante todo el vuelo.",
+    "socratic_challenge": "¿Con qué otro ángulo de lanzamiento obtendrías exactamente el mismo alcance?",
+    "hint": "sen(2θ) toma el mismo valor para θ y para 90° − θ.",
+    "fun_fact": "Sin aire, el máximo alcance se logra a 45°; con la resistencia del aire, como en una pelota de béisbol real, el mejor ángulo suele ser menor.",
+    "mistakes": []
+  }
 }

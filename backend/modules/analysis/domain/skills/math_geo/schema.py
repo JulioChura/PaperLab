@@ -2,7 +2,7 @@
 
 from typing import Annotated, Literal, Optional, Union
 from pydantic import BaseModel, Field
-from shared.types import BaseAnalysisResult, BoundingBox, SkillId
+from shared.types import BaseAnalysisResult, BoundingBox, SkillId, TutorFeedback, tutor_field
 
 
 class Geometry3DSimulation(BaseModel):
@@ -11,9 +11,9 @@ class Geometry3DSimulation(BaseModel):
     solid_type: Literal["cylinder", "cone", "sphere", "prism", "pyramid"] = Field(
         ..., description="Sólido geométrico tridimensional identificado"
     )
-    radius_units: Optional[float] = Field(default=None, gt=0.0, description="Radio r de la base o de la esfera")
-    height_units: Optional[float] = Field(default=None, gt=0.0, description="Altura h del sólido")
-    edge_units: Optional[float] = Field(default=None, gt=0.0, description="Arista o generatriz del sólido")
+    radius_units: Optional[float] = Field(default=None, description="Radio r de la base o de la esfera")
+    height_units: Optional[float] = Field(default=None, description="Altura h del sólido")
+    edge_units: Optional[float] = Field(default=None, description="Arista o generatriz del sólido")
     volume_units3: float = Field(..., description="Volumen calculado del sólido")
     lateral_area_units2: Optional[float] = Field(default=None, description="Área lateral")
     total_area_units2: float = Field(..., description="Área superficial total")
@@ -65,6 +65,7 @@ class EquationSolverSimulation(BaseModel):
     steps: list[str] = Field(..., min_length=1, description="Pasos deductivos detallados hacia la solución")
     solution_set: list[str] = Field(..., min_length=1, description="Conjunto solución C.S. = {x1, x2...}")
     method_used: Optional[str] = Field(default=None, description="Método (Fórmula general, Aspa simple, etc.)")
+    student_solution: list[str] = Field(default_factory=list, description="Solución que ESCRIBIÓ el estudiante en la hoja, si la hay (ej: [\"x = 2\"]); vacía si no escribió ninguna")
 
 
 class GeometricAnglesSimulation(BaseModel):
@@ -78,6 +79,7 @@ class GeometricAnglesSimulation(BaseModel):
     solved_value_deg: float = Field(..., description="Valor numérico final del ángulo resuelto en grados sexagesimales")
     theorem_applied: str = Field(..., description="Teorema o propiedad geométrica fundamental (ej: 'Teorema del Boomerang')")
     proof_steps: list[str] = Field(..., min_length=1, description="Deducción geométrica paso a paso")
+    student_answer_deg: Optional[float] = Field(default=None, description="Valor de la incógnita que ESCRIBIÓ el estudiante, si lo hay")
 
 
 MathGeoSimulationData = Annotated[
@@ -112,4 +114,5 @@ class MathGeoAnalysisResult(BaseModel):
     explanation: str = Field(..., description="Explicación pedagógica y deductiva del problema")
     raw_annotations: list[str] = Field(default_factory=list, description="Ecuaciones o medidas manuscritas leídas")
     simulation_data: MathGeoSimulationData = Field(..., description="Parámetros matemáticos y resolución para WebAR")
+    tutor: TutorFeedback = tutor_field()
 

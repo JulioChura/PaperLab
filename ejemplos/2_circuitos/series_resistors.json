@@ -32,5 +32,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! En serie la corriente es la misma en todas las resistencias, y la mayor caída de tensión está en la de 330 Ω.",
+    "socratic_challenge": "Si quitas una resistencia de la serie y dejas el hueco, ¿qué ocurre con las demás?",
+    "hint": "En serie solo hay un camino para la corriente.",
+    "fun_fact": "Las antiguas guirnaldas navideñas iban en serie: si se quemaba un foquito, se apagaba toda la guirnalda.",
+    "mistakes": []
+  }
 }

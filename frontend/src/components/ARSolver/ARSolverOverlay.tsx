@@ -1,8 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Anchor, BatteryCharging, Camera, Check, ChevronDown, ChevronUp, FastForward, Pause, Play, Power, RotateCcw, ScanLine,
-  Search, SkipBack, SkipForward, Zap,
+  Search, SkipBack, SkipForward, Square, Volume2, Zap,
 } from 'lucide-react';
+import { WarningHologram } from './WarningHologram';
+import type { TutorFeedback } from '../../tutor/types';
+import { buildNarration } from '../../a11y/narration';
+import { speak, speechSupported, stopSpeaking, useSpeechState } from '../../a11y/speech';
+import { progress } from '../../game/progress';
 import { FigureCanvas } from '../../sims/figureCanvas';
 import type { ControlIcon, FigureRuntime, Readout } from '../../sims/types';
 import { PaperARScene, type MediaSource, type TrackingStatus } from '../../ar/arScene';
@@ -23,6 +28,15 @@ export interface ARSolverSession {
   tracker: HybridPaperTracker | null;
   /** Qué pide el enunciado. */
   question?: string;
+  /** Tipo y datos validados (para la audio-explicación). */
+  exerciseType: string;
+  data: Record<string, unknown>;
+  /** Tutor Socrático del resultado. */
+  tutor?: TutorFeedback;
+  /** Mostrar el holograma de advertencia sobre el dibujo. */
+  hologram: boolean;
+  /** Zona del dibujo (normalizada) donde anclar el holograma. */
+  drawingBox: NormRect | null;
 }
 
 interface Props {
@@ -30,14 +44,20 @@ interface Props {
   accent: string;
   mindarProgress: number | null;
   onRescan: () => void;
+  /** Otros elementos de la interfaz que tapan la hoja (p. ej. el avatar del tutor). */
+  blockers?: () => (HTMLElement | null)[];
+  autoNarrate?: boolean;
 }
 
 /**
  * Zona de pantalla que tapa el panel, convertida a coordenadas normalizadas del fotograma
  * (según el object-fit del medio), para que el layout no escriba debajo.
  */
-function uiBlockedRects(host: HTMLElement, panel: HTMLElement | null, media: MediaSource): NormRect[] {
-  if (!panel) return [];
+function uiBlockedRects(host: HTMLElement, panels: (HTMLElement | null)[], media: MediaSource): NormRect[] {
+  return panels.flatMap((p) => (p ? [blockedRect(host, p, media)] : []));
+}
+
+function blockedRect(host: HTMLElement, panel: HTMLElement, media: MediaSource): NormRect {
   const hb = host.getBoundingClientRect();
   const pb = panel.getBoundingClientRect();
   const cw = hb.width || 1;
@@ -51,7 +71,7 @@ function uiBlockedRects(host: HTMLElement, panel: HTMLElement | null, media: Med
   const gap = 10; // px de aire alrededor del panel
   const x0 = toU(pb.left - gap);
   const y0 = toV(pb.top - gap);
-  return [{ x: x0, y: y0, w: toU(pb.right + gap) - x0, h: toV(pb.bottom + gap) - y0 }];
+  return { x: x0, y: y0, w: toU(pb.right + gap) - x0, h: toV(pb.bottom + gap) - y0 };
 }
 
 /** Mezcla un color hex con blanco (para el resaltador). */
@@ -70,8 +90,19 @@ const STATUS_COPY: Record<TrackingStatus, { label: string; tone: string }> = {
   lost: { label: 'Buscando la hoja…', tone: 'text-amber-200 border-amber-500/50' },
 };
 
-export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgress, onRescan }) => {
+export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgress, onRescan, blockers, autoNarrate = false }) => {
+  const blockersRef = useRef(blockers);
+  useEffect(() => {
+    blockersRef.current = blockers;
+  }, [blockers]);
+  const { speaking, speakingId } = useSpeechState();
+  const narrating = speaking && speakingId === 'sim';
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const [hostEl, setHostEl] = useState<HTMLDivElement | null>(null);
+  const setHost = useCallback((el: HTMLDivElement | null) => {
+    hostRef.current = el;
+    setHostEl(el);
+  }, []);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<PaperARScene | null>(null);
   const [titles, setTitles] = useState<string[]>([]);
@@ -131,7 +162,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
       // dejar que el panel termine de pintarse (controles y lecturas) antes de medirlo
       await new Promise((r) => setTimeout(r, 120));
       if (life.cancelled) return;
-      const { layers, figure } = layoutSolution(plan, profile, uiBlockedRects(host, panelRef.current, media));
+      const { layers, figure } = layoutSolution(plan, profile, uiBlockedRects(host, [panelRef.current, ...(blockersRef.current?.() ?? [])], media));
       const titlesList: string[] = [];
 
       if (rt && plan.figure && figure) {
@@ -180,6 +211,34 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
     return () => window.clearInterval(id);
   }, [runtime]);
 
+  const narrate = () => {
+    if (narrating) return stopSpeaking();
+    const text = buildNarration({
+      exerciseType: session.exerciseType,
+      data: session.data,
+      plan: session.plan,
+      readouts: runtime ? runtime.readouts() : [],
+      question: session.question,
+      tutor: session.tutor,
+    });
+    if (speak(text, { id: 'sim' })) progress.recordNarration();
+  };
+  const narrateRef = useRef(narrate);
+  useEffect(() => {
+    narrateRef.current = narrate;
+  });
+
+  // Lectura automática (ajuste de accesibilidad): cuando termina de escribirse la solución
+  const autoRef = useRef(false);
+  useEffect(() => {
+    if (!autoNarrate || autoRef.current || titles.length === 0) return;
+    autoRef.current = true;
+    const id = window.setTimeout(() => narrateRef.current(), 1200);
+    return () => window.clearTimeout(id);
+  }, [autoNarrate, titles.length]);
+
+  useEffect(() => () => stopSpeaking(), []);
+
   const control = (id: string, value?: number | boolean) => {
     runtime?.onControl(id, value);
     if (runtime) setSimState((s) => ({ ...s, values: { ...runtime.values }, caption: runtime.caption?.() ?? '' }));
@@ -196,10 +255,14 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
   return (
     <>
       {/* Host del canvas WebGL: SIN z-index para que mix-blend-mode mezcle con el video */}
-      <div ref={hostRef} className="absolute inset-0 pointer-events-none" />
+      <div ref={setHost} className="absolute inset-0 pointer-events-none" />
+
+      {session.hologram && session.tutor && (
+        <WarningHologram host={hostEl} media={session.media} box={session.drawingBox} tutor={session.tutor} />
+      )}
 
       {/* Estado del anclaje */}
-      <div className="absolute top-16 left-4 z-30 pointer-events-none animate-entrance">
+      <div className={`absolute top-16 left-4 z-30 pointer-events-none animate-entrance ${status === 'static' ? 'hidden sm:block' : ''}`}>
         <div
           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/75 border backdrop-blur-md font-telemetry text-[11px] ${statusCopy.tone}`}
         >
@@ -216,7 +279,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
       </div>
 
       {/* Panel compacto: paso actual + progreso; la lista completa se despliega a pedido */}
-      <div ref={panelRef} className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:w-[22rem] z-30 animate-entrance">
+      <div ref={panelRef} className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:w-[22rem] z-30 animate-entrance" data-testid="ar-panel">
         <div className="rounded-2xl bg-slate-950/80 border border-slate-700/70 backdrop-blur-xl shadow-2xl text-white overflow-hidden">
           {expanded && (
             <ol className="px-2 pt-2 max-h-44 overflow-y-auto border-b border-slate-800">
@@ -259,7 +322,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
               title={`Tinta detectada: ${session.profile.inkKind === 'graphite' ? 'grafito' : 'lapicero'}`}
             />
             <span className="min-w-0 flex-1">
-              <span className="block text-[10px] font-telemetry uppercase tracking-widest truncate" style={{ color: accent }}>
+              <span className="block text-[10px] font-telemetry uppercase tracking-widest truncate" style={{ color: accent }} data-testid="ar-summary">
                 {session.plan.summary}
               </span>
               <span className="block font-display font-bold text-sm truncate">
@@ -367,7 +430,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
             </div>
           )}
 
-          <div className="grid grid-cols-3 border-t border-slate-800 text-[11px] font-telemetry">
+          <div className={`grid ${speechSupported() ? 'grid-cols-4' : 'grid-cols-3'} border-t border-slate-800 text-[11px] font-telemetry`}>
             <button
               onClick={() => sceneRef.current?.play(0)}
               className="flex items-center justify-center gap-1.5 py-2 hover:bg-white/5 cursor-pointer"
@@ -379,8 +442,21 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
               disabled={done}
               className="flex items-center justify-center gap-1.5 py-2 hover:bg-white/5 cursor-pointer border-x border-slate-800 disabled:opacity-40 disabled:cursor-default"
             >
-              <FastForward className="w-3.5 h-3.5" /> Mostrar todo
+              <FastForward className="w-3.5 h-3.5" /> Ver todo
             </button>
+            {speechSupported() && (
+              <button
+                onClick={narrate}
+                className="flex items-center justify-center gap-1.5 py-2 hover:bg-white/5 cursor-pointer border-r border-slate-800"
+                aria-label={narrating ? 'Detener la audio-explicación' : 'Escuchar la explicación de la simulación'}
+                aria-pressed={narrating}
+                data-testid="narrate-button"
+                style={narrating ? { color: accent } : undefined}
+              >
+                {narrating ? <Square className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                {narrating ? 'Detener' : 'Escuchar'}
+              </button>
+            )}
             <button
               onClick={onRescan}
               className="flex items-center justify-center gap-1.5 py-2 hover:bg-white/5 cursor-pointer"

@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! S1 está en el tramo común y controla todo; S2 solo interrumpe la rama del foco 2.",
+    "socratic_challenge": "¿Qué ocurre con el foco 1 si abres S2? ¿Y si abres S1?",
+    "hint": null,
+    "fun_fact": "Las instalaciones de casa combinan interruptores así para encender cada lámpara por separado.",
+    "mistakes": []
+  }
 }

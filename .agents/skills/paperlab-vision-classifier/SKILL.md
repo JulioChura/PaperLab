@@ -61,3 +61,32 @@ Al clasificar una imagen manuscrita, el modelo debe retornar **exclusivamente un
 }
 ```
 
+
+---
+
+## Tutor Socrático (campo `tutor`, OBLIGATORIO en toda respuesta)
+
+PaperLab no solo simula lo que ve: el estudiante debe **aprender del error**. Toda respuesta incluye el objeto `tutor`, que el avatar **Lumi** muestra en un globo de diálogo (y lee en voz alta). Si el dibujo tiene un error, **no se corrige en silencio ni se responde con error HTTP**: se copian los valores tal como están dibujados y el error se explica aquí.
+
+```json
+"tutor": {
+  "mood": "warning",
+  "has_error": true,
+  "error_type": "short_circuit",
+  "pedagogical_feedback": "¡Cuidado! Tu circuito tiene un camino directo entre los bornes (+) y (−) sin carga: es un cortocircuito.",
+  "socratic_challenge": "¿Qué ocurriría con la batería si cerramos este circuito?",
+  "hint": "Según la ley de Ohm, I = V/R. ¿Qué pasa con I cuando R se acerca a 0?",
+  "fun_fact": "Los fusibles de tu casa existen para cortar la corriente justo cuando hay un cortocircuito.",
+  "mistakes": [{ "code": "short_circuit", "severity": "critical", "description": "Los bornes quedan unidos sin carga." }]
+}
+```
+
+- `mood`: `happy` | `thinking` | `warning` | `surprised` | `celebrating` | `curious`.
+- `error_type` / `mistakes[].code`: `short_circuit`, `open_circuit`, `led_overcurrent`, `negative_angle`, `static_friction`, `inverted_force`, `impossible_value`, `infinite_loop`, `incomplete_flowchart`, `impossible_triangle`, `no_real_roots`, `wrong_answer`, `missing_data`, `other`.
+- `pedagogical_feedback`: 1–2 frases tuteando; con error empieza por "¡Cuidado!" y explica qué ocurre físicamente **sin dar la solución**.
+- `socratic_challenge`: UNA pregunta que obligue a razonar (termina en "?").
+- `fun_fact`: dato curioso real y verificable.
+
+Campos de datos que permiten reportar el error tal cual: `circuit_closed` (malla abierta), `resistance_ohms = 0` (cortocircuito), `is_diode_led` (LED), `friction_arrow_direction` y `drawn_acceleration_toward` (flechas invertidas), `student_solution` / `student_answer_deg` (respuesta escrita por el alumno). El backend (`backend/modules/analysis/domain/pedagogy.py`) vuelve a detectar estos errores con reglas determinísticas y completa el tutor si el modelo lo omite.
+
+Ejemplos de referencia: `ejemplos/errores/` (9 errores típicos) y `ejemplos/misiones/` (propuestas para el Modo Reto).

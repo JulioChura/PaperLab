@@ -27,5 +27,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Como tan 30° ≈ 0.58 es mayor que μ = 0.2, la componente del peso a lo largo de la rampa vence a la fricción y el bloque acelera a 3.2 m/s².",
+    "socratic_challenge": "Si duplicas la masa del bloque, ¿cambia su aceleración? ¿Por qué?",
+    "hint": "La masa aparece en el peso, en la normal y en la fricción… ¿se cancela al calcular a = F/m?",
+    "fun_fact": "Galileo usó planos inclinados para \"diluir\" la gravedad y poder medir la caída de los cuerpos con relojes de agua.",
+    "mistakes": []
+  }
 }

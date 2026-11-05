@@ -33,5 +33,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El vértice (2, −3) es la esquina de la \"V\" y la gráfica es simétrica respecto de x = 2.",
+    "socratic_challenge": "¿Qué transformaciones convierten y = |x| en esta función?",
+    "hint": "Piensa en desplazamientos horizontales y verticales.",
+    "fun_fact": "El valor absoluto mide distancias: |x − 2| es la distancia entre x y 2 en la recta numérica.",
+    "mistakes": []
+  }
 }

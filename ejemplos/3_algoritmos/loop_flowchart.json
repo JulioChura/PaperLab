@@ -225,5 +225,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El bucle repite el cuerpo mientras i ≤ 3 y en cada vuelta acumula: s = 1 + 2 + 3 = 6.",
+    "socratic_challenge": "¿Qué pasaría si olvidaras escribir i = i + 1 dentro del bucle?",
+    "hint": "Revisa si la condición podría volverse falsa alguna vez.",
+    "fun_fact": "De niño, Gauss sumó del 1 al 100 en segundos emparejando números: 1 + 100, 2 + 99… = 50 × 101 = 5050.",
+    "mistakes": []
+  }
 }

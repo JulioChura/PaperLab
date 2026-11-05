@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El volumen es el área de la base (π·3²) por la altura: 45π ≈ 141.37 u³.",
+    "socratic_challenge": "Si duplicas el radio, ¿el volumen se duplica, se triplica o se cuadruplica?",
+    "hint": "El radio aparece al cuadrado en V = π·r²·h.",
+    "fun_fact": "Arquímedes pidió que grabaran una esfera dentro de un cilindro en su tumba, orgulloso de haber relacionado sus volúmenes.",
+    "mistakes": []
+  }
 }

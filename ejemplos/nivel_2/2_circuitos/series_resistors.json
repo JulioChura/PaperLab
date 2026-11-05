@@ -34,5 +34,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La suma de las caídas de tensión es exactamente 24 V: es la ley de mallas de Kirchhoff.",
+    "socratic_challenge": "¿Qué resistencia disipa más potencia en una serie: la mayor o la menor?",
+    "hint": "P = I²·R y la corriente es la misma en todas.",
+    "fun_fact": "Gustav Kirchhoff formuló sus leyes de circuitos en 1845, cuando aún era estudiante.",
+    "mistakes": []
+  }
 }

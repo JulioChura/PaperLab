@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La energía va y viene entre el resorte (potencial elástica) y la masa (cinética); el período no depende de cuánto lo estires.",
+    "socratic_challenge": "Si cuelgas una masa cuatro veces mayor, ¿qué le pasa al período?",
+    "hint": "T = 2π√(m/k).",
+    "fun_fact": "Los relojes mecánicos de pulsera marcan el tiempo con un pequeño resorte en espiral que oscila como tu sistema masa-resorte.",
+    "mistakes": []
+  }
 }

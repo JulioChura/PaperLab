@@ -106,5 +106,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! En cada comparación, el mayor de los dos \"burbujea\" hacia la derecha.",
+    "socratic_challenge": "¿Cuántas pasadas necesita la burbuja, como máximo, para ordenar un arreglo de n elementos?",
+    "hint": "Después de cada pasada, el mayor ya quedó en su lugar definitivo.",
+    "fun_fact": "El primer \"bug\" documentado fue una polilla real atrapada en un relé del computador Harvard Mark II en 1947.",
+    "mistakes": []
+  }
 }

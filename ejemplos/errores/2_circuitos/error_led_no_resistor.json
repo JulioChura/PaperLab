@@ -1,0 +1,47 @@
+{
+  "title": "LED sin resistencia",
+  "exercise_id": "single_loop",
+  "exercise_type": "single_loop",
+  "exercise_name": "LED sin resistencia",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "single_loop",
+    "voltage_v": 9,
+    "resistance_ohms": 10,
+    "current_a": 0.9,
+    "power_w": 8.1,
+    "has_led": true,
+    "is_diode_led": true,
+    "led_color": "red",
+    "circuit_closed": true
+  },
+  "explanation": "Un LED rojo conectado a 9 V con solo 10 Ω en serie.",
+  "question": "Hallar la corriente del LED",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "led_overcurrent",
+    "pedagogical_feedback": "¡Cuidado! Con solo 10 Ω pasarían 0.9 A por el LED; un LED típico soporta unos 0.02 A. ¡Se quemaría al instante!",
+    "socratic_challenge": "¿Qué resistencia mínima necesitas para que la corriente no supere 20 mA?",
+    "hint": "Usa R = (V − 2 V)/0.02 A ≈ 350 Ω.",
+    "fun_fact": "Los LED gastan hasta un 80 % menos energía que los focos incandescentes para dar la misma luz.",
+    "mistakes": [
+      {
+        "code": "led_overcurrent",
+        "severity": "warning",
+        "description": "I = 0.9 A atraviesa el LED: se quemaría."
+      }
+    ]
+  }
+}

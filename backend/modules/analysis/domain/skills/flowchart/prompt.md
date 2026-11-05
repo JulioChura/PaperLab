@@ -27,3 +27,9 @@ El frontend la usa como un debugger paso a paso. Reglas:
 - Si el diagrama lee datos (Leer N), elige un valor de ejemplo razonable y menciónalo en `description`.
 
 - Si la traza recorre un ÁRBOL o GRAFO (BFS/DFS), llena `graph_nodes`, `graph_edges`, `traversal`, y en cada fila incluye `actual`, `cola`/`pila` y `visitados` (arreglos como JSON).
+
+## Errores típicos del estudiante (repórtalos en `tutor`, NO los corrijas)
+- Bucle cuya variable de control nunca cambia dentro del cuerpo (falta `i = i + 1`) → `infinite_loop`. Copia los bloques tal como están; en `execution` muestra solo las primeras vueltas (máx. 12 pasos) para evidenciar que la variable no cambia.
+- Falta el bloque de Inicio o de Fin, o un rombo con una sola salida → `incomplete_flowchart`.
+- Condición que nunca puede cumplirse o que siempre se cumple → explícalo en `tutor`.
+- Si no hay error, NO inventes uno.

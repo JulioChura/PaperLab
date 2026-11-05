@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! En la descarga, tras cada constante de tiempo queda solo el 37 % del voltaje anterior.",
+    "socratic_challenge": "¿Cuántas constantes de tiempo hacen falta para que quede menos del 1 %?",
+    "hint": "e^(−5) ≈ 0.7 %.",
+    "fun_fact": "Los desfibriladores almacenan energía en un condensador y la liberan en milisegundos para reiniciar el corazón.",
+    "mistakes": []
+  }
 }

@@ -73,5 +73,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La tabla de traza muestra cómo f se multiplica por i en cada vuelta: 1, 2, 6, 24.",
+    "socratic_challenge": "¿Qué valor tendría f si el bucle empezara en i = 0?",
+    "hint": "Cualquier número multiplicado por 0…",
+    "fun_fact": "Los programadores usan tablas de traza en papel para encontrar errores antes de ejecutar el código.",
+    "mistakes": []
+  }
 }

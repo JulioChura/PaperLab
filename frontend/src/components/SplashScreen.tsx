@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowRight, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
 import { Logo } from './Logo';
 import { audioJuice } from '../utils/audioJuice';
+import { LumiAvatar } from '../tutor/LumiAvatar';
 
 interface SplashScreenProps {
   onEnter: () => void;
@@ -88,6 +89,22 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               <span>Abrir Laboratorio</span>
               <ArrowRight className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Lumi y los modos de aprendizaje */}
+          <div className="mt-8 flex items-center gap-3 max-w-xl">
+            <LumiAvatar mood="happy" size={64} />
+            <div className="min-w-0">
+              <p className="font-display font-bold text-sm text-slate-900 dark:text-white">Con Lumi, tu tutor socrático</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
+                Si te equivocas, no te da la respuesta: te hace una pregunta. Escucha cada simulación en voz alta y completa misiones dibujando.
+              </p>
+              <div className="flex flex-wrap gap-1.5 mt-2 font-telemetry text-[10.5px]">
+                {['🧠 Detecta errores', '🔊 Audio-explicación', '🎯 Misiones y logros'].map((t) => (
+                  <span key={t} className="px-2 py-0.5 rounded-md border border-[#d8cebd] dark:border-[#212c42] bg-white/70 dark:bg-white/5 text-slate-700 dark:text-slate-300">{t}</span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

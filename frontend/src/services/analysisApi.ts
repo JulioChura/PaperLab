@@ -1,5 +1,6 @@
 import { getExerciseById } from '../data/exercises';
 import type { ExerciseDefinition } from '../data/exercises';
+import type { TutorFeedback } from '../tutor/types';
 
 /**
  * Cliente del backend de análisis (FastAPI).
@@ -22,6 +23,8 @@ export interface ClassificationResult {
   /** Qué pide el enunciado (si la IA lo detectó). */
   question?: string;
   bounding_boxes: BoundingBox[];
+  /** Tutor Socrático: retroalimentación, pregunta socrática y dato curioso. */
+  tutor?: TutorFeedback;
   fullDefinition?: ExerciseDefinition;
 }
 
@@ -42,6 +45,7 @@ interface BackendAnalysisResponse {
   explanation: string;
   question?: string | null;
   simulation_data: Record<string, unknown>;
+  tutor?: TutorFeedback | null;
 }
 
 /** Tipo de ejercicio del backend -> ID del ejercicio en el catálogo del frontend. */
@@ -125,6 +129,7 @@ export async function analyzeDrawing(imageDataUrl: string, moduleId: string): Pr
     explanation: data.explanation,
     bounding_boxes: data.bounding_boxes ?? [],
     question: data.question ?? undefined,
+    tutor: data.tutor ?? undefined,
     fullDefinition,
   };
 }

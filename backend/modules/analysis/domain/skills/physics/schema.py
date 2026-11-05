@@ -2,26 +2,28 @@
 
 from typing import Optional, Annotated, Literal, Union
 from pydantic import BaseModel, Field
-from shared.types import BaseAnalysisResult, BoundingBox, SkillId
+from shared.types import BaseAnalysisResult, BoundingBox, SkillId, TutorFeedback, tutor_field
 
 
 class InclinedPlaneSimulation(BaseModel):
     """1.1. Plano Inclinado con Fricción."""
     exercise_type: Literal["inclined_plane"] = "inclined_plane"
-    angle_degrees: float = Field(..., ge=1.0, le=89.0, description="Ángulo de inclinación del plano (grados)")
-    mass_kg: float = Field(default=1.0, gt=0.0, description="Masa del bloque en kg")
-    friction_coefficient: float = Field(default=0.1, ge=0.0, description="Coeficiente de fricción cinético mu")
+    angle_degrees: float = Field(..., description="Ángulo de inclinación del plano (grados) TAL COMO está dibujado/escrito (puede ser negativo si el estudiante se equivocó)")
+    mass_kg: float = Field(default=1.0, description="Masa del bloque en kg")
+    friction_coefficient: float = Field(default=0.1, description="Coeficiente de fricción cinético mu")
     gravity_m_s2: float = Field(default=9.8, gt=0.0, description="Aceleración de gravedad")
     acceleration_m_s2: float = Field(..., description="Aceleración neta: g*(sin(theta) - mu*cos(theta))")
     weight_n: float = Field(..., description="Fuerza peso: m*g")
     normal_force_n: float = Field(..., description="Fuerza normal: m*g*cos(theta)")
     friction_force_n: float = Field(..., description="Fuerza de fricción: mu*N")
+    static_friction_coefficient: Optional[float] = Field(default=None, description="Coeficiente de fricción ESTÁTICO mu_s si se indica (decide si el bloque arranca)")
+    friction_arrow_direction: Optional[Literal["up_slope", "down_slope", "none"]] = Field(default=None, description="Sentido en que el estudiante DIBUJÓ la flecha de fricción (debe oponerse al movimiento: up_slope si el bloque baja)")
 
 
 class SimplePendulumSimulation(BaseModel):
     """1.2. Péndulo Simple."""
     exercise_type: Literal["simple_pendulum"] = "simple_pendulum"
-    length_m: float = Field(..., gt=0.0, description="Longitud de la cuerda del péndulo (metros)")
+    length_m: float = Field(..., description="Longitud de la cuerda del péndulo (metros)")
     initial_angle_degrees: float = Field(..., description="Ángulo inicial de oscilación theta_0 (grados)")
     mass_kg: float = Field(default=0.5, gt=0.0, description="Masa de la lenteja/esfera suspendida (kg)")
     gravity_m_s2: float = Field(default=9.8, gt=0.0, description="Gravedad")
@@ -33,8 +35,8 @@ class SimplePendulumSimulation(BaseModel):
 class ProjectileMotionSimulation(BaseModel):
     """1.3. Tiro Parabólico (Lanzamiento de Proyectiles)."""
     exercise_type: Literal["projectile_motion"] = "projectile_motion"
-    initial_velocity_m_s: float = Field(..., gt=0.0, description="Velocidad inicial v0 (m/s)")
-    launch_angle_degrees: float = Field(..., ge=0.0, le=90.0, description="Ángulo de elevación theta (grados)")
+    initial_velocity_m_s: float = Field(..., description="Velocidad inicial v0 (m/s)")
+    launch_angle_degrees: float = Field(..., description="Ángulo de elevación theta (grados), tal como está dibujado")
     initial_height_m: float = Field(default=0.0, ge=0.0, description="Altura inicial de lanzamiento (m)")
     gravity_m_s2: float = Field(default=9.8, gt=0.0, description="Gravedad")
     max_height_m: float = Field(..., description="Altura máxima Hmax")
@@ -45,8 +47,8 @@ class ProjectileMotionSimulation(BaseModel):
 class MassSpringSimulation(BaseModel):
     """1.4. Sistema Masa-Resorte (Ley de Hooke)."""
     exercise_type: Literal["mass_spring"] = "mass_spring"
-    spring_constant_k_n_m: float = Field(..., gt=0.0, description="Constante de rigidez elástica k (N/m)")
-    mass_kg: float = Field(..., gt=0.0, description="Masa acoplada al resorte (kg)")
+    spring_constant_k_n_m: float = Field(..., description="Constante de rigidez elástica k (N/m)")
+    mass_kg: float = Field(..., description="Masa acoplada al resorte (kg)")
     initial_displacement_m: float = Field(..., description="Elongación o compresión inicial delta_x (m)")
     damping_coefficient: float = Field(default=0.0, ge=0.0, description="Coeficiente de amortiguamiento")
     angular_frequency_rad_s: float = Field(..., description="Frecuencia angular omega = sqrt(k/m)")
@@ -71,8 +73,9 @@ class RectilinearMotionSimulation(BaseModel):
 class AtwoodMachineSimulation(BaseModel):
     """1.6. Máquina de Atwood (Poleas y Cuerdas)."""
     exercise_type: Literal["atwood_machine"] = "atwood_machine"
-    mass_1_kg: float = Field(..., gt=0.0, description="Masa 1 colgante (kg)")
-    mass_2_kg: float = Field(..., gt=0.0, description="Masa 2 colgante (kg)")
+    mass_1_kg: float = Field(..., description="Masa 1 colgante (kg)")
+    mass_2_kg: float = Field(..., description="Masa 2 colgante (kg)")
+    drawn_acceleration_toward: Optional[Literal["mass_1", "mass_2", "none"]] = Field(default=None, description="Hacia qué masa apunta HACIA ABAJO la flecha de aceleración que dibujó el estudiante")
     pulley_radius_m: float = Field(default=0.1, gt=0.0, description="Radio de la polea (m)")
     gravity_m_s2: float = Field(default=9.8, gt=0.0, description="Gravedad")
     acceleration_m_s2: float = Field(..., description="Aceleración neta: g*|m1-m2|/(m1+m2)")
@@ -115,4 +118,5 @@ class PhysicsAnalysisResult(BaseModel):
     explanation: str = Field(..., description="Resumen conciso del ejercicio físico identificado")
     raw_annotations: list[str] = Field(default_factory=list, description="Valores y notas textuales manuscritas")
     simulation_data: PhysicsSimulationData = Field(..., description="Parámetros físicos listos para el simulador")
+    tutor: TutorFeedback = tutor_field()
 

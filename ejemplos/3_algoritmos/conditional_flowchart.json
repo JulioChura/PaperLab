@@ -131,5 +131,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El rombo divide el camino en dos: solo una de las ramas se ejecuta, según la nota.",
+    "socratic_challenge": "¿Qué imprimiría el diagrama si la nota fuera exactamente 11? ¿Y 10.5?",
+    "hint": "Fíjate si la condición usa ≥ o >.",
+    "fun_fact": "Las decisiones SI/ENTONCES son la base de todos los programas: hasta un videojuego es una montaña de condiciones.",
+    "mistakes": []
+  }
 }

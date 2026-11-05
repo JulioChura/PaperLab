@@ -1,0 +1,337 @@
+{
+  "title": "Misión: la suma de Gauss",
+  "exercise_id": "loop_flowchart",
+  "exercise_type": "loop_flowchart",
+  "exercise_name": "Misión: la suma de Gauss",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "loop_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "s = 0, i = 1"
+      },
+      {
+        "id": "n3",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "i <= 10"
+      },
+      {
+        "id": "n4",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "s = s + i"
+      },
+      {
+        "id": "n5",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "i = i + 1"
+      },
+      {
+        "id": "n6",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir s"
+      },
+      {
+        "id": "n7",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4",
+        "condition_label": "SÍ"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n5"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n6",
+        "condition_label": "NO"
+      },
+      {
+        "from_node_id": "n6",
+        "to_node_id": "n7"
+      }
+    ],
+    "loop_condition": "i <= 10",
+    "loop_variable": "i",
+    "generated_code_py": "s, i = 0, 1\nwhile i <= 10:\n    s = s + i\n    i = i + 1\nprint(s)",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "s = 0, i = 1",
+        "variables": {
+          "s": "0",
+          "i": "1"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n4",
+        "description": "1 <= 10 → s = 0 + 1 = 1",
+        "variables": {
+          "s": "1",
+          "i": "1"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n5",
+        "description": "i = 2",
+        "variables": {
+          "s": "1",
+          "i": "2"
+        }
+      },
+      {
+        "step": 5,
+        "node_id": "n4",
+        "description": "2 <= 10 → s = 1 + 2 = 3",
+        "variables": {
+          "s": "3",
+          "i": "2"
+        }
+      },
+      {
+        "step": 6,
+        "node_id": "n5",
+        "description": "i = 3",
+        "variables": {
+          "s": "3",
+          "i": "3"
+        }
+      },
+      {
+        "step": 7,
+        "node_id": "n4",
+        "description": "3 <= 10 → s = 3 + 3 = 6",
+        "variables": {
+          "s": "6",
+          "i": "3"
+        }
+      },
+      {
+        "step": 8,
+        "node_id": "n5",
+        "description": "i = 4",
+        "variables": {
+          "s": "6",
+          "i": "4"
+        }
+      },
+      {
+        "step": 9,
+        "node_id": "n4",
+        "description": "4 <= 10 → s = 6 + 4 = 10",
+        "variables": {
+          "s": "10",
+          "i": "4"
+        }
+      },
+      {
+        "step": 10,
+        "node_id": "n5",
+        "description": "i = 5",
+        "variables": {
+          "s": "10",
+          "i": "5"
+        }
+      },
+      {
+        "step": 11,
+        "node_id": "n4",
+        "description": "5 <= 10 → s = 10 + 5 = 15",
+        "variables": {
+          "s": "15",
+          "i": "5"
+        }
+      },
+      {
+        "step": 12,
+        "node_id": "n5",
+        "description": "i = 6",
+        "variables": {
+          "s": "15",
+          "i": "6"
+        }
+      },
+      {
+        "step": 13,
+        "node_id": "n4",
+        "description": "6 <= 10 → s = 15 + 6 = 21",
+        "variables": {
+          "s": "21",
+          "i": "6"
+        }
+      },
+      {
+        "step": 14,
+        "node_id": "n5",
+        "description": "i = 7",
+        "variables": {
+          "s": "21",
+          "i": "7"
+        }
+      },
+      {
+        "step": 15,
+        "node_id": "n4",
+        "description": "7 <= 10 → s = 21 + 7 = 28",
+        "variables": {
+          "s": "28",
+          "i": "7"
+        }
+      },
+      {
+        "step": 16,
+        "node_id": "n5",
+        "description": "i = 8",
+        "variables": {
+          "s": "28",
+          "i": "8"
+        }
+      },
+      {
+        "step": 17,
+        "node_id": "n4",
+        "description": "8 <= 10 → s = 28 + 8 = 36",
+        "variables": {
+          "s": "36",
+          "i": "8"
+        }
+      },
+      {
+        "step": 18,
+        "node_id": "n5",
+        "description": "i = 9",
+        "variables": {
+          "s": "36",
+          "i": "9"
+        }
+      },
+      {
+        "step": 19,
+        "node_id": "n4",
+        "description": "9 <= 10 → s = 36 + 9 = 45",
+        "variables": {
+          "s": "45",
+          "i": "9"
+        }
+      },
+      {
+        "step": 20,
+        "node_id": "n5",
+        "description": "i = 10",
+        "variables": {
+          "s": "45",
+          "i": "10"
+        }
+      },
+      {
+        "step": 21,
+        "node_id": "n4",
+        "description": "10 <= 10 → s = 45 + 10 = 55",
+        "variables": {
+          "s": "55",
+          "i": "10"
+        }
+      },
+      {
+        "step": 22,
+        "node_id": "n5",
+        "description": "i = 11",
+        "variables": {
+          "s": "55",
+          "i": "11"
+        }
+      },
+      {
+        "step": 23,
+        "node_id": "n3",
+        "description": "11 <= 10 es falso: sale del bucle",
+        "variables": {
+          "s": "55",
+          "i": "11"
+        }
+      },
+      {
+        "step": 24,
+        "node_id": "n6",
+        "description": "Imprime s",
+        "variables": {
+          "s": "55",
+          "i": "11"
+        },
+        "output": "55"
+      },
+      {
+        "step": 25,
+        "node_id": "n7",
+        "description": "Fin",
+        "variables": {
+          "s": "55",
+          "i": "11"
+        }
+      }
+    ]
+  },
+  "explanation": "Bucle mientras i <= 10 que acumula s = s + i.",
+  "question": "Hallar el valor final de s",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bucle perfecto! El acumulador s suma cada valor de i y el contador avanza hasta salir en i = 11.",
+    "socratic_challenge": "¿Cómo cambiarías el diagrama para sumar solo los números pares del 1 al 10?",
+    "fun_fact": "De niño, Gauss sumó del 1 al 100 emparejando números: 50 parejas de 101 dan 5050.",
+    "mistakes": []
+  }
+}

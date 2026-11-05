@@ -24,5 +24,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Con el interruptor abierto no hay camino cerrado y la corriente es 0 A; al cerrarlo circulan 0.2 A.",
+    "socratic_challenge": "¿Importa en qué parte de la malla pongas el interruptor?",
+    "hint": "En una malla simple solo hay un camino.",
+    "fun_fact": "El interruptor de tu cuarto no \"guarda\" electricidad: solo abre o cierra el camino de la corriente.",
+    "mistakes": []
+  }
 }

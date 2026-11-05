@@ -30,5 +30,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La parábola abre hacia arriba, así que es ≥ 0 fuera de las raíces: x ≤ −1 o x ≥ 5/2.",
+    "socratic_challenge": "¿Cómo cambiaría el conjunto solución si el signo fuera ≤?",
+    "hint": null,
+    "fun_fact": "Los ingenieros usan inecuaciones para definir márgenes de seguridad: por ejemplo, la carga máxima de un puente.",
+    "mistakes": []
+  }
 }

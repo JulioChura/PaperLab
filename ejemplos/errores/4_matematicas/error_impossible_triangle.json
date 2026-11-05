@@ -1,0 +1,52 @@
+{
+  "title": "Triángulo imposible",
+  "exercise_id": "geometric_angles",
+  "exercise_type": "geometric_angles",
+  "exercise_name": "Triángulo imposible",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "geometric_angles",
+    "problem_type": "triangle_cevian",
+    "known_angles_deg": {
+      "A": 100,
+      "B": 95
+    },
+    "unknown_variable": "x",
+    "solved_value_deg": -15,
+    "theorem_applied": "Suma de ángulos internos del triángulo",
+    "proof_steps": [
+      "La suma de ángulos internos es 180°",
+      "100° + 95° + x = 180°",
+      "x = −15°: ¡imposible!"
+    ]
+  },
+  "explanation": "Triángulo con ángulos de 100° y 95°; hallar x.",
+  "question": "Hallar el valor de x",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "impossible_triangle",
+    "pedagogical_feedback": "¡Cuidado! Los ángulos que escribiste ya suman 195°, y en un triángulo los tres ángulos internos suman exactamente 180°. Por eso x saldría negativo.",
+    "socratic_challenge": "Si dos ángulos ya ocupan 180° o más, ¿cuánto espacio le queda al tercero?",
+    "hint": "Un triángulo solo puede tener UN ángulo obtuso (mayor de 90°).",
+    "fun_fact": "En la superficie de una esfera sí existen triángulos cuyos ángulos suman más de 180°.",
+    "mistakes": [
+      {
+        "code": "impossible_triangle",
+        "severity": "critical",
+        "description": "Los ángulos conocidos ya suman 195°."
+      }
+    ]
+  }
+}

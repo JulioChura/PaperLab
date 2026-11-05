@@ -276,5 +276,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! % 10 extrae el último dígito y // 10 lo elimina: 2 + 7 + 4 = 13.",
+    "socratic_challenge": "¿Cuándo se detiene el bucle y por qué?",
+    "hint": "¿Qué valor tiene n después de dividirlo entre 10 tres veces?",
+    "fun_fact": "Los códigos de barras usan una suma de dígitos (dígito de control) para detectar errores de lectura.",
+    "mistakes": []
+  }
 }

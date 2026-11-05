@@ -32,5 +32,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Por el criterio LAL los triángulos son congruentes, así que sus ángulos correspondientes son iguales.",
+    "socratic_challenge": "¿Qué otros criterios de congruencia conoces y qué datos necesita cada uno?",
+    "hint": null,
+    "fun_fact": "Los puentes usan armaduras triangulares porque el triángulo es la única figura que no se deforma si sus lados son rígidos.",
+    "mistakes": []
+  }
 }

@@ -186,6 +186,88 @@ class SingleLoop extends CircuitSim {
   }
 }
 
+// =====================================================================================
+// 1b. Malla con FALLA (Tutor Socrático): cortocircuito o circuito abierto, con opción de corregirla
+// =====================================================================================
+class FaultLoop extends CircuitSim {
+  controls: SimControl[] = [{ id: 'fixed', kind: 'toggle', label: 'Corregir', icon: 'switch' }];
+  private t = 0;
+  constructor(private fault: 'short' | 'open', V: number, private Rfix: number) {
+    super({ V, fixed: false });
+  }
+  current() {
+    if (this.values.fixed) return this.n('V') / this.Rfix;
+    return this.fault === 'open' ? 0 : 999;
+  }
+  update(dt: number) {
+    this.t += dt;
+    this.phase += flowSpeed(this.values.fixed ? this.current() : this.fault === 'short' ? 4 : 0, this.u) * dt;
+  }
+  draw(fc: FigureCanvas) {
+    this.u = fc.u;
+    const u = fc.u;
+    const { x0, y0, x1, y1 } = frame(fc, 2.4);
+    const xb = x0 + u * 1.5;
+    const midY = (y0 + y1) / 2;
+    const fixed = !!this.values.fixed;
+    const loop: Pt[] = [[xb, midY - u * 0.3], [xb, y0], [x1, y0], [x1, y1], [xb, y1], [xb, midY + u * 0.3]];
+    const gx = x0 + (x1 - x0) * 0.58;
+    if (this.fault === 'short' && !fixed) {
+      // cable directo entre bornes: brilla en rojo y chisporrotea
+      const flick = 0.55 + 0.45 * Math.abs(Math.sin(this.t * 17));
+      fc.lightPath(loop, POS, fc.stroke * 3.2, flick);
+      fc.flowChevrons(loop, this.phase, POS, 0.95);
+      fc.path(loop, 'ink', 1);
+      for (let i = 0; i < 5; i++) {
+        const a = this.t * 9 + i * 1.3;
+        fc.glow(xb + Math.cos(a) * u * 1.6, midY + Math.sin(a * 1.7) * u * 1.4, u * 0.35, '#fbbf24', 0.9);
+      }
+      fc.glow(xb, midY, u * (2.6 + flick), POS, 0.45);
+      fc.lightText('¡CORTOCIRCUITO!', (x0 + x1) / 2, (y0 + y1) / 2, 1.05, POS);
+      fc.lightText('I → ∞', (x0 + x1) / 2, (y0 + y1) / 2 + u * 1.4, 0.85, POS);
+    } else if (this.fault === 'open' && !fixed) {
+      fc.potentialPath(loop, POS, NEG, fc.stroke * 2.4, 0.2);
+      fc.line(xb, y0, gx - u * 1.1, y0);
+      fc.line(gx + u * 1.1, y0, x1, y0);
+      fc.line(x1, y0, x1, y1);
+      fc.line(x1, y1, xb, y1);
+      fc.circle(gx - u * 1.1, y0, u * 0.45, 'ink', 1, 'solid');
+      fc.circle(gx + u * 1.1, y0, u * 0.45, 'ink', 1, 'solid');
+      fc.glow(gx, y0, u * 1.6, '#f59e0b', 0.5 + 0.3 * Math.sin(this.t * 4));
+      fc.lightText('corte', gx, y0 + u * 1.5, 0.75, '#f59e0b');
+      bulb(fc, x1, (y0 + y1) / 2, 0);
+      fc.lightText('I = 0 A', (x0 + x1) / 2, (y0 + y1) / 2 + u * 0.4, 0.95, NEG);
+    } else {
+      wireFlow(fc, loop, this.phase, this.current());
+      const rx0 = x0 + (x1 - x0) * 0.4;
+      const rx1 = x0 + (x1 - x0) * 0.72;
+      fc.line(xb, y0, rx0, y0);
+      resistor(fc, [rx0, y0], [rx1, y0], `R = ${f(this.Rfix)} Ω`);
+      fc.line(rx1, y0, x1, y0);
+      const by = (y0 + y1) / 2;
+      fc.line(x1, y0, x1, by - u * 1.1);
+      fc.line(x1, by + u * 1.1, x1, y1);
+      bulb(fc, x1, by, 0.8);
+      fc.line(x1, y1, xb, y1);
+      fc.lightText('corregido', (x0 + x1) / 2, (y0 + y1) / 2 + u * 0.4, 0.8, ON);
+    }
+    if (this.fault === 'short' && !fixed) fc.line(xb, y0, xb, midY - u * 0.25);
+    fc.line(xb, midY + u * 0.25, xb, y1);
+    fc.line(xb, y0, xb, midY - u * 0.25);
+    battery(fc, xb, midY, `${f(this.n('V'))} V`);
+  }
+  readouts() {
+    const fixed = !!this.values.fixed;
+    if (!fixed && this.fault === 'short') return [{ label: 'I', value: '→ ∞ (peligro)' }, { label: 'R', value: '0 Ω' }];
+    if (!fixed) return [{ label: 'I', value: '0 A' }, { label: 'Malla', value: 'abierta' }];
+    return [{ label: 'I', value: `${f(this.current(), 3)} A` }, { label: 'R', value: `${f(this.Rfix)} Ω` }];
+  }
+  caption() {
+    if (this.values.fixed) return this.fault === 'short' ? 'Con una carga de por medio, la corriente queda limitada por R.' : 'Malla cerrada: los electrones vuelven a la batería.';
+    return this.fault === 'short' ? 'Sin carga, R ≈ 0 y la batería se descargaría de golpe calentándose. Pulsa «Corregir».' : 'Un corte en la malla detiene toda la corriente. Pulsa «Corregir».';
+  }
+}
+
 function colorOf(name: string): string {
   const map: Record<string, string> = { red: '#f87171', rojo: '#f87171', green: '#4ade80', verde: '#4ade80', blue: '#60a5fa', azul: '#60a5fa', white: '#f8fafc', blanco: '#f8fafc' };
   return map[(name || '').toLowerCase()] ?? BULB;
@@ -714,7 +796,23 @@ export function circuitPlan(exerciseType: string, d: Record<string, unknown>): S
   const list = (v: unknown, fb: number[]) => (Array.isArray(v) && v.length ? v.map((x) => Math.max(0.01, num(x, 100))) : fb);
   switch (exerciseType) {
     case 'single_loop': {
-      const R = Math.max(0.01, num(d.resistance_ohms, 100));
+      const rawR = num(d.resistance_ohms, 100);
+      if (d.circuit_closed === false || rawR <= 0) {
+        const fault = d.circuit_closed === false ? 'open' : 'short';
+        const Rfix = fault === 'open' && rawR > 0 ? rawR : 100;
+        return {
+          ...base,
+          summary: fault === 'short' ? 'Cortocircuito: bornes unidos sin carga' : 'Circuito abierto',
+          lines: fault === 'short'
+            ? [
+                line('Ley de Ohm', `I = V/R = ${f(V)}/0  →  I → ∞`),
+                line('Consecuencia', 'La batería se descarga de golpe y se calienta', true),
+              ]
+            : [line('Malla', 'El camino de la corriente está interrumpido'), line('Resultado', 'I = 0 A: el foco no enciende', true)],
+          figure: spec(fault === 'short' ? 'Cortocircuito' : 'Malla abierta', 1.5, () => new FaultLoop(fault, V, Rfix), 16),
+        };
+      }
+      const R = Math.max(0.01, rawR);
       const r = Math.max(0, num(d.internal_resistance_ohms, 0));
       const I = V / (R + r);
       const lines: SolutionLine[] = r > 0

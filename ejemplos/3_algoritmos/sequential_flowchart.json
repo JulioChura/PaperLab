@@ -124,5 +124,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien estructurado! Cada bloque se ejecuta una sola vez y en orden: leer, calcular y mostrar A = 15.",
+    "socratic_challenge": "¿Qué bloques agregarías para calcular también el perímetro del rectángulo?",
+    "hint": null,
+    "fun_fact": "Ada Lovelace escribió en 1843 el primer algoritmo pensado para una máquina.",
+    "mistakes": []
+  }
 }

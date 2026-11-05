@@ -95,3 +95,8 @@ proyecto_consolidado.md
 *.tmp
 *.bak
 *.swp
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/

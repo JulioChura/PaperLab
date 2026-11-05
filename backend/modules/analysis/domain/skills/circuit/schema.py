@@ -2,17 +2,19 @@
 
 from typing import Annotated, Literal, Optional, Union
 from pydantic import BaseModel, Field
-from shared.types import BaseAnalysisResult, BoundingBox, SkillId
+from shared.types import BaseAnalysisResult, BoundingBox, SkillId, TutorFeedback, tutor_field
 
 
 class SingleLoopSimulation(BaseModel):
     """2.1. Circuito Simple de Malla Única."""
     exercise_type: Literal["single_loop"] = "single_loop"
-    voltage_v: float = Field(..., gt=0.0, description="Voltaje de la fuente V")
-    resistance_ohms: float = Field(..., gt=0.0, description="Resistencia total R en Ohms")
+    voltage_v: float = Field(..., description="Voltaje de la fuente V")
+    resistance_ohms: float = Field(..., ge=0.0, description="Resistencia total R en Ohms (0 si los bornes están unidos por un cable sin carga: cortocircuito)")
+    circuit_closed: bool = Field(default=True, description="false si la malla dibujada está interrumpida (circuito abierto)")
     current_a: float = Field(..., description="Corriente I = V / R en Amperios")
     power_w: float = Field(..., description="Potencia disipada P = V * I en Watts")
     has_led: bool = Field(default=True, description="Indica si contiene una bombilla o LED")
+    is_diode_led: bool = Field(default=False, description="true SOLO si la carga es un diodo LED (triángulo con barra y flechas), no un foco/bombilla incandescente")
     led_color: Optional[str] = Field(default="yellow", description="Color proyectado para el LED")
     internal_resistance_ohms: Optional[float] = Field(default=None, ge=0.0, description="Resistencia interna r de la fuente (si se indica)")
 
@@ -20,7 +22,8 @@ class SingleLoopSimulation(BaseModel):
 class SeriesResistorsSimulation(BaseModel):
     """2.2. Resistencias en Serie."""
     exercise_type: Literal["series_resistors"] = "series_resistors"
-    voltage_v: float = Field(..., gt=0.0, description="Voltaje total de alimentación V")
+    voltage_v: float = Field(..., description="Voltaje total de alimentación V")
+    circuit_closed: bool = Field(default=True, description="false si la malla dibujada está interrumpida")
     resistors_ohms: list[float] = Field(..., min_length=2, description="Valores individuales de cada resistencia en serie")
     equivalent_resistance_ohms: float = Field(..., description="Resistencia equivalente Req = sum(Ri)")
     current_a: float = Field(..., description="Corriente del circuito I = V / Req")
@@ -30,7 +33,7 @@ class SeriesResistorsSimulation(BaseModel):
 class ParallelResistorsSimulation(BaseModel):
     """2.3. Resistencias en Paralelo."""
     exercise_type: Literal["parallel_resistors"] = "parallel_resistors"
-    voltage_v: float = Field(..., gt=0.0, description="Voltaje de los nodos en paralelo")
+    voltage_v: float = Field(..., description="Voltaje de los nodos en paralelo")
     resistors_ohms: list[float] = Field(..., min_length=2, description="Valores individuales de resistores en paralelo")
     equivalent_resistance_ohms: float = Field(..., description="Req tal que 1/Req = sum(1/Ri)")
     branch_currents_a: list[float] = Field(..., description="Corriente por cada rama Ii = V / Ri")
@@ -41,8 +44,8 @@ class InteractiveSwitchSimulation(BaseModel):
     """2.4. Circuito con Interruptor Interactivo (Switch)."""
     exercise_type: Literal["interactive_switch"] = "interactive_switch"
     initial_state: Literal["open", "closed"] = Field(..., description="Estado inicial del interruptor")
-    voltage_v: float = Field(..., gt=0.0, description="Voltaje de la fuente")
-    load_resistance_ohms: float = Field(..., gt=0.0, description="Resistencia de la carga")
+    voltage_v: float = Field(..., description="Voltaje de la fuente")
+    load_resistance_ohms: float = Field(..., ge=0.0, description="Resistencia de la carga (0 = cortocircuito al cerrar)")
     current_open_a: float = Field(default=0.0, description="Corriente en estado abierto (0 A)")
     current_closed_a: float = Field(..., description="Corriente en estado cerrado (V / R)")
     switch_location: Optional[BoundingBox] = Field(default=None, description="Ubicación para botón interactivo táctil")
@@ -53,9 +56,9 @@ class InteractiveSwitchSimulation(BaseModel):
 class RCCircuitSimulation(BaseModel):
     """2.5. Circuito RC (Carga y Descarga)."""
     exercise_type: Literal["rc_circuit"] = "rc_circuit"
-    voltage_v: float = Field(..., gt=0.0, description="Tensión de la fuente")
-    resistance_ohms: float = Field(..., gt=0.0, description="Resistencia en serie")
-    capacitance_uf: float = Field(..., gt=0.0, description="Capacitancia del condensador en microfaradios")
+    voltage_v: float = Field(..., description="Tensión de la fuente")
+    resistance_ohms: float = Field(..., ge=0.0, description="Resistencia en serie")
+    capacitance_uf: float = Field(..., description="Capacitancia del condensador en microfaradios")
     time_constant_tau_s: float = Field(..., description="Constante de tiempo tau = R * C (segundos)")
     max_charge_uc: float = Field(..., description="Carga máxima almacenada Qmax = C * V (microcoulombs)")
     mode: Literal["charging", "discharging"] = Field(default="charging", description="Modo de simulación")
@@ -124,4 +127,5 @@ class CircuitAnalysisResult(BaseModel):
     explanation: str = Field(..., description="Explicación concisa del circuito y leyes aplicadas")
     raw_annotations: list[str] = Field(default_factory=list, description="Valores numéricos manuscritos (Ohms, Volts)")
     simulation_data: CircuitSimulationData = Field(..., description="Parámetros eléctricos para el simulador")
+    tutor: TutorFeedback = tutor_field()
 

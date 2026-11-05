@@ -11,14 +11,21 @@ import {
   Code,
   Image as ImageIcon,
   BookOpen,
+  Target,
 } from 'lucide-react';
+import { TutorDock } from '../tutor/TutorDock';
+import type { TutorMessage } from '../tutor/types';
+import { failureMessage, fallbackTutor, greetingMessage, resultMessage, scanningMessage } from '../tutor/knowledge';
+import { getProgress, progress, useProgress } from '../game/progress';
+import { missionById, type Mission } from '../game/missions';
+import { MissionPanel, MissionStamp } from '../game/GameUI';
 import { moduleThemeConfig } from '../data/colorPalette';
 import { audioJuice } from '../utils/audioJuice';
 import { analyzeDrawing } from '../services/analysisApi';
 import type { ClassificationResult } from '../services/analysisApi';
 import { analyzePaper, type NormRect } from '../ar/paperVision';
 import { buildSimulationPlan } from '../sims';
-import { examplesFor, exampleToResult, renderExamplePhoto, type Example } from '../demo/examples';
+import { exampleForMission, examplesFor, exampleToResult, renderExamplePhoto, type Example, type ExampleLevel } from '../demo/examples';
 import { compileTargetFromCanvas, loadMindAR } from '../ar/mindar';
 import type { HybridPaperTracker } from '../ar/paperTracker';
 import type { ARSolverSession } from './ARSolver/ARSolverOverlay';
@@ -84,13 +91,42 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const mod = moduleThemeConfig[moduleId as keyof typeof moduleThemeConfig] || moduleThemeConfig.physics;
   // Los 4 módulos tienen solución/simulación sobre la hoja
   const supportsArSolver = true;
-  const [exampleLevel, setExampleLevel] = useState<1 | 2>(1);
+  const [exampleLevel, setExampleLevel] = useState<ExampleLevel>(1);
   const examples = examplesFor(moduleId, exampleLevel);
   const [showExamples, setShowExamples] = useState(false);
   /** Ejemplo activo: su JSON sustituye al análisis de la IA (no gasta llamadas). */
   const [mockExample, setMockExample] = useState<Example | null>(null);
 
   useEffect(() => () => trackerRef.current?.dispose(), []);
+
+  // ---------------------------------------------------------------- tutor y misiones
+  const prog = useProgress();
+  const activeMission = (() => {
+    const m = missionById(prog.activeMissionId);
+    return m && m.module === moduleId ? m : null;
+  })();
+  const [tutorMsg, setTutorMsg] = useState<TutorMessage>(() => greetingMessage(moduleId, !getProgress().greeted));
+  const [showMissions, setShowMissions] = useState(false);
+  const [stamp, setStamp] = useState<{ title: string; xp: number; measure?: string } | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    progress.setGreeted();
+  }, []);
+
+  // Al aceptar una misión, Lumi la presenta (ajuste de estado durante el render, sin efecto)
+  const [announcedMission, setAnnouncedMission] = useState<string | null>(null);
+  if (activeMission && announcedMission !== activeMission.id) {
+    setAnnouncedMission(activeMission.id);
+    setTutorMsg({
+      key: `mission-${activeMission.id}`,
+      mood: 'curious',
+      tone: 'mission',
+      title: `Misión: ${activeMission.title}`,
+      text: `${activeMission.brief} Condición: ${activeMission.goal}.`,
+      hint: activeMission.hint,
+    });
+  }
 
   // Pre-carga MindAR mientras el alumno encuadra (no bloquea la UI)
   useEffect(() => {
@@ -188,6 +224,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const handlePickExample = async (ex: Example) => {
     audioJuice.playPaperFlip();
     setShowExamples(false);
+    if (ex.missionId) progress.setActiveMission(ex.missionId);
     resetAr();
     const photo = await renderExamplePhoto(ex);
     setMockExample(ex);
@@ -218,8 +255,9 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
       return;
     }
     const dataUrl = frame.toDataURL('image/jpeg', 0.9);
-    setShutter({ key: Date.now(), thumb: dataUrl });
+    setShutter({ key: ++sessionCounter, thumb: dataUrl });
     setPhase('scanning');
+    setTutorMsg(scanningMessage());
 
     const live = !uploadedImage && !!videoRef.current;
     // Modo foto fija: la captura se congela en pantalla con el mismo encuadre que el video
@@ -246,6 +284,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
         : await analyzeDrawing(dataUrl, moduleId);
       console.info('[PaperLab AI] Ejercicio identificado:', result.exercise_type, result.parameters);
       const plan = supportsArSolver ? buildPlan(result) : null;
+      const { tutor, hasError } = reactToResult(result, activeMission);
       const media = freeze ? frozenRef.current : live ? videoRef.current : imageRef.current;
 
       if (plan && media) {
@@ -265,6 +304,11 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           space: { width: space.width, height: space.height },
           tracker,
           question: result.question,
+          exerciseType: result.exercise_type,
+          data: result.parameters as Record<string, unknown>,
+          tutor,
+          hologram: hasError,
+          drawingBox: hint,
         });
         setPhase('ar');
       } else {
@@ -276,11 +320,57 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
     } catch (err: unknown) {
       disposeTracker();
       setFrozenFrame(null);
-      setAnalysisError(err instanceof Error ? err.message : 'Error desconocido al analizar la imagen.');
+      const message = err instanceof Error ? err.message : 'Error desconocido al analizar la imagen.';
+      setAnalysisError(message);
+      setTutorMsg(failureMessage(message));
       setCompileProgress(null);
       setPhase('live');
       console.error('[PaperLab AI] Error en clasificación:', err);
     }
+  };
+
+  /** Tutor + misión + XP: decide qué dice Lumi tras un análisis. */
+  function reactToResult(result: ClassificationResult, mission: Mission | null) {
+    const tutor = result.tutor ?? fallbackTutor(moduleId);
+    const outcome = mission ? mission.evaluate(result) : null;
+    const expected = !!(outcome?.ok && tutor.error_type && mission?.expectedMistakes?.includes(tutor.error_type));
+    const hasError = tutor.has_error && !expected;
+    progress.recordScan({ module: moduleId, exerciseType: result.exercise_type, hasError, level: mockExample?.level });
+
+    if (mission && outcome?.ok) {
+      const xp = progress.completeMission(mission.id);
+      setStamp({ title: mission.title, xp, measure: outcome.measure });
+      setTutorMsg({
+        key: `mission-ok-${Date.now()}`,
+        mood: 'celebrating',
+        tone: 'success',
+        title: '¡Misión cumplida!',
+        text: outcome.detail,
+        question: tutor.socratic_challenge || undefined,
+        funFact: tutor.fun_fact ?? undefined,
+      });
+    } else if (mission && outcome && !hasError) {
+      setTutorMsg({
+        key: `mission-ko-${Date.now()}`,
+        mood: 'thinking',
+        tone: 'mission',
+        title: `Casi… · ${mission.title}`,
+        text: `${outcome.detail}${outcome.measure ? ` (${outcome.measure})` : ''}`,
+        question: outcome.challenge,
+        hint: mission.hint,
+        funFact: tutor.fun_fact ?? undefined,
+      });
+    } else {
+      setTutorMsg(resultMessage(tutor, result.exercise_name, expected));
+    }
+    return { tutor, hasError };
+  }
+
+  const handleMissionDemo = (m: Mission) => {
+    const ex = exampleForMission(m.id);
+    setShowMissions(false);
+    progress.setActiveMission(m.id);
+    if (ex) void handlePickExample(ex);
   };
 
   const isScanning = phase === 'scanning';
@@ -335,6 +425,8 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
             audioJuice.playTap();
             resetAr();
           }}
+          blockers={() => [dockRef.current]}
+          autoNarrate={prog.settings.autoNarrate}
         />
         </Suspense>
       )}
@@ -342,7 +434,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
       {uploadedImage && (
         <div className="absolute top-16 right-4 z-20 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-600 text-slate-200 font-telemetry text-xs flex items-center gap-2 backdrop-blur-md">
           <ImageIcon className="w-3.5 h-3.5" />
-          <span>{mockExample ? `Ejemplo: ${mockExample.title}` : 'Foto del cuaderno'}</span>
+          <span className="truncate max-w-[55vw] sm:max-w-xs">{mockExample ? `Ejemplo: ${mockExample.title}` : 'Foto del cuaderno'}</span>
           <button onClick={handleClearUploadedImage} className="ml-1 hover:text-white cursor-pointer" title="Volver a la cámara">
             <X className="w-3.5 h-3.5" />
           </button>
@@ -425,12 +517,19 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
             >
               Reintentar cámara
             </button>
+            <button
+              onClick={() => setShowExamples(true)}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-telemetry text-xs cursor-pointer flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Probar con ejemplos
+            </button>
           </div>
         </div>
       )}
 
       {/* Barra superior */}
-      <div className="relative z-20 w-full p-4 flex items-center justify-between text-xs font-telemetry pointer-events-auto">
+      <div className="relative z-[35] w-full p-4 flex items-center justify-between text-xs font-telemetry pointer-events-auto">
         <button
           onClick={() => {
             audioJuice.playPaperFlip();
@@ -442,15 +541,28 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           <span className="hidden sm:inline">Volver al menú</span>
         </button>
 
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white shadow-lg backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: mod.accent }} />
-          <span className="font-bold">{mod.title}</span>
-        </div>
+        {activeMission ? (
+          <button
+            onClick={() => setShowMissions(true)}
+            className="flex items-center gap-2 min-w-0 max-w-[42vw] sm:max-w-sm px-3 py-1.5 rounded-xl bg-fuchsia-950/80 border border-fuchsia-400/60 text-white shadow-lg backdrop-blur-md cursor-pointer"
+            title={`Misión activa: ${activeMission.brief}`}
+            data-testid="active-mission-chip"
+          >
+            <Target className="w-4 h-4 shrink-0 text-fuchsia-300" />
+            <span className="font-bold truncate">{activeMission.title}</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white shadow-lg backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: mod.accent }} />
+            <span className="font-bold">{mod.title}</span>
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           {examplesFor(moduleId, 1).length > 0 && (
             <button
               onClick={() => setShowExamples((v) => !v)}
+              data-testid="open-examples"
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-lg backdrop-blur-md cursor-pointer"
               title="Ejercicios de ejemplo (sin gastar análisis de IA)"
             >
@@ -459,9 +571,19 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
             </button>
           )}
           <button
+            onClick={() => setShowMissions(true)}
+            className="p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-lg backdrop-blur-md cursor-pointer"
+            title="Misiones"
+            aria-label="Abrir misiones"
+            data-testid="open-missions"
+          >
+            <Target className="w-4 h-4 text-fuchsia-300" />
+          </button>
+          <button
             onClick={() => fileInputRef.current?.click()}
             className="p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-lg backdrop-blur-md cursor-pointer"
             title="Subir foto del cuaderno"
+            aria-label="Subir foto del cuaderno"
           >
             <Upload className="w-4 h-4 text-cyan-400" />
           </button>
@@ -519,25 +641,31 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
             </button>
           </div>
           <div className="flex gap-1 px-3 pt-2.5">
-            {([1, 2] as const).map((lv) => (
+            {([1, 2, 'error', 'mission'] as const).map((lv) => (
               <button
                 key={lv}
                 onClick={() => setExampleLevel(lv)}
-                className="flex-1 py-1.5 rounded-lg text-xs font-telemetry border cursor-pointer"
+                className="flex-1 py-1.5 rounded-lg text-[11px] font-telemetry border cursor-pointer"
                 style={exampleLevel === lv ? { background: `${mod.accent}33`, borderColor: mod.accent, color: '#fff' } : { borderColor: '#334155', color: '#94a3b8' }}
+                data-testid={`examples-tab-${lv}`}
               >
-                Nivel {lv}{lv === 2 ? ' · más exigente' : ''}
+                {lv === 'error' ? 'Errores' : lv === 'mission' ? 'Misiones' : `Nivel ${lv}`}
               </button>
             ))}
           </div>
           <ul className="max-h-[50vh] overflow-y-auto p-1.5">
             {examples.map((ex) => (
-              <li key={`${ex.level}-${ex.exercise_type}`}>
+              <li key={`${ex.level}-${ex.id ?? ex.exercise_type}`}>
                 <button
                   onClick={() => void handlePickExample(ex)}
+                  data-testid={`example-${ex.id ?? ex.exercise_type}`}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/5 cursor-pointer"
                 >
-                  <span className="block text-sm font-display font-semibold">{ex.title}</span>
+                  <span className="block text-sm font-display font-semibold">
+                    {ex.level === 'error' && <span className="mr-1.5 text-amber-300" aria-hidden="true">⚠</span>}
+                    {ex.level === 'mission' && <span className="mr-1.5 text-fuchsia-300" aria-hidden="true">🎯</span>}
+                    {ex.title}
+                  </span>
                   <span className="block text-[11px] font-telemetry text-slate-400 truncate">{ex.explanation}</span>
                 </button>
               </li>
@@ -570,8 +698,31 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
             </span>
             <span>Confianza: {(classificationResult.confidence * 100).toFixed(1)}%</span>
           </div>
-          <p className="mt-2 text-[10px] text-slate-500">La resolución AR sobre la hoja está disponible para ecuaciones y gráficas de funciones.</p>
+          <p className="mt-2 text-[10px] text-slate-500">No se pudo dibujar la simulación sobre la hoja para estos datos; revisa los parámetros detectados.</p>
         </div>
+      )}
+
+      {/* Lumi, el tutor socrático: siempre presente */}
+      <TutorDock
+        message={tutorMsg}
+        module={moduleId}
+        placement={inAr ? 'ar' : 'live'}
+        autoSpeak={prog.settings.autoNarrate && !inAr}
+        dockRef={dockRef}
+      />
+
+      {stamp && <MissionStamp title={stamp.title} xp={stamp.xp} measure={stamp.measure} onDone={() => setStamp(null)} />}
+
+      {showMissions && (
+        <MissionPanel
+          module={moduleId}
+          onClose={() => setShowMissions(false)}
+          onStart={(m) => {
+            progress.setActiveMission(m.id);
+            setShowMissions(false);
+          }}
+          onDemo={handleMissionDemo}
+        />
       )}
 
       {analysisError && (
@@ -593,6 +744,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           <button
             onClick={handleAnalyze}
             disabled={isScanning}
+            data-testid="scan-button"
             className={`px-6 py-3 rounded-2xl font-display font-bold text-sm flex items-center gap-2 shadow-xl transition-all cursor-pointer ${
               isScanning ? 'bg-slate-800 text-slate-400 cursor-wait' : 'text-slate-950 active:scale-95 hover:brightness-110'
             }`}

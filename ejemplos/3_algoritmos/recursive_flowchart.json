@@ -123,5 +123,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Muy bien! Cada llamada espera a la siguiente hasta llegar al caso base; luego los resultados vuelven multiplicándose: 3·2·1 = 6.",
+    "socratic_challenge": "¿Qué ocurriría si la función no tuviera caso base?",
+    "hint": "Piensa en la pila de llamadas: ¿se detendría alguna vez?",
+    "fun_fact": "La recursión aparece en la naturaleza: cada rama de un helecho repite la forma de la hoja completa.",
+    "mistakes": []
+  }
 }

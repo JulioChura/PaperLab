@@ -1,0 +1,47 @@
+{
+  "title": "El bloque que no desliza",
+  "exercise_id": "inclined_plane",
+  "exercise_type": "inclined_plane",
+  "exercise_name": "El bloque que no desliza",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "inclined_plane",
+    "angle_degrees": 20,
+    "mass_kg": 3,
+    "friction_coefficient": 0.5,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 0,
+    "weight_n": 29.4,
+    "normal_force_n": 27.63,
+    "friction_force_n": 10.06
+  },
+  "explanation": "Bloque de 3 kg sobre una rampa de 20° con μ = 0.5: el alumno espera que acelere.",
+  "question": "Hallar la aceleración del bloque",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "surprised",
+    "has_error": true,
+    "error_type": "static_friction",
+    "pedagogical_feedback": "¡Atención! Tu bloque no se mueve porque la fricción estática máxima (μ·N = 13.8 N) supera a la componente del peso a lo largo de la rampa (m·g·sen 20° = 10.1 N).",
+    "socratic_challenge": "¿Qué ángulo mínimo necesitas para que el bloque comience a deslizar?",
+    "hint": "El bloque arranca cuando tan θ supera a μ: busca θ con tan θ = 0.5 (un poco más de 26.6°).",
+    "fun_fact": "Los esquiadores usan ceras distintas según la nieve para bajar el coeficiente de fricción y deslizar más rápido.",
+    "mistakes": [
+      {
+        "code": "static_friction",
+        "severity": "warning",
+        "description": "μ = 0.5 ≥ tan 20° = 0.36: el bloque queda en reposo."
+      }
+    ]
+  }
+}

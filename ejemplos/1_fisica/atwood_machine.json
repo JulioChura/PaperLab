@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Muy bien! La masa de 5 kg baja y arrastra a la de 3 kg; la tensión (36.75 N) queda entre ambos pesos (29.4 N y 49 N).",
+    "socratic_challenge": "¿Qué pasaría con la aceleración si las dos masas fueran iguales?",
+    "hint": "Mira el numerador de la fórmula: (m2 − m1)·g.",
+    "fun_fact": "George Atwood inventó esta máquina en 1784 para estudiar la gravedad \"a cámara lenta\".",
+    "mistakes": []
+  }
 }

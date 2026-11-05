@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Al lanzarse desde 20 m, el proyectil vuela más tiempo del que tardaría en volver a su altura inicial.",
+    "socratic_challenge": "¿Llegaría más lejos lanzándolo a 45° desde esa misma altura?",
+    "hint": "Desde una altura, el ángulo óptimo es menor que 45°.",
+    "fun_fact": "Los lanzadores de bala profesionales lanzan con ángulos de unos 37°, no de 45°, porque sueltan la bala desde más de 2 m de altura.",
+    "mistakes": []
+  }
 }

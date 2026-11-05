@@ -154,5 +154,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La suma da 45 y el promedio 15: cada bloque usa el resultado del anterior.",
+    "socratic_challenge": "¿Qué pasaría si calcularas el promedio antes de sumar las notas?",
+    "hint": null,
+    "fun_fact": "La palabra \"algoritmo\" viene del nombre del matemático persa al-Juarismi.",
+    "mistakes": []
+  }
 }

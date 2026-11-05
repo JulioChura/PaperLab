@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! El amortiguador quita energía en cada vuelta: la amplitud decae de forma exponencial.",
+    "socratic_challenge": "¿Qué pasaría si el amortiguamiento fuera tan grande que la masa ya no llegara a oscilar?",
+    "hint": null,
+    "fun_fact": "Los amortiguadores de los autos son osciladores amortiguados diseñados para que la carrocería no rebote.",
+    "mistakes": []
+  }
 }

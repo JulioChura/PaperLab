@@ -25,5 +25,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La generatriz forma un triángulo rectángulo 3-4-5 con el radio y la altura: g = 5.",
+    "socratic_challenge": "¿Qué fracción del volumen de un cilindro de igual base y altura ocupa este cono?",
+    "hint": "Compara (1/3)·π·r²·h con π·r²·h.",
+    "fun_fact": "Arquímedes demostró que un cono, una semiesfera y un cilindro de igual base y altura guardan volúmenes en proporción 1 : 2 : 3.",
+    "mistakes": []
+  }
 }

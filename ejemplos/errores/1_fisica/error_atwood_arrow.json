@@ -1,0 +1,46 @@
+{
+  "title": "Atwood con la flecha al revés",
+  "exercise_id": "atwood_machine",
+  "exercise_type": "atwood_machine",
+  "exercise_name": "Atwood con la flecha al revés",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "atwood_machine",
+    "mass_1_kg": 5,
+    "mass_2_kg": 3,
+    "pulley_radius_m": 0.1,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 2.45,
+    "tension_n": 36.75,
+    "drawn_acceleration_toward": "mass_2"
+  },
+  "explanation": "m1 = 5 kg y m2 = 3 kg, pero el alumno dibujó la aceleración haciendo bajar a m2.",
+  "question": "Hallar la aceleración y la tensión",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "inverted_force",
+    "pedagogical_feedback": "¡Cuidado! Dibujaste la aceleración haciendo bajar a m2, pero es la masa más liviana (3 kg frente a 5 kg): el sistema se mueve justo al revés.",
+    "socratic_challenge": "Si ambas masas sienten la misma tensión, ¿cuál de las dos tiene más peso tirando hacia abajo?",
+    "hint": "Compara m1·g = 49 N con m2·g = 29.4 N: gana el lado con más peso.",
+    "fun_fact": "Los ascensores usan un contrapeso, como en una máquina de Atwood, para que el motor haga mucho menos esfuerzo.",
+    "mistakes": [
+      {
+        "code": "inverted_force",
+        "severity": "warning",
+        "description": "La flecha de aceleración indica que baja m2, la masa más liviana."
+      }
+    ]
+  }
+}

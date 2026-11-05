@@ -50,6 +50,66 @@ class BoundingBox(BaseModel):
     label: Optional[str] = Field(default=None, description="Etiqueta identificadora del elemento acotado")
 
 
+TutorMood = Literal["happy", "thinking", "warning", "surprised", "celebrating", "curious"]
+
+MISTAKE_CODES_DESCRIPTION = (
+    "Código del error. Usa uno de: 'short_circuit' (camino directo entre bornes sin carga), "
+    "'open_circuit' (malla interrumpida), 'led_overcurrent' (LED sin resistencia limitadora), "
+    "'negative_angle' (ángulo negativo o fuera de rango), 'static_friction' (la fricción estática impide el movimiento), "
+    "'inverted_force' (vector de fuerza o aceleración dibujado en sentido contrario), "
+    "'impossible_value' (masa, longitud, k, R o C nula/negativa), 'infinite_loop' (la variable de control nunca cambia), "
+    "'incomplete_flowchart' (falta Inicio/Fin o una rama de decisión), 'impossible_triangle' (los ángulos suman 180° o más), "
+    "'no_real_roots' (discriminante negativo), 'wrong_answer' (el resultado escrito por el estudiante es incorrecto), "
+    "'missing_data' (falta un dato imprescindible) u 'other'."
+)
+
+
+class StudentMistake(BaseModel):
+    """Error conceptual o de dibujo cometido por el estudiante (no es un fallo del análisis)."""
+    code: str = Field(..., description=MISTAKE_CODES_DESCRIPTION)
+    severity: Literal["info", "warning", "critical"] = Field(
+        default="warning",
+        description="'critical' = la situación es físicamente imposible o peligrosa; 'warning' = error conceptual; 'info' = observación",
+    )
+    description: str = Field(..., description="Qué está mal, en una frase dirigida al estudiante")
+
+
+class TutorFeedback(BaseModel):
+    """Voz del Tutor Socrático (avatar 'Lumi'): acompaña SIEMPRE al resultado, haya error o no."""
+    mood: TutorMood = Field(
+        default="happy",
+        description="Expresión del avatar: 'warning' si hay error, 'surprised' ante un caso límite, 'curious' para un dato curioso, 'happy' si todo está bien",
+    )
+    has_error: bool = Field(default=False, description="true si el estudiante cometió un error conceptual o de dibujo")
+    error_type: Optional[str] = Field(default=None, description="Código del error principal (mismo vocabulario que mistakes[].code)")
+    pedagogical_feedback: str = Field(
+        default="",
+        description=(
+            "Retroalimentación pedagógica breve (1-2 frases, tuteando). Si hay error, empieza con '¡Cuidado!' y explica "
+            "qué ocurre físicamente sin dar la solución. Si no hay error, felicita y destaca la idea clave del fenómeno."
+        ),
+    )
+    socratic_challenge: str = Field(
+        default="",
+        description="UNA pregunta socrática que obligue a razonar (termina en '?'), ej: '¿Qué ángulo mínimo necesitas para que comience a deslizar?'",
+    )
+    hint: Optional[str] = Field(default=None, description="Pista opcional que acerca a la respuesta sin revelarla del todo")
+    fun_fact: Optional[str] = Field(default=None, description="Dato curioso real y verificable relacionado con el fenómeno (1 frase)")
+    mistakes: list[StudentMistake] = Field(default_factory=list, description="Lista de errores detectados (vacía si no hay)")
+
+
+def tutor_field():
+    """Campo `tutor` común a todos los contratos de análisis."""
+    return Field(
+        default_factory=TutorFeedback,
+        description=(
+            "Tutor Socrático. OBLIGATORIO: rellénalo siempre. Si el dibujo tiene un error (circuito en corto, malla abierta, "
+            "ángulo negativo, fuerza invertida, bucle infinito...), NO lo corrijas en simulation_data: reporta los valores tal "
+            "como están dibujados y explica el error aquí."
+        ),
+    )
+
+
 class BaseAnalysisResult(BaseModel):
     """Contrato base para todas las respuestas de análisis del simulador."""
     skill: SkillId = Field(..., description="Módulo científico identificado")

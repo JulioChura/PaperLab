@@ -29,5 +29,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Se encuentran cuando sus posiciones son iguales: por eso se plantea xA(t) = xB(t).",
+    "socratic_challenge": "¿Cambiaría el instante del encuentro si B saliera 2 segundos después?",
+    "hint": "Escribe la posición de B considerando que empieza a moverse en t = 2 s.",
+    "fun_fact": "Los radares de tráfico miden la velocidad con el efecto Doppler: comparan la frecuencia de la onda enviada y la reflejada.",
+    "mistakes": []
+  }
 }

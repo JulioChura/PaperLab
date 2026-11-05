@@ -1,0 +1,48 @@
+{
+  "title": "Misión: bloque en equilibrio",
+  "exercise_id": "inclined_plane",
+  "exercise_type": "inclined_plane",
+  "exercise_name": "Misión: bloque en equilibrio",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "inclined_plane",
+    "angle_degrees": 25,
+    "mass_kg": 2,
+    "friction_coefficient": 0.5,
+    "static_friction_coefficient": 0.5,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 0,
+    "weight_n": 19.6,
+    "normal_force_n": 17.76,
+    "friction_force_n": 8.28
+  },
+  "explanation": "Bloque de 2 kg en una rampa de 25° con μ = 0.5.",
+  "question": "¿El bloque se queda quieto?",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "surprised",
+    "has_error": true,
+    "error_type": "static_friction",
+    "pedagogical_feedback": "¡Atención! El bloque no se mueve porque la fricción estática máxima (8.9 N) supera a la componente del peso a lo largo de la rampa (8.3 N).",
+    "socratic_challenge": "¿Qué ángulo mínimo necesitas para que el bloque comience a deslizar?",
+    "hint": "Busca θ con tan θ = 0.5.",
+    "fun_fact": "Las zapatillas de escalada usan gomas con coeficientes de fricción mayores que 1.",
+    "mistakes": [
+      {
+        "code": "static_friction",
+        "severity": "warning",
+        "description": "μ = 0.5 ≥ tan 25° = 0.47: el bloque queda en reposo."
+      }
+    ]
+  }
+}

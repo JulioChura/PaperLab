@@ -1,0 +1,39 @@
+{
+  "title": "Misión: bandera a 12 m (se queda corto)",
+  "exercise_id": "projectile_motion",
+  "exercise_type": "projectile_motion",
+  "exercise_name": "Misión: bandera a 12 m (se queda corto)",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "projectile_motion",
+    "initial_velocity_m_s": 10,
+    "launch_angle_degrees": 45,
+    "initial_height_m": 0,
+    "gravity_m_s2": 9.8,
+    "max_height_m": 2.55,
+    "range_m": 10.2,
+    "flight_time_s": 1.44
+  },
+  "explanation": "Tiro desde el suelo con 10 m/s a 45°: no llega a la bandera.",
+  "question": "¿El proyectil llega a la bandera a 12 m?",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien planteado! Tu proyectil describe una parábola perfecta, aunque cae antes de la bandera.",
+    "socratic_challenge": "¿Cuánto debería aumentar la rapidez para recorrer los 1.8 m que faltan?",
+    "fun_fact": "Sin aire, el alcance crece con el cuadrado de la rapidez: el doble de v0 da cuatro veces más alcance.",
+    "mistakes": []
+  }
+}

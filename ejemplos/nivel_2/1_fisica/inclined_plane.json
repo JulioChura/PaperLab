@@ -27,5 +27,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Aunque μ = 0.3 es alta, tan 37° ≈ 0.75 la supera y el bloque acelera a 3.55 m/s².",
+    "socratic_challenge": "¿Cuál es el ángulo mínimo con el que este bloque empezaría a deslizar?",
+    "hint": "Busca el ángulo θ para el que tan θ = μ.",
+    "fun_fact": "Las rampas de acceso para sillas de ruedas suelen tener menos de 5° de inclinación para que sean seguras.",
+    "mistakes": []
+  }
 }

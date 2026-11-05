@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "surprised",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Ojo con la amplitud! A 35° la fórmula T = 2π√(L/g) ya no es exacta: el período real es un poco mayor.",
+    "socratic_challenge": "¿Por qué crees que la tensión en el punto más bajo es mayor que el peso de la masa?",
+    "hint": "En el punto más bajo la masa describe una curva: necesita una fuerza centrípeta.",
+    "fun_fact": "El péndulo de Foucault de París mide 67 m y tarda unos 16 segundos en cada oscilación.",
+    "mistakes": []
+  }
 }

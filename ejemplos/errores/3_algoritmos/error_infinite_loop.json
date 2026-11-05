@@ -1,0 +1,183 @@
+{
+  "title": "Bucle que nunca termina",
+  "exercise_id": "loop_flowchart",
+  "exercise_type": "loop_flowchart",
+  "exercise_name": "Bucle que nunca termina",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "loop_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "i = 0"
+      },
+      {
+        "id": "n3",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "i < 5"
+      },
+      {
+        "id": "n4",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir i"
+      },
+      {
+        "id": "n9",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4",
+        "condition_label": "SÍ"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n9",
+        "condition_label": "NO"
+      }
+    ],
+    "loop_condition": "i < 5",
+    "loop_variable": "i",
+    "generated_code_py": "i = 0\nwhile i < 5:\n    print(i)",
+    "generated_code_js": "let i = 0;\nwhile (i < 5) {\n  console.log(i);\n}",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "i = 0",
+        "variables": {
+          "i": "0"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "¿0 < 5? Sí (i no cambió)",
+        "variables": {
+          "i": "0"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n4",
+        "description": "Imprime 0… otra vez",
+        "variables": {
+          "i": "0"
+        },
+        "output": "0"
+      },
+      {
+        "step": 5,
+        "node_id": "n3",
+        "description": "¿0 < 5? Sí (i no cambió)",
+        "variables": {
+          "i": "0"
+        }
+      },
+      {
+        "step": 6,
+        "node_id": "n4",
+        "description": "Imprime 0… otra vez",
+        "variables": {
+          "i": "0"
+        },
+        "output": "0"
+      },
+      {
+        "step": 7,
+        "node_id": "n3",
+        "description": "¿0 < 5? Sí (i no cambió)",
+        "variables": {
+          "i": "0"
+        }
+      },
+      {
+        "step": 8,
+        "node_id": "n4",
+        "description": "Imprime 0… otra vez",
+        "variables": {
+          "i": "0"
+        },
+        "output": "0"
+      },
+      {
+        "step": 9,
+        "node_id": "n3",
+        "description": "¿0 < 5? Sí (i no cambió)",
+        "variables": {
+          "i": "0"
+        }
+      },
+      {
+        "step": 10,
+        "node_id": "n4",
+        "description": "Imprime 0… otra vez",
+        "variables": {
+          "i": "0"
+        },
+        "output": "0"
+      }
+    ]
+  },
+  "explanation": "Mientras i < 5 imprime i, pero nunca incrementa i.",
+  "question": "Determinar qué imprime el diagrama",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "warning",
+    "has_error": true,
+    "error_type": "infinite_loop",
+    "pedagogical_feedback": "¡Cuidado! Dentro del bucle nunca se modifica 'i', así que 'i < 5' será siempre verdadera: tu algoritmo imprimiría 0 para siempre.",
+    "socratic_challenge": "¿Qué instrucción tendrías que agregar dentro del bucle para que 'i < 5' algún día sea falsa?",
+    "hint": "Busca dónde debería ir algo como 'i = i + 1'.",
+    "fun_fact": "Los sistemas operativos tienen \"perros guardianes\" (watchdogs) que reinician programas atrapados en bucles infinitos.",
+    "mistakes": [
+      {
+        "code": "infinite_loop",
+        "severity": "critical",
+        "description": "La variable de control 'i' nunca cambia dentro del bucle."
+      }
+    ]
+  }
+}

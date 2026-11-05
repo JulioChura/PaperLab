@@ -124,5 +124,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Los dos índices se acercan desde los extremos e intercambian valores hasta cruzarse.",
+    "socratic_challenge": "¿Qué pasa con el elemento del centro si el arreglo tiene un número impar de elementos?",
+    "hint": null,
+    "fun_fact": "La técnica de dos punteros permite resolver muchos problemas recorriendo el arreglo una sola vez.",
+    "mistakes": []
+  }
 }

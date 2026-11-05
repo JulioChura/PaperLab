@@ -1,0 +1,40 @@
+{
+  "title": "Misión: LED a salvo",
+  "exercise_id": "single_loop",
+  "exercise_type": "single_loop",
+  "exercise_name": "Misión: LED a salvo",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "single_loop",
+    "voltage_v": 9,
+    "resistance_ohms": 390,
+    "current_a": 0.023,
+    "power_w": 0.21,
+    "has_led": true,
+    "is_diode_led": true,
+    "led_color": "red",
+    "circuit_closed": true
+  },
+  "explanation": "LED rojo con una resistencia de 390 Ω y una pila de 9 V.",
+  "question": "¿La corriente queda entre 10 y 25 mA?",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien elegida! La resistencia limita la corriente para que el LED brille sin quemarse.",
+    "socratic_challenge": "Si cambias la pila por una de 5 V, ¿qué resistencia mantendría la misma corriente?",
+    "fun_fact": "Los colores de los LED dependen del material del semiconductor, no del color del plástico.",
+    "mistakes": []
+  }
+}

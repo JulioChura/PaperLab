@@ -150,23 +150,33 @@ class PaperLabBackendTestCase(unittest.TestCase):
             self.assertEqual(data["simulation_data"]["angle_degrees"], 30.0)
             self.assertEqual(data["simulation_data"]["mass_kg"], 2.0)
             self.assertEqual(len(data["bounding_boxes"]), 2)
+            # El Tutor Socrático acompaña siempre al resultado
+            self.assertIn("tutor", data)
+            self.assertFalse(data["tutor"]["has_error"])
+            self.assertTrue(data["tutor"]["pedagogical_feedback"])
+            self.assertTrue(data["tutor"]["socratic_challenge"].endswith("?"))
+            self.assertTrue(data["tutor"]["fun_fact"])
         finally:
             app.dependency_overrides.clear()
 
-    def test_deterministic_validation_catches_invalid_angle(self):
-        """Verifica que el validador determinístico rechace ángulos fuera de rango físico."""
-        from modules.analysis.domain.validators import validate_physics_data
+    def test_student_mistake_becomes_pedagogical_feedback(self):
+        """Un ángulo negativo dibujado por el estudiante NO da error HTTP: el tutor lo explica."""
+        from modules.analysis.domain.pedagogy import detect_student_mistakes
         from types import SimpleNamespace
 
-        invalid_mock_data = SimpleNamespace(
-            angle_degrees=95.0,
-            friction_coefficient=-0.1,
-            mass_kg=0.0,
-        )
-        violations = validate_physics_data("inclined_plane", invalid_mock_data)
-        self.assertTrue(len(violations) >= 2)
-        self.assertTrue(any("entre 0° y 90°" in v for v in violations))
-        self.assertTrue(any("fricción" in v for v in violations))
+        data = SimpleNamespace(angle_degrees=-30.0, friction_coefficient=-0.1, mass_kg=0.0)
+        codes = {f.code for f in detect_student_mistakes("physics", "inclined_plane", data)}
+        self.assertIn("negative_angle", codes)
+        self.assertIn("impossible_value", codes)
+
+    def test_consistency_validator_catches_misaligned_lists(self):
+        """El validador de coherencia sigue detectando respuestas mal formadas del LLM."""
+        from modules.analysis.domain.validators import validate_circuit_data
+        from types import SimpleNamespace
+
+        data = SimpleNamespace(resistors_ohms=[100.0, 200.0, 300.0], voltage_drops_v=[1.0, 2.0])
+        violations = validate_circuit_data("series_resistors", data)
+        self.assertTrue(any("caídas" in v for v in violations))
 
 
 if __name__ == "__main__":

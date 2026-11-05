@@ -1,0 +1,46 @@
+{
+  "title": "Misión: vértice en (2, −1)",
+  "exercise_id": "function_graph",
+  "exercise_type": "function_graph",
+  "exercise_name": "Misión: vértice en (2, −1)",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "function_graph",
+    "function_expression": "f(x) = (x - 2)^2 - 1",
+    "function_type": "quadratic",
+    "domain": "R",
+    "range_y": "[-1, +inf)",
+    "roots": [
+      1,
+      3
+    ],
+    "y_intercept": 3,
+    "vertex": [
+      2,
+      -1
+    ],
+    "critical_points_explanation": "Parábola que abre hacia arriba con eje de simetría x = 2."
+  },
+  "explanation": "Graficar f(x) = (x − 2)² − 1 en forma canónica.",
+  "question": "Graficar y comprobar el vértice",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Excelente! En la forma canónica a(x − h)² + k, el vértice se lee directamente: (h, k) = (2, −1).",
+    "socratic_challenge": "¿Cómo cambiaría la parábola si a fuera 3 en lugar de 1?",
+    "fun_fact": "Los faros de los autos tienen espejos parabólicos que envían la luz en rayos paralelos.",
+    "mistakes": []
+  }
+}

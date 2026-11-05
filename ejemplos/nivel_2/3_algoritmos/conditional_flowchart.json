@@ -214,5 +214,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! Las decisiones anidadas comparan por pares hasta encontrar el mayor: 12.",
+    "socratic_challenge": "¿Cuántas comparaciones necesitas, como mínimo, para hallar el mayor de 4 números?",
+    "hint": "Cada comparación descarta a un candidato.",
+    "fun_fact": "Los torneos de eliminación directa funcionan igual: cada partido es una comparación que descarta a un candidato.",
+    "mistakes": []
+  }
 }

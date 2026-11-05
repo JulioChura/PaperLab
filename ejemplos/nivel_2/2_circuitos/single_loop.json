@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien! La resistencia interna \"se queda\" con parte de la FEM: en los bornes hay menos de 12 V.",
+    "socratic_challenge": "¿Qué pasa con la tensión en bornes si conectas un foco de menor resistencia?",
+    "hint": "V = ε − I·r: ¿qué pasa con I si R baja?",
+    "fun_fact": "Por eso una pila gastada puede marcar casi su voltaje en vacío y aun así fallar: su resistencia interna creció.",
+    "mistakes": []
+  }
 }

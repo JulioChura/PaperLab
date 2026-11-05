@@ -1,0 +1,41 @@
+{
+  "title": "Misión: la lata de un litro",
+  "exercise_id": "geometry_3d",
+  "exercise_type": "geometry_3d",
+  "exercise_name": "Misión: la lata de un litro",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "geometry_3d",
+    "solid_type": "cylinder",
+    "radius_units": 5,
+    "height_units": 12.7,
+    "volume_units3": 997.46,
+    "lateral_area_units2": 398.98,
+    "total_area_units2": 556.06,
+    "formulas_applied": [
+      "V = π·r²·h"
+    ]
+  },
+  "explanation": "Cilindro de radio 5 cm y altura 12.7 cm.",
+  "question": "Hallar el volumen",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Bien calculado! π·5²·12.7 ≈ 997 cm³, prácticamente un litro.",
+    "socratic_challenge": "¿Qué medidas de lata usarían la menor cantidad de metal para guardar ese mismo litro?",
+    "fun_fact": "La lata que usa menos metal para un volumen dado tiene la altura igual a su diámetro.",
+    "mistakes": []
+  }
+}

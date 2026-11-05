@@ -34,5 +34,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Correcto! La pendiente 2/3 es positiva: la recta sube de izquierda a derecha.",
+    "socratic_challenge": "¿Qué pendiente tendría una recta perpendicular a AB?",
+    "hint": "El producto de las pendientes de dos rectas perpendiculares es −1.",
+    "fun_fact": "René Descartes ideó el plano cartesiano en el siglo XVII y unió para siempre el álgebra con la geometría.",
+    "mistakes": []
+  }
 }

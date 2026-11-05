@@ -26,5 +26,15 @@
       "height": 0.22,
       "label": "ejercicio"
     }
-  ]
+  ],
+  "tutor": {
+    "mood": "happy",
+    "has_error": false,
+    "error_type": null,
+    "pedagogical_feedback": "¡Correcto! En el MRUV la velocidad aumenta lo mismo cada segundo: 2 m/s más cada segundo, hasta llegar a 16 m/s.",
+    "socratic_challenge": "¿Recorre el auto la misma distancia en el primer segundo que en el sexto? ¿Por qué?",
+    "hint": "Calcula x(1) − x(0) y x(6) − x(5).",
+    "fun_fact": "Un auto de Fórmula 1 puede pasar de 0 a 100 km/h en unos 2.6 segundos: ¡más de 10 m/s²!",
+    "mistakes": []
+  }
 }

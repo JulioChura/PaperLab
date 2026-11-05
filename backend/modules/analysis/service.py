@@ -5,6 +5,9 @@ from typing import Any, Tuple
 from PIL import Image, ImageOps
 
 from config import Settings
+from pathlib import Path
+
+from modules.analysis.domain.pedagogy import enrich_tutor, serious_findings
 from modules.analysis.domain.skills import get_skill
 from modules.analysis.domain.skills.base import Skill
 from modules.analysis.ports.llm import LLMClient
@@ -16,6 +19,17 @@ from shared.errors import (
 )
 from shared.logging import logger
 from shared.types import BaseAnalysisResult, SkillId
+
+
+_TUTOR_PROMPT_PATH = Path(__file__).resolve().parent / "domain" / "skills" / "tutor_prompt.md"
+
+
+def tutor_prompt() -> str:
+    """Instrucciones comunes del Tutor Socrático (se añaden al prompt de cada especialista)."""
+    try:
+        return _TUTOR_PROMPT_PATH.read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
 
 
 class AnalysisService:
@@ -78,7 +92,7 @@ class AnalysisService:
         processed_bytes, mime_type = self.preprocess_image(image_bytes)
 
         # 3. Preparar prompt
-        system_prompt = skill.prompt
+        system_prompt = f"{skill.prompt}\n\n{tutor_prompt()}".strip()
         user_prompt = (
             "Analiza detalladamente la foto del dibujo manuscrito sobre el papel escolar/universitario. "
             "Clasifica con exactitud el tipo de ejercicio entre los disponibles en tu catálogo, "
@@ -91,6 +105,7 @@ class AnalysisService:
         # 4. Invocación al LLM con bucle de reintento ante fallos de validación determinística
         retries_left = self.settings.max_retries
         last_violations: list[str] = []
+        rechecked_mistakes = False
 
         while True:
             try:
@@ -120,9 +135,28 @@ class AnalysisService:
                 # 6. Validación determinística de restricciones del dominio
                 violations = skill.validate_deterministic(result)
                 if not violations:
+                    exercise_type = getattr(result, "exercise_type", "")
+                    data = getattr(result, "simulation_data", None)
+                    findings = serious_findings(skill.skill_id.value, exercise_type, data)
+                    tutor = getattr(result, "tutor", None)
+                    # Si el dibujo parece tener un error que el LLM no comentó, se le pide UNA verificación
+                    # de lectura (¿lo dibujó así el estudiante o fue un error de OCR?). Si lo confirma, es pedagógico.
+                    if findings and not (tutor and tutor.has_error) and retries_left > 0 and not rechecked_mistakes:
+                        retries_left -= 1
+                        rechecked_mistakes = True
+                        logger.info(f"Posible error del estudiante sin comentar ({[f.code for f in findings]}). Verificando lectura...")
+                        user_prompt += (
+                            "\n\n[VERIFICACIÓN DE LECTURA]: Los datos extraídos implican: "
+                            f"{'; '.join(f.description for f in findings)}. Revisa la foto: si el estudiante REALMENTE lo dibujó "
+                            "o escribió así, conserva esos valores y explica el error en `tutor` (has_error = true). "
+                            "Si fue un error de lectura tuyo, corrige los valores."
+                        )
+                        continue
+                    if tutor is not None and data is not None:
+                        result.tutor = enrich_tutor(skill.skill_id.value, exercise_type, data, tutor)
                     logger.info(
-                        f"Análisis exitoso para '{skill.skill_id.value}' -> tipo '{getattr(result, 'exercise_type', '')}' "
-                        f"(Confianza: {confidence:.2f})."
+                        f"Análisis exitoso para '{skill.skill_id.value}' -> tipo '{exercise_type}' "
+                        f"(Confianza: {confidence:.2f}, error del estudiante: {bool(result.tutor.has_error) if tutor else False})."
                     )
                     return result
 
