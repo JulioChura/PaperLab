@@ -114,6 +114,11 @@
     --riso-tomato: #ff5435;
     --grid-line: rgba(47, 75, 240, 0.09);
     --grid-major: rgba(255, 79, 158, 0.18);
+    /* gráficos (paleta validada: azul/rosa, CVD ΔE ≥ 17) */
+    --chart-a: #2f4bf0;
+    --chart-b: #f73f93;
+    --chart-grid: rgba(33, 26, 51, 0.1);
+    --chart-track: rgba(33, 26, 51, 0.09);
   }
 
   .dark {
@@ -135,6 +140,10 @@
     --riso-green: #3fd696;
     --grid-line: rgba(128, 151, 255, 0.07);
     --grid-major: rgba(255, 98, 169, 0.14);
+    --chart-a: #7088ff;
+    --chart-b: #f73f93;
+    --chart-grid: rgba(244, 236, 216, 0.1);
+    --chart-track: rgba(244, 236, 216, 0.1);
   }
 
   body {

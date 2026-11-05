@@ -12,7 +12,7 @@ interface Props {
   message: TutorMessage;
   module: string;
   /** 'ar' = arriba a la izquierda (deja libre el panel de la simulación). */
-  placement: 'live' | 'ar';
+  placement: 'live' | 'ar' | 'sheet';
   autoSpeak?: boolean;
   dockRef?: React.Ref<HTMLDivElement>;
 }
@@ -67,7 +67,7 @@ export const TutorDock: React.FC<Props> = ({ message, module, placement, autoSpe
   };
 
   const color = moodColor(message.mood);
-  const pos = placement === 'ar' ? 'top-[6.75rem] left-3 sm:top-28 sm:left-4' : 'bottom-24 left-3 sm:left-5';
+  const pos = placement === 'ar' ? 'top-[6.75rem] left-3 sm:top-28 sm:left-4' : placement === 'sheet' ? 'bottom-4 left-3 sm:left-4' : 'bottom-24 left-3 sm:left-5';
 
   return (
     <div ref={dockRef} className={`absolute ${pos} z-30 flex items-end gap-2 max-w-[calc(100%-1.5rem)] pointer-events-none`} data-testid="tutor-dock">

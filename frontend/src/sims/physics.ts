@@ -485,8 +485,13 @@ class Rectilinear extends PhysicsSim {
     const lanes = this.second ? [h * 0.42, h * 0.74] : [h * 0.62];
     lanes.forEach((y) => fc.line(u * 0.5, y, w - u * 0.5, y, 'ink'));
     const ruler = lanes[lanes.length - 1];
-    const step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 5)));
-    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+    // paso "bonito" (1·2·5 × 10ⁿ) con a lo sumo ~7 rótulos y sin que se pisen
+    const raw = (hi - lo) / 6;
+    const p10 = Math.pow(10, Math.floor(Math.log10(raw)));
+    let step = [1, 2, 5, 10].map((k) => k * p10).find((s) => s >= raw) ?? 10 * p10;
+    const labelW = Math.max(fc.textWidth(f(hi, 1), 0.65), fc.textWidth(f(lo, 1), 0.65)) + u * 0.8;
+    while ((step / (hi - lo)) * (w - pad * 2) < labelW) step *= 2;
+    for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
       fc.line(X(v), ruler, X(v), ruler + u * 0.4, 'ink', 0.6);
       fc.text(f(v, 1), X(v), ruler + u * 1.4, 0.65, 'ink', 'center');
     }

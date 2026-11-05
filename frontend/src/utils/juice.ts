@@ -78,11 +78,16 @@ export function squash(el: Element | null, strength = 1): void {
   );
 }
 
-/** Pequeño sacudón de pantalla para impactos grandes. */
-export function shake(intensity = 6): void {
+/**
+ * Pequeño sacudón para impactos grandes. Se aplica al <main> del contenido, NUNCA a #root/body:
+ * un transform en un ancestro convierte a ese ancestro en el contenedor de los `position: fixed`
+ * (modales, toasts), que saltarían de sitio en mitad del clic y el botón no recibiría el `click`.
+ */
+export function shake(intensity = 6, from?: Element | null): void {
   if (reduced() || typeof document === 'undefined') return;
-  const root = document.getElementById('root');
-  if (!root) return;
+  if (from?.closest('[role="dialog"], .fixed')) return;
+  const root = (from?.closest('main') as HTMLElement | null) ?? document.querySelector('main');
+  if (!root || root.querySelector('[role="dialog"]')) return;
   const k = intensity;
   root.animate(
     [
@@ -108,7 +113,7 @@ export function installJuice(): void {
       if (!target) return;
       const big = target.getAttribute('data-juice') === 'big';
       burst(e.clientX, e.clientY, { count: big ? 18 : 9, power: big ? 1.4 : 0.8 });
-      if (big) shake(5);
+      if (big) shake(5, target);
     },
     { passive: true },
   );

@@ -8,11 +8,20 @@ import { MissionPanel, ProfilePanel, Toaster } from './game/GameUI';
 import { progress, getProgress } from './game/progress';
 import type { Mission } from './game/missions';
 import { registerNotificationWorker } from './game/notify';
+import { TeacherView } from './teacher/TeacherView';
+import { ClassBanner, JoinClassModal } from './classroom/JoinClass';
+import { useClassLink } from './classroom/studentLink';
 
-type ViewMode = 'splash' | 'menu' | 'camera';
+type ViewMode = 'splash' | 'menu' | 'camera' | 'teacher';
+
+const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+const INITIAL_JOIN = params.get('sala');
+const INITIAL_TEACHER = params.has('docente');
 
 export function App() {
-  const [currentView, setCurrentView] = useState<ViewMode>('splash');
+  const [currentView, setCurrentView] = useState<ViewMode>(INITIAL_TEACHER ? 'teacher' : INITIAL_JOIN ? 'menu' : 'splash');
+  const [joinCode, setJoinCode] = useState<string | null>(INITIAL_JOIN);
+  const classLink = useClassLink();
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showMissions, setShowMissions] = useState(false);
@@ -67,6 +76,24 @@ export function App() {
     setCurrentView('camera');
   };
 
+  const openJoin = () => {
+    audioJuice.playTap();
+    setJoinCode('');
+  };
+
+  const handleJoined = (module: string) => {
+    setJoinCode(null);
+    if (window.location.search) window.history.replaceState(null, '', window.location.pathname);
+    setActiveModuleId(module);
+    setCurrentView('camera');
+  };
+
+  const openTeacher = () => {
+    audioJuice.playPaperFlip();
+    setActiveModuleId(null);
+    setCurrentView('teacher');
+  };
+
   const handleGoHome = () => {
     setCurrentView('menu');
     setActiveModuleId(null);
@@ -83,6 +110,8 @@ export function App() {
       {currentView === 'splash' ? (
         <SplashScreen
           onEnter={handleEnterFromSplash}
+          onTeacher={openTeacher}
+          onJoinClass={openJoin}
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
         />
@@ -95,7 +124,12 @@ export function App() {
             isDarkMode={isDarkMode}
             onToggleTheme={toggleTheme}
             onOpenProfile={() => setShowProfile(true)}
+            teacherMode={currentView === 'teacher'}
+            inClass={classLink.step === 'joined'}
+            onJoinClass={openJoin}
+            onTeacher={openTeacher}
           />
+          {currentView !== 'teacher' && <ClassBanner />}
 
           <main className="flex-1 flex flex-col">
             {currentView === 'menu' && (
@@ -105,6 +139,8 @@ export function App() {
                 onOpenMissions={() => setShowMissions(true)}
               />
             )}
+
+            {currentView === 'teacher' && <TeacherView onExit={handleGoSplash} />}
 
             {currentView === 'camera' && activeModuleId && (
               <ARCameraView
@@ -117,6 +153,7 @@ export function App() {
         </>
       )}
       <Toaster />
+      {joinCode !== null && <JoinClassModal initialCode={joinCode} onClose={() => setJoinCode(null)} onJoined={handleJoined} />}
       {showProfile && <ProfilePanel onClose={() => setShowProfile(false)} />}
       {showMissions && <MissionPanel onClose={() => setShowMissions(false)} onStart={handleStartMission} />}
     </div>

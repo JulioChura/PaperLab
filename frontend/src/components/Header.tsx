@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, ArrowLeft } from 'lucide-react';
+import { Sun, Moon, ArrowLeft, DoorOpen, GraduationCap } from 'lucide-react';
 import { Logo } from './Logo';
 import { XpChip } from '../game/GameUI';
 
@@ -10,6 +10,10 @@ interface HeaderProps {
   isDarkMode: boolean;
   onToggleTheme: () => void;
   onOpenProfile: () => void;
+  teacherMode?: boolean;
+  inClass?: boolean;
+  onJoinClass?: () => void;
+  onTeacher?: () => void;
 }
 
 const MODULE_LABEL: Record<string, { label: string; ink: string }> = {
@@ -26,6 +30,9 @@ export const Header: React.FC<HeaderProps> = ({
   isDarkMode,
   onToggleTheme,
   onOpenProfile,
+  teacherMode,
+  inClass,
+  onJoinClass,
 }) => {
   const mod = currentModule ? MODULE_LABEL[currentModule] : null;
   const darkText = currentModule === 'circuits';
@@ -63,7 +70,21 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5">
-          <XpChip onOpen={onOpenProfile} />
+          {teacherMode ? (
+            <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-telemetry rounded-full border-2 border-[#211a33] bg-[#12a96e] text-[#fffaf0] shadow-[2.5px_2.5px_0_var(--hard-shadow)]" data-testid="teacher-badge">
+              <GraduationCap className="w-4 h-4" strokeWidth={2.6} /> Docente
+            </span>
+          ) : (
+            <>
+              {!inClass && onJoinClass && (
+                <button onClick={onJoinClass} data-juice className="juicy ink-chip flex items-center gap-1.5 px-3 py-1.5 text-xs font-telemetry cursor-pointer" data-testid="open-join">
+                  <DoorOpen className="w-4 h-4 text-fuchsia-500" strokeWidth={2.6} />
+                  <span className="hidden md:inline">Unirme a clase</span>
+                </button>
+              )}
+              <XpChip onOpen={onOpenProfile} />
+            </>
+          )}
           <button
             onClick={onToggleTheme}
             data-juice

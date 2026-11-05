@@ -19,6 +19,10 @@ import type { SolutionPlan } from '../../ar/mathEngine';
 
 export interface ARSolverSession {
   id: number;
+  /** Solución en hoja de resolución (ejercicio recortado en la esquina). */
+  sheet?: boolean;
+  /** Zonas (normalizadas al medio) reservadas a la interfaz aunque aún no estén visibles (p. ej. el globo de Lumi). */
+  reserved?: NormRect[];
   media: MediaSource;
   profile: PaperInkProfile;
   plan: SolutionPlan;
@@ -162,7 +166,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
       // dejar que el panel termine de pintarse (controles y lecturas) antes de medirlo
       await new Promise((r) => setTimeout(r, 120));
       if (life.cancelled) return;
-      const { layers, figure } = layoutSolution(plan, profile, uiBlockedRects(host, [panelRef.current, ...(blockersRef.current?.() ?? [])], media));
+      const { layers, figure } = layoutSolution(plan, profile, [...uiBlockedRects(host, [panelRef.current, ...(blockersRef.current?.() ?? [])], media), ...(session.reserved ?? [])]);
       const titlesList: string[] = [];
 
       if (rt && plan.figure && figure) {
@@ -244,7 +248,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
     if (runtime) setSimState((s) => ({ ...s, values: { ...runtime.values }, caption: runtime.caption?.() ?? '' }));
   };
 
-  const statusCopy = STATUS_COPY[status];
+  const statusCopy = session.sheet && status === 'static' ? { ...STATUS_COPY.static, label: 'Hoja de resolución' } : STATUS_COPY[status];
   const mindarLabel =
     status === 'lost' && mindarProgress !== null
       ? mindarProgress < 100

@@ -356,22 +356,42 @@ class Debugger implements FigureRuntime {
       const arr = parseArray(value);
       if (arr) {
         const oldArr = old ? parseArray(old) : null;
-        fc.text(name, x0, y + u * 1.05, 0.8, 'ink');
+        if (!arr.length) {
+          // arreglo vacío (p. ej. la cola al terminar): decirlo explícitamente
+          const changed = !!oldArr && oldArr.length > 0;
+          const label = `${name} = [ ]  (vacía)`;
+          if (changed) fc.glow(x0 + fc.textWidth(label, 0.8) / 2, y + u * 0.8, u * 3, ACTIVE, 0.4);
+          fc.fitText(label, x0, y + u * 0.8, w, 0.8, changed ? 'pencil' : 'ink', 'left');
+          y += u * 1.75;
+          continue;
+        }
         const nameW = fc.textWidth(name, 0.8) + u * 0.5;
-        const cells = arr.slice(0, 10);
-        const cw = Math.min(u * 2.2, (w - nameW) / Math.max(1, cells.length));
+        const cells = arr.slice(0, 12);
+        const MIN_CELL = u * 1.6;
+        const IDEAL_CELL = u * 2.2;
+        // ¿cabe en la misma fila que el nombre? si no, el arreglo baja a su propia fila (y se parte si hace falta)
+        const inline = (w - nameW) / cells.length >= MIN_CELL;
+        const avail = inline ? w - nameW : w;
+        const perRow = Math.max(1, Math.min(cells.length, Math.floor(avail / MIN_CELL)));
+        const cw = Math.min(IDEAL_CELL, avail / perRow);
+        const ch = u * 1.5;
+        fc.text(name, x0, y + u * 1.05, 0.8, 'ink');
+        let rowY = inline ? y : y + u * 1.6;
+        const left = inline ? x0 + nameW : x0;
         cells.forEach((v, i) => {
-          const cx = x0 + nameW + cw * i;
+          const col = i % perRow;
+          if (i > 0 && col === 0) rowY += u * 2.8;
+          const cx = left + cw * col;
           const changed = !!oldArr && oldArr[i] !== v;
           if (changed) {
-            fc.highlight(cx + 1, y + 1, cw - 2, u * 1.5 - 2);
-            fc.glow(cx + cw / 2, y + u * 0.75, cw, ACTIVE, 0.6);
+            fc.highlight(cx + 1, rowY + 1, cw - 2, ch - 2);
+            fc.glow(cx + cw / 2, rowY + u * 0.75, cw, ACTIVE, 0.6);
           }
-          fc.rect(cx, y, cw, u * 1.5, 'ink', 0.8);
-          fc.fitText(v, cx + cw / 2, y + u * 0.78, cw * 0.85, 0.75, changed ? 'pencil' : 'ink');
-          fc.text(String(i), cx + cw / 2, y + u * 2.3, 0.5, 'pencil', 'center');
+          fc.rect(cx, rowY, cw, ch, 'ink', 0.8);
+          fc.fitText(v, cx + cw / 2, rowY + u * 0.78, cw * 0.8, 0.8, changed ? 'pencil' : 'ink');
+          fc.text(String(i), cx + cw / 2, rowY + u * 2.3, 0.5, 'pencil', 'center');
         });
-        y += u * 3;
+        y = rowY + u * 3;
       } else {
         const changed = old !== undefined ? old !== value : !!before;
         const label = `${name} = ${value}`;
@@ -542,12 +562,17 @@ export function flowPlan(exerciseType: string, d: Record<string, unknown>): Solu
           ...trace.slice(0, -1).reverse().map((c, i) => ({ description: `Retorna a ${c}`, vars: {}, stack: trace.slice(0, trace.length - 1 - i) })),
         ];
       }
+      // El resultado final (lo que se pide) sale de la traza: lo impreso o el último valor de retorno
+      const rev = [...steps].reverse();
+      const result = rev.find((s) => s.output)?.output ?? rev.find((s) => s.vars?.retorno !== undefined)?.vars.retorno;
+      const firstCall = (Array.isArray(d.call_stack_trace) ? String(d.call_stack_trace[0] ?? '') : '') || `${d.function_name ?? 'f'}(n)`;
       return {
         ...base,
         summary: `Recursión: ${d.function_name ?? 'función'}`,
         lines: [
           line('Caso base', String(d.base_case ?? '—')),
-          line('Llamada recursiva', String(d.recursive_call ?? '—'), true),
+          line('Llamada recursiva', String(d.recursive_call ?? '—'), result === undefined),
+          ...(result !== undefined ? [line('Resultado', `${firstCall} = ${result}`, true)] : []),
         ],
         figure: spec('Pila de llamadas', 1.5, () => new Debugger('recursion', steps, [], [], src.length ? src : [String(d.recursive_call ?? '')], null, [])),
       };

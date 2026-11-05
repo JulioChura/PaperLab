@@ -24,6 +24,8 @@ import { audioJuice } from '../utils/audioJuice';
 import { analyzeDrawing } from '../services/analysisApi';
 import type { ClassificationResult } from '../services/analysisApi';
 import { analyzePaper, type NormRect } from '../ar/paperVision';
+import { buildSolutionSheet, sheetProfile } from '../ar/solutionSheet';
+import { classLink } from '../classroom/studentLink';
 import { buildSimulationPlan } from '../sims';
 import { exampleForMission, examplesFor, exampleToResult, renderExamplePhoto, type Example, type ExampleLevel } from '../demo/examples';
 import { compileTargetFromCanvas, loadMindAR } from '../ar/mindar';
@@ -66,6 +68,8 @@ let sessionCounter = 0;
  * ella (100% estable). El rastreo en vivo (flujo óptico + MindAR) es experimental: se activa con `?ar=live`.
  */
 const LIVE_TRACKING = new URLSearchParams(window.location.search).get('ar') === 'live';
+/** Hoja de resolución: el ejercicio recortado en una esquina y la solución en una hoja limpia (?hoja=0 lo desactiva). */
+const SHEET_MODE = new URLSearchParams(window.location.search).get('hoja') !== '0';
 
 export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -80,6 +84,8 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   /** Fotograma congelado tras escanear con la cámara (modo foto fija). */
   const [frozenFrame, setFrozenFrame] = useState<string | null>(null);
+  const [sheetImage, setSheetImage] = useState<string | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const [phase, setPhase] = useState<Phase>('live');
   const [analysisError, setAnalysisError] = useState<string>('');
@@ -185,6 +191,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
     setClassificationResult(null);
     setAnalysisError('');
     setFrozenFrame(null);
+    setSheetImage(null);
     setPhase('live');
   };
 
@@ -248,6 +255,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
     setAnalysisError('');
     setClassificationResult(null);
     setArSession(null);
+    setSheetImage(null);
 
     const frame = captureFrame();
     if (!frame) {
@@ -258,6 +266,8 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
     setShutter({ key: ++sessionCounter, thumb: dataUrl });
     setPhase('scanning');
     setTutorMsg(scanningMessage());
+    classLink.reportScanning();
+    const aiStart = performance.now();
 
     const live = !uploadedImage && !!videoRef.current;
     // Modo foto fija: la captura se congela en pantalla con el mismo encuadre que el video
@@ -284,10 +294,41 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
         : await analyzeDrawing(dataUrl, moduleId);
       console.info('[PaperLab AI] Ejercicio identificado:', result.exercise_type, result.parameters);
       const plan = supportsArSolver ? buildPlan(result) : null;
-      const { tutor, hasError } = reactToResult(result, activeMission);
+      const { tutor, hasError } = reactToResult(result, activeMission, performance.now() - aiStart);
       const media = freeze ? frozenRef.current : live ? videoRef.current : imageRef.current;
 
-      if (plan && media) {
+      if (plan && SHEET_MODE && !tracker) {
+        // Hoja de resolución: ejercicio recortado arriba a la izquierda, solución en el resto
+        const host = rootRef.current;
+        const viewAspect = host && host.clientWidth ? host.clientHeight / host.clientWidth : frame.height / frame.width;
+        const sheet = buildSolutionSheet(frame, result.bounding_boxes, viewAspect);
+        const img = new Image();
+        img.src = sheet.dataUrl;
+        await img.decode().catch(() => undefined);
+        const sheetSpace = scaledCanvas(sheet.canvas, sheet.canvas.width, sheet.canvas.height, TARGET_MAX);
+        setFrozenFrame(null);
+        setSheetImage(sheet.dataUrl);
+        setArSession({
+          id: ++sessionCounter,
+          media: { element: img, fit: 'contain', width: sheet.canvas.width, height: sheet.canvas.height },
+          profile: sheetProfile(sheet),
+          plan,
+          space: { width: sheetSpace.width, height: sheetSpace.height },
+          tracker: null,
+          question: result.question,
+          exerciseType: result.exercise_type,
+          data: result.parameters as Record<string, unknown>,
+          tutor,
+          hologram: hasError,
+          drawingBox: sheet.exerciseRect,
+          sheet: true,
+          // el globo de Lumi vive abajo a la izquierda en la hoja: que la solución no caiga debajo
+          reserved: host
+            ? [{ x: 0, y: 1 - Math.min(0.45, 280 / host.clientHeight), w: Math.min(1, 430 / host.clientWidth), h: Math.min(0.45, 280 / host.clientHeight) }]
+            : [],
+        });
+        setPhase('ar');
+      } else if (plan && media) {
         const box = result.bounding_boxes[0];
         const hint: NormRect | null = box ? { x: box.x, y: box.y, w: box.width, h: box.height } : null;
         const profile = analyzePaper(frame, hint);
@@ -330,12 +371,22 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   };
 
   /** Tutor + misión + XP: decide qué dice Lumi tras un análisis. */
-  function reactToResult(result: ClassificationResult, mission: Mission | null) {
+  function reactToResult(result: ClassificationResult, mission: Mission | null, aiMs = 0) {
     const tutor = result.tutor ?? fallbackTutor(moduleId);
     const outcome = mission ? mission.evaluate(result) : null;
     const expected = !!(outcome?.ok && tutor.error_type && mission?.expectedMistakes?.includes(tutor.error_type));
     const hasError = tutor.has_error && !expected;
     progress.recordScan({ module: moduleId, exerciseType: result.exercise_type, hasError, level: mockExample?.level });
+    // Modo aula: el docente ve cada intento sobre la misión de la clase
+    if (mission && outcome) {
+      classLink.reportAttempt({
+        missionId: mission.id,
+        ok: outcome.ok,
+        errorCode: outcome.ok ? undefined : (tutor.has_error && tutor.error_type) || 'wrong_answer',
+        measure: outcome.measure,
+        aiMs: Math.round(aiMs),
+      });
+    }
 
     if (mission && outcome?.ok) {
       const xp = progress.completeMission(mission.id);
@@ -377,7 +428,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const inAr = phase === 'ar' && arSession;
 
   return (
-    <div className="relative w-full h-[calc(100vh-56px)] bg-black overflow-hidden flex flex-col select-none">
+    <div ref={rootRef} className="relative w-full h-[calc(100vh-56px)] bg-black overflow-hidden flex flex-col select-none">
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
 
       {/* Cámara en vivo: nunca se detiene, ni al capturar ni durante la fase AR */}
@@ -410,6 +461,16 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           src={uploadedImage}
           alt="Cuaderno subido"
           className="absolute inset-0 w-full h-full object-contain bg-slate-950"
+        />
+      )}
+
+      {/* Hoja de resolución (la capa AR se multiplica sobre ella) */}
+      {sheetImage && (
+        <img
+          src={sheetImage}
+          alt="Hoja de resolución con tu ejercicio en la esquina"
+          className="absolute inset-0 w-full h-full object-contain bg-[#2a2240] animate-freeze-in"
+          data-testid="solution-sheet"
         />
       )}
 
@@ -706,7 +767,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
       <TutorDock
         message={tutorMsg}
         module={moduleId}
-        placement={inAr ? 'ar' : 'live'}
+        placement={inAr ? (sheetImage ? 'sheet' : 'ar') : 'live'}
         autoSpeak={prog.settings.autoNarrate && !inAr}
         dockRef={dockRef}
       />

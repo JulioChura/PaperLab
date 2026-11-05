@@ -348,9 +348,12 @@ class Parallel extends CircuitSim {
   draw(fc: FigureCanvas) {
     this.u = fc.u;
     const u = fc.u;
-    const { x0, y0, x1, y1 } = frame(fc, 2.4);
+    const { x0, y0, x1: xEdge, y1 } = frame(fc, 2.4);
     const midY = (y0 + y1) / 2;
     const n = this.Rs.length;
+    // el rótulo de la última rama va a su derecha: que no se salga del lienzo
+    const lastLabelW = fc.textWidth(`R${n} = ${f(this.Rs[n - 1])} Ω`, 0.72) + u * 1.1;
+    const x1 = Math.min(xEdge, fc.w - lastLabelW - u * 0.4);
     const bx0 = x0 + (x1 - x0) * 0.32;
     const span = n > 1 ? (x1 - bx0) / (n - 1) : 0;
     const xs = this.Rs.map((_, i) => (n === 1 ? x1 : bx0 + span * i));

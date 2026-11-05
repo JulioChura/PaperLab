@@ -1,11 +1,13 @@
 import React from 'react';
-import { ArrowRight, Sun, Moon, Volume2, VolumeX } from 'lucide-react';
+import { ArrowRight, Sun, Moon, Volume2, VolumeX, DoorOpen, GraduationCap } from 'lucide-react';
 import { Logo } from './Logo';
 import { audioJuice } from '../utils/audioJuice';
 import { LumiAvatar } from '../tutor/LumiAvatar';
 
 interface SplashScreenProps {
   onEnter: () => void;
+  onTeacher: () => void;
+  onJoinClass: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
 }
@@ -70,7 +72,7 @@ const Marquee: React.FC = () => {
   );
 };
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter, isDarkMode, onToggleTheme }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter, onTeacher, onJoinClass, isDarkMode, onToggleTheme }) => {
   const [isMuted, setIsMuted] = React.useState(audioJuice.getMuted());
 
   const handleToggleSound = () => setIsMuted(audioJuice.toggleMute());
@@ -160,6 +162,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter, isDarkMode,
               <ArrowRight className="w-5 h-5" strokeWidth={3} />
             </span>
           </button>
+          </div>
+
+          <div className="pop-in mt-5 flex flex-wrap items-center gap-2.5" style={{ ['--i' as string]: 9 }}>
+            <button onClick={onJoinClass} data-juice className="juicy ink-chip inline-flex items-center gap-2 px-4 py-2 text-sm font-heading cursor-pointer" data-testid="splash-join">
+              <DoorOpen className="w-4 h-4 text-fuchsia-500" strokeWidth={2.6} /> Tengo un código de clase
+            </button>
+            <button onClick={onTeacher} data-juice className="juicy ink-chip inline-flex items-center gap-2 px-4 py-2 text-sm font-heading cursor-pointer" data-testid="splash-teacher">
+              <GraduationCap className="w-4 h-4 text-emerald-600" strokeWidth={2.6} /> Soy docente
+            </button>
           </div>
 
           {/* Lumi */}
