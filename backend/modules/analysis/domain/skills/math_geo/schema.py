@@ -54,6 +54,10 @@ class EquationSolverSimulation(BaseModel):
     """4.4. Solver de Ecuaciones Paso a Paso."""
     exercise_type: Literal["equation_solver"] = "equation_solver"
     equation_latex: str = Field(..., description="Ecuación manuscrita en formato LaTeX")
+    equation_plain: Optional[str] = Field(
+        default=None,
+        description="La misma ecuación en texto plano ASCII, usando ^ para potencias y * opcional (ej: 'x^2 + 2x - 3 = 0')",
+    )
     equation_type: Literal["linear", "quadratic", "system_2x2", "exponential"] = Field(
         ..., description="Clase de ecuación algebraica"
     )

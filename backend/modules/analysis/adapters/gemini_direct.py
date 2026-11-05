@@ -6,6 +6,7 @@ from typing import Any, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from google import genai
+from google.genai import errors as genai_errors
 from google.genai import types
 
 from modules.analysis.ports.llm import LLMClient
@@ -21,18 +22,20 @@ class GeminiDirectLLMAdapter(LLMClient):
     def __init__(
         self,
         api_key: str,
-        model_name: str = "gemini-2.5-flash",
+        model_name: str = "gemini-3.8-flash",
         timeout_seconds: int = 60,
+        fallback_models: list[str] | None = None,
     ):
         self.api_key = api_key.strip()
         if model_name.startswith("google/"):
             model_name = model_name.removeprefix("google/")
         self.model_name = model_name
+        self.fallback_models = [m.removeprefix("google/") for m in (fallback_models or []) if m != model_name]
         self.timeout_seconds = timeout_seconds
         self._client: genai.Client | None = None
 
     def _get_client(self) -> genai.Client:
-        if not self.api_key or "tu-key-aqui" in self.api_key:
+        if not self.api_key or "tu_api_key" in self.api_key:
             raise LLMAnalysisError("GEMINI_API_KEY no configurada o inválida.")
 
         if self._client is None:
@@ -75,14 +78,7 @@ class GeminiDirectLLMAdapter(LLMClient):
                 temperature=0.1,
             )
 
-            response = await asyncio.wait_for(
-                client.aio.models.generate_content(
-                    model=self.model_name,
-                    contents=contents,
-                    config=config,
-                ),
-                timeout=float(self.timeout_seconds),
-            )
+            response = await self._generate_with_fallback(client, contents, config)
 
             raw_text = response.text
             if not raw_text:
@@ -111,3 +107,27 @@ class GeminiDirectLLMAdapter(LLMClient):
         except Exception as exc:
             logger.error(f"Excepción inesperada en llamada directa a Gemini: {exc}", exc_info=True)
             raise LLMAnalysisError(f"Error devuelto por Gemini API: {str(exc)}")
+
+    async def _generate_with_fallback(self, client: genai.Client, contents: list[Any], config: Any) -> Any:
+        """Llama al modelo principal y, si está saturado o no disponible, prueba los alternativos."""
+        models = [self.model_name, *self.fallback_models]
+        last_exc: Exception | None = None
+        for index, model in enumerate(models):
+            try:
+                return await asyncio.wait_for(
+                    client.aio.models.generate_content(model=model, contents=contents, config=config),
+                    timeout=float(self.timeout_seconds),
+                )
+            except asyncio.TimeoutError as exc:
+                last_exc = exc
+                if index == len(models) - 1:
+                    raise
+                logger.warning(f"Modelo '{model}' excedió {self.timeout_seconds}s. Probando '{models[index + 1]}'...")
+            except genai_errors.APIError as exc:
+                last_exc = exc
+                retriable = exc.code in (404, 429, 500, 503)
+                if not retriable or index == len(models) - 1:
+                    raise
+                logger.warning(f"Modelo '{model}' no disponible ({exc.code}). Probando '{models[index + 1]}'...")
+        raise last_exc  # pragma: no cover
+

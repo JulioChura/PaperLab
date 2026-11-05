@@ -1,7 +1,7 @@
 """Configuración global de la aplicación mediante Pydantic Settings."""
 
-import os
 from functools import lru_cache
+from pathlib import Path
 from typing import List, Union
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,30 +10,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Ajustes de entorno para PaperLab Backend."""
 
-    llm_provider: str = Field(
-        default="auto",
-        alias="LLM_PROVIDER",
-        description="Proveedor LLM: 'gemini', 'openrouter' o 'auto'",
-    )
     gemini_api_key: str = Field(
         default="",
         alias="GEMINI_API_KEY",
         description="API Key directa de Google Gemini",
     )
     gemini_model: str = Field(
-        default="gemini-2.5-flash",
+        default="gemini-3.8-flash",
         alias="GEMINI_MODEL",
         description="Modelo de Google Gemini para conexión directa",
     )
-    openrouter_api_key: str = Field(
-        default="",
-        alias="OPENROUTER_API_KEY",
-        description="API Key para el servicio de OpenRouter",
-    )
-    openrouter_model: str = Field(
-        default="google/gemini-2.5-flash",
-        alias="OPENROUTER_MODEL",
-        description="Modelo multivariante de visión para estructuración de datos",
+    gemini_fallback_models: str = Field(
+        default="gemini-3.5-flash,gemini-3.5-flash-lite",
+        alias="GEMINI_FALLBACK_MODELS",
+        description="Modelos alternativos (separados por coma) si el principal está saturado o no disponible",
     )
     confidence_threshold: float = Field(
         default=0.8,
@@ -56,7 +46,7 @@ class Settings(BaseSettings):
         description="Reintentos ante fallas de validación de contrato",
     )
     cors_origins: Union[str, List[str]] = Field(
-        default=["*"],
+        default=["http://localhost:5173", "http://127.0.0.1:5173"],
         alias="CORS_ORIGINS",
         description="Lista de dominios autorizados para solicitudes CORS",
     )
@@ -71,7 +61,7 @@ class Settings(BaseSettings):
         return value
 
     model_config = SettingsConfigDict(
-        env_file=(".env", "../.env"),
+        env_file=Path(__file__).resolve().parent / ".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )

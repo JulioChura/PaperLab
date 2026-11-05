@@ -3,11 +3,7 @@ uvicorn[standard]
 pydantic>=2.7.0
 pydantic-settings
 google-genai
-langchain>=0.2.0
-langchain-core
-langchain-openrouter
 pillow
 python-multipart
-python-dotenv
 httpx
-
+truststore

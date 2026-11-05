@@ -1,5 +1,11 @@
 """Punto de entrada principal para la aplicación FastAPI de PaperLab Backend."""
 
+# Usa el almacén de certificados del sistema operativo para HTTPS (evita
+# CERTIFICATE_VERIFY_FAILED en Windows con antivirus/proxies que inspeccionan TLS).
+import truststore
+
+truststore.inject_into_ssl()
+
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List
 from fastapi import FastAPI, Request, status
@@ -20,7 +26,7 @@ async def lifespan(app: FastAPI):
     logger.info("=======================================================")
     logger.info("   PaperLab WebAR — Backend de Análisis Multimodal    ")
     logger.info("   Arquitectura: Monolito Modular (Vertical Slices)   ")
-    logger.info(f"   Modelo LLM por defecto: {settings.openrouter_model}")
+    logger.info(f"   Modelo LLM por defecto: {settings.gemini_model}")
     logger.info("=======================================================")
     yield
     logger.info("PaperLab Backend apagándose de forma ordenada.")
@@ -44,8 +50,8 @@ settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -71,12 +77,12 @@ app.include_router(analysis_router)
 async def health_check() -> Dict[str, Any]:
     """Comprueba el estado del backend y la configuración básica."""
     settings = get_settings()
-    has_api_key = bool(settings.openrouter_api_key and "tu-key-aqui" not in settings.openrouter_api_key)
+    has_api_key = bool(settings.gemini_api_key and "tu_api_key" not in settings.gemini_api_key)
     return {
         "status": "ok",
         "service": "PaperLab WebAR Analysis Backend",
         "version": "1.0.0",
-        "llm_model": settings.openrouter_model,
+        "llm_model": settings.gemini_model,
         "api_key_configured": has_api_key,
         "confidence_threshold": settings.confidence_threshold,
     }

@@ -3,16 +3,13 @@ import { SplashScreen } from './components/SplashScreen';
 import { Header } from './components/Header';
 import { ModuleSelector } from './components/ModuleSelector';
 import { ARCameraView } from './components/ARCameraView';
-import { ARSimulatorView } from './components/ARSimulator/ARSimulatorView';
 import { audioJuice } from './utils/audioJuice';
 
-type ViewMode = 'splash' | 'menu' | 'camera' | 'simulator';
+type ViewMode = 'splash' | 'menu' | 'camera';
 
 export function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('splash');
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
-  const [simulatorExerciseId, setSimulatorExerciseId] = useState<string>('math_equation_solver');
-  const [simulatorImage, setSimulatorImage] = useState<string | null>(null);
 
   // Robust Dark Mode / Day Mode with system detection and persistence
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -62,16 +59,6 @@ export function App() {
     setActiveModuleId(null);
   };
 
-  const handleOpenSimulator = (exerciseId?: string, imageSrc?: string) => {
-    if (exerciseId) {
-      setSimulatorExerciseId(exerciseId);
-    }
-    if (imageSrc !== undefined) {
-      setSimulatorImage(imageSrc || null);
-    }
-    setCurrentView('simulator');
-  };
-
   return (
     <div className="min-h-screen bg-[#f5f0e6] dark:bg-[#070a11] text-[#14171f] dark:text-[#f8fafc] flex flex-col font-sans transition-colors duration-200">
       {currentView === 'splash' ? (
@@ -84,10 +71,8 @@ export function App() {
         <>
           <Header
             currentModule={activeModuleId}
-            currentView={currentView}
             onGoHome={handleGoHome}
             onGoSplash={handleGoSplash}
-            onOpenSimulator={() => handleOpenSimulator()}
             isDarkMode={isDarkMode}
             onToggleTheme={toggleTheme}
           />
@@ -101,17 +86,9 @@ export function App() {
               <ARCameraView
                 moduleId={activeModuleId}
                 onBack={handleGoHome}
-                onLaunchSimulator={(exId, img) => handleOpenSimulator(exId, img)}
               />
             )}
 
-            {currentView === 'simulator' && (
-              <ARSimulatorView
-                initialExerciseId={simulatorExerciseId}
-                sourceImage={simulatorImage}
-                onBack={handleGoHome}
-              />
-            )}
           </main>
         </>
       )}

@@ -7,7 +7,7 @@ Backend en **FastAPI** con arquitectura de **Modular Monolith** para **PaperLab 
 ## 📋 Requisitos Previos
 
 - **Python 3.10 o superior** (Probado y optimizado en Python 3.12).
-- Clave de API de **Google Gemini** (recomendado para máxima velocidad y respuesta directa en 2-4 segundos) o **OpenRouter**.
+- Clave de API de **Google Gemini**.
 
 ---
 
@@ -15,15 +15,14 @@ Backend en **FastAPI** con arquitectura de **Modular Monolith** para **PaperLab 
 
 Dentro de la carpeta `backend/` existe el archivo de configuración `.env` (puedes tomar como base `.env.example`).
 
-### 1. Opción A: Google Gemini Directo (Recomendada y más rápida)
+### Google Gemini
 En `backend/.env`:
 ```env
-# Proveedor principal
-LLM_PROVIDER=gemini
-
-# Tu API Key oficial de Google Gemini
-GEMINI_API_KEY=AQ.Ab8RN6JdkwF0yH7tLo9CeZ5WCs1PpcwfZ0il888d0qZhpURnOA
-GEMINI_MODEL=gemini-2.5-flash
+# Tu API Key de Google Gemini (solo vive en el backend, nunca en el frontend)
+GEMINI_API_KEY=tu_api_key_aqui
+GEMINI_MODEL=gemini-3.8-flash
+# Modelos alternativos si el principal está saturado (503) o no disponible
+GEMINI_FALLBACK_MODELS=gemini-3.5-flash,gemini-3.5-flash-lite
 
 # Umbral de confianza mínimo aceptado (0.0 a 1.0)
 CONFIDENCE_THRESHOLD=0.8
@@ -31,23 +30,14 @@ CONFIDENCE_THRESHOLD=0.8
 # Tamaño máximo de imagen permitido en MB
 MAX_IMAGE_SIZE_MB=10
 
-# Límite de tiempo para la respuesta en segundos
+# Límite de tiempo en segundos
 LLM_TIMEOUT_SECONDS=60
 
-# Número máximo de reintentos con feedback correctivo
+# Número máximo de reintentos automáticos ante inconsistencias
 MAX_RETRIES=1
 
-# Orígenes CORS permitidos
-CORS_ORIGINS=*
-```
-
-### 2. Opción B: OpenRouter (Alternativa multi-modelo)
-Si prefieres usar OpenRouter:
-```env
-LLM_PROVIDER=openrouter
-OPENROUTER_API_KEY=sk-or-v1-tu-clave-aqui
-OPENROUTER_MODEL=google/gemini-2.5-flash
-LLM_TIMEOUT_SECONDS=75
+# Orígenes CORS permitidos (en desarrollo el frontend usa el proxy de Vite)
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
 ---
@@ -70,7 +60,7 @@ LLM_TIMEOUT_SECONDS=75
    pip install -r requirements.txt
    ```
 
-*(Las dependencias clave instaladas son: `fastapi`, `uvicorn`, `google-genai`, `langchain-openrouter`, `pydantic`, `pydantic-settings`, `pillow` y `python-multipart`).*
+*(Las dependencias clave instaladas son: `fastapi`, `uvicorn`, `google-genai`, `truststore`, `pydantic`, `pydantic-settings`, `pillow` y `python-multipart`).*
 
 ---
 
@@ -116,7 +106,7 @@ curl http://localhost:8000/health
   "status": "ok",
   "service": "PaperLab WebAR Analysis Backend",
   "version": "1.0.0",
-  "llm_model": "gemini-2.5-flash",
+  "llm_model": "gemini-3.8-flash",
   "api_key_configured": true,
   "confidence_threshold": 0.8
 }
@@ -164,13 +154,7 @@ backend/
 │   │   ├── ports/
 │   │   │   └── llm.py               ← [Puerto] Interfaz abstracta LLMClient
 │   │   └── adapters/
-│   │       ├── gemini_direct.py     ← [Estación 4: El Traductor] SDK nativo Google Gemini
-│   │       └── openrouter.py        ← [Estación 4: El Traductor] LangChain + OpenRouter
-│   │
-│   ├── sessions/                    ← Scaffold futuro (# TODO: future module)
-│   ├── catalog/                     ← Scaffold futuro (# TODO: future module)
-│   ├── users/                       ← Scaffold futuro (# TODO: future module)
-│   └── history/                     ← Scaffold futuro (# TODO: future module)
+│   │       └── gemini_direct.py     ← [Estación 4: El Traductor] SDK nativo Google Gemini (con modelos de respaldo)
 │
 └── tests/
     └── test_api.py                  ← Tests automatizados determinísticos

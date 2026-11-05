@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Path, UploadF
 
 from config import Settings, get_settings
 from modules.analysis.adapters.gemini_direct import GeminiDirectLLMAdapter
-from modules.analysis.adapters.openrouter import OpenRouterLLMAdapter
 from modules.analysis.ports.llm import LLMClient
 from modules.analysis.service import AnalysisService
 from shared.errors import (
@@ -23,28 +22,11 @@ router = APIRouter(prefix="", tags=["Análisis de Trazos WebAR"])
 
 
 def get_llm_client(settings: Annotated[Settings, Depends(get_settings)]) -> LLMClient:
-    """Proveedor del adaptador LLM inyectado (con soporte multi-proveedor)."""
-    provider = settings.llm_provider.lower().strip()
-
-    # Detección inteligente de proveedor
-    use_gemini = (
-        provider == "gemini"
-        or bool(settings.gemini_api_key)
-        or settings.openrouter_api_key.startswith("AQ.")
-        or settings.openrouter_api_key.startswith("AIzaSy")
-    )
-
-    if use_gemini:
-        key = settings.gemini_api_key or settings.openrouter_api_key
-        return GeminiDirectLLMAdapter(
-            api_key=key,
-            model_name=settings.gemini_model,
-            timeout_seconds=settings.llm_timeout_seconds,
-        )
-
-    return OpenRouterLLMAdapter(
-        api_key=settings.openrouter_api_key,
-        model_name=settings.openrouter_model,
+    """Proveedor del adaptador LLM inyectado (Google Gemini directo)."""
+    return GeminiDirectLLMAdapter(
+        api_key=settings.gemini_api_key,
+        model_name=settings.gemini_model,
+        fallback_models=[m.strip() for m in settings.gemini_fallback_models.split(",") if m.strip()],
         timeout_seconds=settings.llm_timeout_seconds,
     )
 
@@ -169,6 +151,6 @@ async def analyze_drawing_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "error": "InternalServerError",
-                "message": f"Ocurrió un error inesperado al procesar la solicitud: {str(exc)}",
+                "message": "Ocurrió un error inesperado al procesar la solicitud.",
             },
         )

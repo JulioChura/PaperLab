@@ -1,23 +1,19 @@
 import React from 'react';
-import { Sun, Moon, ArrowLeft, Layers } from 'lucide-react';
+import { Sun, Moon, ArrowLeft } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface HeaderProps {
   currentModule: string | null;
-  currentView?: string;
   onGoHome: () => void;
   onGoSplash: () => void;
-  onOpenSimulator?: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentModule,
-  currentView,
   onGoHome,
   onGoSplash,
-  onOpenSimulator,
   isDarkMode,
   onToggleTheme
 }) => {
@@ -53,21 +49,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5">
-          {/* Solver AR Shortcut */}
-          {onOpenSimulator && (
-            <button
-              onClick={onOpenSimulator}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-telemetry transition-all cursor-pointer shadow-xs ${
-                currentView === 'simulator'
-                  ? 'bg-cyan-500 text-slate-950 font-bold border-cyan-400'
-                  : 'border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] text-slate-800 dark:text-slate-200 hover:border-slate-400'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-              <span>Solver AR</span>
-            </button>
-          )}
-
           {/* Day / Night Theme Toggle */}
           <button
             onClick={onToggleTheme}

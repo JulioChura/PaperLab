@@ -122,3 +122,47 @@
   background: var(--border-color);
   border-radius: 9999px;
 }
+
+/* ---------- PaperLab AR: captura y escaneo ---------- */
+@keyframes shutterFlash {
+  0% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+.animate-shutter-flash {
+  animation: shutterFlash 420ms ease-out forwards;
+}
+
+@keyframes captureThumb {
+  0% { opacity: 0; transform: translate(-30vw, 25vh) scale(2.4) rotate(0deg); }
+  18% { opacity: 1; }
+  45% { opacity: 1; transform: translate(0, 0) scale(1) rotate(2deg); }
+  85% { opacity: 1; transform: translate(0, 0) scale(1) rotate(2deg); }
+  100% { opacity: 0; transform: translate(8px, -8px) scale(0.92) rotate(4deg); }
+}
+.animate-capture-thumb {
+  animation: captureThumb 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes scanSweep {
+  0% { top: -4rem; }
+  100% { top: 100%; }
+}
+.animate-scan-sweep {
+  animation: scanSweep 1.6s ease-in-out infinite;
+}
+
+.bg-notebook-grid {
+  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(59, 130, 246, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.12) 1px, transparent 1px);
+}
+
+/* Congelado de la captura: asentamiento sutil (sensación de "foto tomada") */
+@keyframes freezeIn {
+  0% { transform: scale(1.015); filter: brightness(1.25); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.animate-freeze-in {
+  animation: freezeIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
