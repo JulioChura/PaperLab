@@ -688,11 +688,14 @@ function inequalityPlan(p: Polynomial, op: RelOp): SolutionPlan {
     summary = 'Inecuación lineal';
     const root = -p.c / p.b;
     const finalOp = p.b < 0 ? flipOp(op) : op;
-    lines.push({ title: 'Transponemos', tokens: [t(`${fmt(p.b)}x ${REL_SYMBOL[op]} ${fmt(-p.c)}`)] });
-    lines.push({
-      title: p.b < 0 ? 'Dividimos entre un negativo (se invierte el sentido)' : `Dividimos entre ${fmt(p.b)}`,
-      tokens: [t(`x ${REL_SYMBOL[finalOp]} ${fmt(root)}`)],
-    });
+    const coef = Math.abs(p.b - 1) < EPS ? '' : Math.abs(p.b + 1) < EPS ? MINUS : fmt(p.b);
+    lines.push({ title: 'Transponemos', tokens: [t(`${coef}x ${REL_SYMBOL[op]} ${fmt(-p.c)}`)] });
+    if (Math.abs(p.b - 1) > EPS) {
+      lines.push({
+        title: p.b < 0 ? 'Dividimos entre un negativo (se invierte el sentido)' : `Dividimos entre ${fmt(p.b)}`,
+        tokens: [t(`x ${REL_SYMBOL[finalOp]} ${fmt(root)}`)],
+      });
+    }
     const right = finalOp === '>' || finalOp === '>=';
     const cl = finalOp === '<=' || finalOp === '>=';
     shade.push(right ? [root, Infinity] : [-Infinity, root]);
@@ -733,7 +736,7 @@ export function planFromEquation(data: EquationSolverData): SolutionPlan | null 
   const candidates = [data.equation_plain, data.equation_latex].filter((s): s is string => !!s && s.trim().length > 0);
   for (const raw of candidates) {
     try {
-      const ineq = splitInequality(normalizeExpression(raw.replace(/\(le|leq)/g, '<=').replace(/\(ge|geq)/g, '>=').replace(/\lt/g, '<').replace(/\gt/g, '>')));
+      const ineq = splitInequality(normalizeExpression(raw.replace(/\\(leq|le)/g, '<=').replace(/\\(geq|ge)/g, '>=').replace(/\\lt/g, '<').replace(/\\gt/g, '>')));
       if (ineq) {
         const G: Fn = (() => {
           const L = compileExpression(ineq.lhs);
@@ -815,6 +818,30 @@ export function planFromFunction(data: FunctionGraphData): SolutionPlan | null {
       unique.forEach((r) => points.push({ x: r, y: 0, label: fmt(r), kind: 'root' }));
       points.push({ x: h, y: k, label: `V(${fmt(h)}; ${fmt(k)})`, kind: 'vertex' });
       win = graphWindow(f, h, Math.max(3.5, unique.length === 2 ? Math.abs(unique[0] - unique[1]) * 0.85 + 1.5 : 3.5), [k, poly.c]);
+    } else if (/abs\(|\|/.test(expr)) {
+      // |…|: el vértice es el punto de quiebre (mínimo o máximo absoluto)
+      let best = { x: 0, y: f(0) };
+      let worst = { x: 0, y: f(0) };
+      for (let x = -20; x <= 20; x += 0.005) {
+        const y = f(x);
+        if (!Number.isFinite(y)) continue;
+        if (y < best.y) best = { x, y };
+        if (y > worst.y) worst = { x, y };
+      }
+      const opensUp = f(best.x - 5) > best.y + 1e-6 && f(best.x + 5) > best.y + 1e-6;
+      const v = opensUp ? best : worst;
+      const vx = snap(Math.round(v.x * 100) / 100);
+      const vy = snap(f(vx));
+      const roots = numericRoots(f, -20, 20).map((r) => snap(Math.round(r * 1000) / 1000));
+      const c0 = f(0);
+      lines.push({ title: 'Vértice (punto de quiebre)', tokens: [t(`V(${fmt(vx)}; ${fmt(vy)})`)] });
+      if (roots.length) lines.push({ title: 'Raíces', tokens: [t(`x = ${roots.map((r) => fmt(r)).join(' ; ')}`)] });
+      lines.push({ title: 'Corte con el eje y', tokens: [t(`f(0) = ${fmt(c0)}`)] });
+      lines.push({ title: 'Rango', tokens: [t(opensUp ? `Ran f = [${fmt(vy)}; +∞)` : `Ran f = (${MINUS}∞; ${fmt(vy)}]`)], answer: true });
+      roots.forEach((r) => points.push({ x: r, y: 0, label: fmt(r), kind: 'root' }));
+      points.push({ x: vx, y: vy, label: `V(${fmt(vx)}; ${fmt(vy)})`, kind: 'vertex' });
+      const span = roots.length >= 2 ? Math.abs(roots[roots.length - 1] - roots[0]) * 0.75 + 2 : 5;
+      win = graphWindow(f, vx, Math.max(4, span), [vy, c0]);
     } else {
       const roots = numericRoots(f, -10, 10);
       const c0 = f(0);

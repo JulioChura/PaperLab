@@ -1,86 +1,128 @@
 {
-  "title": "Traza de Fibonacci",
+  "title": "Recorrido BFS de un árbol",
   "exercise_id": "trace_table",
   "exercise_type": "trace_table",
-  "exercise_name": "Traza de Fibonacci",
+  "exercise_name": "Recorrido BFS de un árbol",
   "skill": "flowchart",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "trace_table",
     "watched_variables": [
-      "a",
-      "b",
-      "t"
+      "actual",
+      "cola",
+      "visitados"
+    ],
+    "traversal": "BFS",
+    "graph_nodes": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G"
+    ],
+    "graph_edges": [
+      [
+        "A",
+        "B"
+      ],
+      [
+        "A",
+        "C"
+      ],
+      [
+        "B",
+        "D"
+      ],
+      [
+        "B",
+        "E"
+      ],
+      [
+        "C",
+        "F"
+      ],
+      [
+        "C",
+        "G"
+      ]
     ],
     "rows": [
       {
-        "iteration": 0,
-        "variables": {
-          "a": "0",
-          "b": "1",
-          "t": "-"
-        },
-        "condition_evaluated": "k<5 V"
-      },
-      {
         "iteration": 1,
         "variables": {
-          "a": "1",
-          "b": "1",
-          "t": "1"
+          "actual": "A",
+          "cola": "[\"B\", \"C\"]",
+          "visitados": "[\"A\"]"
         },
-        "condition_evaluated": "k<5 V"
+        "condition_evaluated": "Visita A y encola sus hijos B, C"
       },
       {
         "iteration": 2,
         "variables": {
-          "a": "1",
-          "b": "2",
-          "t": "2"
+          "actual": "B",
+          "cola": "[\"C\", \"D\", \"E\"]",
+          "visitados": "[\"A\", \"B\"]"
         },
-        "condition_evaluated": "k<5 V"
+        "condition_evaluated": "Visita B y encola D, E"
       },
       {
         "iteration": 3,
         "variables": {
-          "a": "2",
-          "b": "3",
-          "t": "3"
+          "actual": "C",
+          "cola": "[\"D\", \"E\", \"F\", \"G\"]",
+          "visitados": "[\"A\", \"B\", \"C\"]"
         },
-        "condition_evaluated": "k<5 V"
+        "condition_evaluated": "Visita C y encola F, G"
       },
       {
         "iteration": 4,
         "variables": {
-          "a": "3",
-          "b": "5",
-          "t": "5"
+          "actual": "D",
+          "cola": "[\"E\", \"F\", \"G\"]",
+          "visitados": "[\"A\", \"B\", \"C\", \"D\"]"
         },
-        "condition_evaluated": "k<5 V"
+        "condition_evaluated": "Visita D (hoja)"
       },
       {
         "iteration": 5,
         "variables": {
-          "a": "5",
-          "b": "8",
-          "t": "8"
+          "actual": "E",
+          "cola": "[\"F\", \"G\"]",
+          "visitados": "[\"A\", \"B\", \"C\", \"D\", \"E\"]"
         },
-        "condition_evaluated": "k<5 F"
+        "condition_evaluated": "Visita E (hoja)"
+      },
+      {
+        "iteration": 6,
+        "variables": {
+          "actual": "F",
+          "cola": "[\"G\"]",
+          "visitados": "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+        },
+        "condition_evaluated": "Visita F (hoja)"
+      },
+      {
+        "iteration": 7,
+        "variables": {
+          "actual": "G",
+          "cola": "[]",
+          "visitados": "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\"]"
+        },
+        "condition_evaluated": "Visita G: la cola queda vacía, termina"
       }
     ],
     "initial_memory": {
-      "a": "0",
-      "b": "1"
+      "cola": "[\"A\"]"
     },
     "final_memory": {
-      "a": "5",
-      "b": "8",
-      "t": "8"
+      "visitados": "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\"]"
     }
   },
-  "explanation": "a, b = 0, 1 y se repite t = a + b; a = b; b = t cinco veces.",
-  "question": "Completar la tabla de traza de a, b y t",
+  "explanation": "Recorrido en anchura (BFS) desde la raíz A usando una cola.",
+  "question": "Hallar el orden de visita de los nodos con BFS",
   "bounding_boxes": [
     {
       "x": 0.16,

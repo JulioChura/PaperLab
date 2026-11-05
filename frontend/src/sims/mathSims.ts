@@ -86,6 +86,11 @@ class SolidSim implements FigureRuntime {
       } else {
         const apex = P(top);
         for (const sx of [-1, 1]) fc.line(apex[0], apex[1], cx + sx * this.r * s, P([0, 0, 0])[1]);
+        // generatriz g: hipotenusa del triángulo rectángulo (h, r, g)
+        const rimR: Pt = [cx + this.r * s, P([0, 0, 0])[1]];
+        fc.lightPath([apex, rimR], ACCENT, fc.stroke * 1.6, 0.7);
+        const g = Math.hypot(this.r, this.h);
+        fc.text('g = ' + f(g), (apex[0] + rimR[0]) / 2 + u * 0.5, (apex[1] + rimR[1]) / 2, 0.8, 'pencil');
       }
       // radio que gira (muestra la rotación) y altura
       const rim = P([Math.cos(-this.phi) * this.r, 0, Math.sin(-this.phi) * this.r]);
@@ -292,6 +297,62 @@ class AnglesSim implements FigureRuntime {
     const k = clamp(this.t / 1.4, 0, 1);
     const xl = `${this.unknown} = ${k >= 1 ? f(this.x) : '?'}°`;
     const kn = this.known.map(([, v]) => `${v}°`);
+    if (this.kind === 'triangle_congruence') {
+      // ΔABC ≅ ΔDEF: lados iguales con marcas, ángulos correspondientes con el mismo arco
+      const R = Math.min(w * 0.22, h * 0.42);
+      const tri = (cx: number, mirror: number): Pt[] => [
+        [cx - R * mirror, h * 0.82],
+        [cx + R * mirror, h * 0.82],
+        [cx + R * 0.25 * mirror, h * 0.82 - R * 1.45],
+      ];
+      const T1 = tri(w * 0.26, 1);
+      const T2 = tri(w * 0.74, -1);
+      fc.polygon(T1, 'ink');
+      fc.polygon(T2, 'ink');
+      const names1 = ['A', 'B', 'C'];
+      const names2 = ['D', 'E', 'F'];
+      const out = (P: Pt[], i: number): Pt => {
+        const c: Pt = [(P[0][0] + P[1][0] + P[2][0]) / 3, (P[0][1] + P[1][1] + P[2][1]) / 3];
+        const d = Math.hypot(P[i][0] - c[0], P[i][1] - c[1]) || 1;
+        return [P[i][0] + ((P[i][0] - c[0]) / d) * u * 1.1, P[i][1] + ((P[i][1] - c[1]) / d) * u * 1.1 + u * 0.35];
+      };
+      [T1, T2].forEach((P, k) => P.forEach((_, i) => {
+        const o = out(P, i);
+        fc.text((k ? names2 : names1)[i], o[0], o[1], 0.85, 'ink', 'center');
+      }));
+      const ticks = (a: Pt, b: Pt, n: number) => {
+        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) + Math.PI / 2;
+        for (let j = 0; j < n; j++) {
+          const off = (j - (n - 1) / 2) * u * 0.35;
+          const px = mx + Math.cos(ang - Math.PI / 2) * off, py = my + Math.sin(ang - Math.PI / 2) * off;
+          fc.line(px - Math.cos(ang) * u * 0.4, py - Math.sin(ang) * u * 0.4, px + Math.cos(ang) * u * 0.4, py + Math.sin(ang) * u * 0.4, 'pencil', 1);
+        }
+      };
+      ticks(T1[0], T1[1], 1); ticks(T2[0], T2[1], 1); // AB = DE
+      ticks(T1[0], T1[2], 2); ticks(T2[0], T2[2], 2); // AC = DF
+      const inner = (P: Pt[], i: number): [number, number] => {
+        const p = P[i], a = P[(i + 1) % 3], b = P[(i + 2) % 3];
+        let a0 = Math.atan2(a[1] - p[1], a[0] - p[0]);
+        let a1 = Math.atan2(b[1] - p[1], b[0] - p[0]);
+        if (a1 < a0) [a0, a1] = [a1, a0];
+        if (a1 - a0 > PI) [a0, a1] = [a1, a0 + 2 * PI];
+        return [a0, a1];
+      };
+      // ángulo comprendido (A = D) y el ángulo conocido C; x está en E (corresponde a B)
+      const [k0, k1] = inner(T1, 0);
+      this.angleMark(fc, T1[0], k0, k1, kn[0] ?? '', false, 1, 1.5);
+      const [d0, d1] = inner(T2, 0);
+      this.angleMark(fc, T2[0], d0, d1, kn[0] ?? '', false, 1, 1.5);
+      const [c0, c1] = inner(T1, 2);
+      this.angleMark(fc, T1[2], c0, c1, kn[1] ?? '', false, 1, 1.5);
+      const [b0, b1] = inner(T1, 1);
+      this.angleMark(fc, T1[1], b0, b1, k >= 1 ? `${f(this.x)}°` : '?', false, 1, 1.5);
+      const [e0, e1] = inner(T2, 1);
+      this.angleMark(fc, T2[1], e0, e1, xl, true, k, 1.5);
+      fc.text('ΔABC ≅ ΔDEF', w / 2, u * 1.3, 0.9, 'pencil', 'center');
+      return;
+    }
     if (this.kind === 'parallel_transversal') {
       const yA = h * 0.18, yB = h * 0.84;
       fc.line(u, yA, w - u, yA);

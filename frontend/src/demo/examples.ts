@@ -71,6 +71,12 @@ class Sketch {
     if (smooth) this.rc.curve(pts, this.o({ roughness: 0.5 }));
     else this.path(pts);
   }
+  dashedRect(x: number, y: number, w: number, h: number) {
+    this.dashed(x, y, x + w, y);
+    this.dashed(x + w, y, x + w, y + h);
+    this.dashed(x + w, y + h, x, y + h);
+    this.dashed(x, y + h, x, y);
+  }
   dashed(x1: number, y1: number, x2: number, y2: number) {
     this.rc.line(x1, y1, x2, y2, this.o({ strokeLineDash: [10, 8], strokeWidth: 2.2 }));
   }
@@ -99,6 +105,36 @@ class Sketch {
     pts.push([x2, y]);
     this.path(pts);
   }
+}
+
+
+// ------------------------------------------------------------------ utilidades de dibujo de diagramas
+function flowOval(s: Sketch, cx: number, cy: number, w: number, label: string) {
+  s.ellipse(cx, cy, w, 40);
+  s.text(cx, cy + 10, label, 28, 'center');
+}
+function flowBox(s: Sketch, cx: number, cy: number, w: number, label: string) {
+  s.rect(cx - w / 2, cy - 18, w, 36);
+  s.text(cx, cy + 10, label, 28, 'center');
+}
+function flowIO(s: Sketch, cx: number, cy: number, w: number, label: string) {
+  s.poly([[cx - w / 2 + 14, cy - 18], [cx + w / 2 + 6, cy - 18], [cx + w / 2 - 14, cy + 18], [cx - w / 2 - 6, cy + 18]]);
+  s.text(cx, cy + 10, label, 28, 'center');
+}
+function flowDiamond(s: Sketch, cx: number, cy: number, w: number, label: string) {
+  s.poly([[cx, cy - 30], [cx + w / 2, cy], [cx, cy + 30], [cx - w / 2, cy]]);
+  s.text(cx, cy + 9, label, 26, 'center');
+}
+/** Ejes cartesianos con marcas y números (origen en ox, oy; "step" px por unidad). */
+function grid(s: Sketch, ox: number, oy: number, step: number, xmin: number, xmax: number, ymin: number, ymax: number) {
+  s.arrow(ox + xmin * step - 10, oy, ox + xmax * step + 20, oy);
+  s.arrow(ox, oy - ymin * step + 10, ox, oy - ymax * step - 20);
+  s.text(ox + xmax * step + 26, oy + 8, 'x', 28);
+  s.text(ox - 22, oy - ymax * step - 20, 'y', 28);
+  for (let x = xmin; x <= xmax; x++) if (x) s.line(ox + x * step, oy - 5, ox + x * step, oy + 5);
+  for (let y = ymin; y <= ymax; y++) if (y) s.line(ox - 5, oy - y * step, ox + 5, oy - y * step);
+  for (const x of [xmin, -1, 1, xmax]) if (x) s.text(ox + x * step, oy + 26, String(x).replace('-', '−'), 20, 'center');
+  for (const y of [ymin, 1, ymax]) if (y) s.text(ox - 10, oy - y * step + 6, String(y).replace('-', '−'), 20, 'right');
 }
 
 /** Genera la "foto" del cuaderno para un ejemplo (data URL JPEG). */
@@ -445,14 +481,14 @@ const EXAMPLES_L1: Example[] = [
       ],
     },
     sketch: (s) => {
-      s.ellipse(X0 + 90, 80, 150, 50);
-      s.text(X0 + 90, 92, 'Inicio', 34, 'center');
-      s.poly([[X0 + 30, 125], [X0 + 190, 125], [X0 + 160, 175], [X0, 175]]);
-      s.text(X0 + 95, 160, 'Leer b, h', 32, 'center');
-      s.rect(X0 + 20, 200, 150, 50);
-      s.text(X0 + 95, 235, 'A = b*h', 32, 'center');
-      s.line(X0 + 90, 105, X0 + 90, 125);
-      s.line(X0 + 90, 175, X0 + 90, 200);
+      const cx = X0 + 110;
+      flowOval(s, cx, 60, 150, 'Inicio');
+      flowIO(s, cx, 118, 190, 'Leer b, h');
+      flowBox(s, cx, 176, 170, 'A = b * h');
+      flowIO(s, cx, 234, 190, 'Imprimir A');
+      flowOval(s, cx, 292, 120, 'Fin');
+      [[80, 98], [138, 156], [196, 214], [254, 272]].forEach(([a, b]) => s.arrow(cx, a, cx, b));
+      s.text(X0 + 330, 160, 'Base b = 5, altura h = 3', 40);
     },
   },
   {
@@ -482,12 +518,24 @@ const EXAMPLES_L1: Example[] = [
       ],
     },
     sketch: (s) => {
-      s.ellipse(X0 + 90, 75, 140, 46);
-      s.text(X0 + 90, 87, 'Inicio', 32, 'center');
-      s.poly([[X0 + 90, 120], [X0 + 190, 170], [X0 + 90, 220], [X0 - 10, 170]]);
-      s.text(X0 + 90, 180, 'nota≥11', 30, 'center');
-      s.text(X0 + 220, 160, 'Sí → Aprobado', 34);
-      s.text(X0 + 60, 260, 'No → Desaprobado', 34);
+      const cx = X0 + 190;
+      flowOval(s, cx, 55, 140, 'Inicio');
+      flowIO(s, cx, 108, 180, 'Leer nota');
+      flowDiamond(s, cx, 175, 170, 'nota ≥ 11');
+      flowIO(s, cx - 160, 245, 170, 'Aprobado');
+      flowIO(s, cx + 160, 245, 190, 'Desaprobado');
+      flowOval(s, cx, 305, 110, 'Fin');
+      s.arrow(cx, 75, cx, 90);
+      s.arrow(cx, 128, cx, 142);
+      s.path([[cx - 85, 175], [cx - 160, 175]]);
+      s.arrow(cx - 160, 175, cx - 160, 226);
+      s.path([[cx + 85, 175], [cx + 160, 175]]);
+      s.arrow(cx + 160, 175, cx + 160, 226);
+      s.text(cx - 140, 165, 'Sí', 30);
+      s.text(cx + 105, 165, 'No', 30);
+      s.path([[cx - 160, 265], [cx - 160, 305], [cx - 56, 305]]);
+      s.path([[cx + 160, 265], [cx + 160, 305], [cx + 56, 305]]);
+      s.text(X0 + 520, 160, 'Leer nota = 14', 40);
     },
   },
   {
@@ -528,13 +576,28 @@ const EXAMPLES_L1: Example[] = [
       ],
     },
     sketch: (s) => {
-      s.rect(X0, 70, 160, 48);
-      s.text(X0 + 80, 104, 'i=1, s=0', 32, 'center');
-      s.poly([[X0 + 80, 140], [X0 + 170, 185], [X0 + 80, 230], [X0 - 10, 185]]);
-      s.text(X0 + 80, 195, 'i ≤ 3', 32, 'center');
-      s.rect(X0 + 230, 160, 150, 48);
-      s.text(X0 + 305, 194, 's = s + i', 30, 'center');
-      s.path([[X0 + 305, 160], [X0 + 305, 120], [X0 + 80, 120]]);
+      const cx = X0 + 110;
+      flowOval(s, cx, 52, 130, 'Inicio');
+      flowBox(s, cx, 106, 170, 'i = 1, s = 0');
+      flowDiamond(s, cx, 172, 150, 'i ≤ 3');
+      flowBox(s, cx, 240, 160, 's = s + i');
+      flowBox(s, cx, 296, 160, 'i = i + 1');
+      s.arrow(cx, 72, cx, 88);
+      s.arrow(cx, 124, cx, 142);
+      s.arrow(cx, 202, cx, 222);
+      s.arrow(cx, 258, cx, 278);
+      s.text(cx + 8, 216, 'Sí', 28);
+      // retorno del bucle
+      s.path([[cx - 80, 296], [cx - 120, 296], [cx - 120, 172]]);
+      s.arrow(cx - 120, 172, cx - 75, 172);
+      // salida
+      s.path([[cx + 75, 172], [cx + 200, 172]]);
+      s.arrow(cx + 200, 172, cx + 200, 222);
+      s.text(cx + 100, 162, 'No', 28);
+      flowIO(s, cx + 200, 240, 170, 'Imprimir s');
+      s.arrow(cx + 200, 258, cx + 200, 282);
+      flowOval(s, cx + 200, 300, 100, 'Fin');
+      s.text(X0 + 500, 160, 'Suma 1 + 2 + 3', 40);
     },
   },
   {
@@ -648,11 +711,15 @@ const EXAMPLES_L1: Example[] = [
     explanation: 'Segmento entre A(−2; 1) y B(4; 5).',
     data: { entity_type: 'points_segment', point_a: [-2, 1], point_b: [4, 5], distance: 7.21, slope_m: 0.67, midpoint: [1, 3] },
     sketch: (s) => {
-      s.line(X0, 230, X0 + 260, 230);
-      s.line(X0 + 80, 280, X0 + 80, 70);
-      s.line(X0 + 30, 210, X0 + 220, 100);
-      s.text(X0 + 300, 140, 'A(−2; 1)   B(4; 5)');
-      s.text(X0 + 300, 200, 'd = ?   m = ?');
+      grid(s, X0 + 130, 250, 32, -4, 5, -1, 6);
+      const P = (x: number, y: number): [number, number] => [X0 + 130 + x * 32, 250 - y * 32];
+      s.line(...P(-2, 1), ...P(4, 5));
+      s.circle(...P(-2, 1), 14);
+      s.circle(...P(4, 5), 14);
+      s.text(P(-2, 1)[0] - 16, P(-2, 1)[1] - 16, 'A(−2; 1)', 32, 'right');
+      s.text(P(4, 5)[0] + 16, P(4, 5)[1] - 8, 'B(4; 5)', 32);
+      s.text(X0 + 470, 150, 'A(−2; 1)   B(4; 5)', 42);
+      s.text(X0 + 470, 210, 'Hallar: d, M y m', 42);
     },
   },
   {
@@ -759,82 +826,106 @@ const EXAMPLES_L2: Example[] = [
   },
   {
     module: 'physics', skill: 'physics', exercise_type: 'mass_spring', title: 'Oscilador amortiguado',
-    explanation: 'Masa de 0.8 kg en un resorte de 150 N/m, estirada 0.25 m, con amortiguamiento b = 1.2 kg/s.',
-    question: 'Hallar ω, el periodo y cómo decae la amplitud',
+    explanation: 'Masa de 0.8 kg en un resorte de 150 N/m con un amortiguador b = 1.2 kg/s; se estira 0.25 m y se suelta.',
+    question: 'Hallar ω, el periodo y cuánto decae la amplitud en cada oscilación',
     data: { spring_constant_k_n_m: 150, mass_kg: 0.8, initial_displacement_m: 0.25, damping_coefficient: 1.2, angular_frequency_rad_s: 13.69, period_s: 0.46 },
     sketch: (s) => {
-      s.hatch(X0, 110, X0, 270, 1);
-      s.hatch(X0, 270, X0 + 420, 270);
-      s.zigzag(X0, 215, X0 + 250, 9, 15);
-      s.rect(X0 + 250, 180, 70, 70);
-      s.text(X0 + 285, 225, 'm', 34, 'center');
-      // amortiguador (pistón)
-      s.line(X0, 150, X0 + 90, 150);
-      s.rect(X0 + 90, 135, 70, 30);
-      s.line(X0 + 125, 150, X0 + 250, 150);
-      s.text(X0 + 125, 128, 'b', 30, 'center');
-      s.curve([[X0 + 340, 120], [X0 + 360, 90], [X0 + 380, 150], [X0 + 400, 105], [X0 + 420, 135], [X0 + 440, 118]]);
-      datos(s, X0 + 480, ['k = 150 N/m   m = 0.8 kg', 'x0 = 0.25 m   b = 1.2'], 'ω, T y decaimiento');
+      s.hatch(X0, 100, X0, 250, 1);
+      s.hatch(X0, 250, X0 + 400, 250);
+      // resorte arriba, amortiguador abajo, ambos unidos al bloque
+      s.zigzag(X0, 140, X0 + 230, 8, 14);
+      s.text(X0 + 100, 118, 'resorte k', 28, 'center');
+      s.line(X0, 210, X0 + 80, 210);
+      s.rect(X0 + 80, 194, 70, 32);
+      s.line(X0 + 112, 210, X0 + 230, 210);
+      s.text(X0 + 115, 244, 'amortiguador b', 26, 'center');
+      s.rect(X0 + 230, 118, 76, 110);
+      s.text(X0 + 268, 182, 'm', 36, 'center');
+      s.dashed(X0 + 268, 90, X0 + 268, 250);
+      s.text(X0 + 268, 84, 'x = 0', 26, 'center');
+      s.arrow(X0 + 268, 100, X0 + 340, 100);
+      s.text(X0 + 345, 108, 'x0', 28);
+      datos(s, X0 + 450, ['k = 150 N/m   m = 0.8 kg', 'x0 = 0.25 m   b = 1.2 kg/s'], 'ω, T y decaimiento');
     },
   },
   {
-    module: 'physics', skill: 'physics', exercise_type: 'rectilinear_motion', title: 'Frenado (MRUV con a < 0)',
-    explanation: 'Un auto a 20 m/s frena con 2.5 m/s² hasta detenerse.',
-    question: 'Hallar el tiempo de frenado y la distancia recorrida',
-    data: { motion_type: 'MRUV', initial_position_m: 0, initial_velocity_m_s: 20, acceleration_m_s2: -2.5, total_time_s: 8, final_velocity_m_s: 0, distance_traveled_m: 80 },
+    module: 'physics', skill: 'physics', exercise_type: 'rectilinear_motion', title: 'Encuentro de dos autos',
+    explanation: 'El auto A parte del origen a 12 m/s y acelera 1 m/s²; el auto B parte a 240 m y va hacia A a 14 m/s constantes.',
+    question: 'Hallar cuándo y dónde se encuentran',
+    data: {
+      motion_type: 'MRUV', initial_position_m: 0, initial_velocity_m_s: 12, acceleration_m_s2: 1, total_time_s: 10, final_velocity_m_s: 22, distance_traveled_m: 170,
+      second_initial_position_m: 240, second_initial_velocity_m_s: -14, second_acceleration_m_s2: 0,
+    },
     sketch: (s) => {
-      s.line(X0 - 20, 270, X0 + 420, 270);
-      for (let i = 0; i <= 4; i++) s.line(X0 + i * 100, 270, X0 + i * 100, 282);
-      s.rect(X0 + 10, 205, 110, 44);
-      s.rect(X0 + 35, 182, 55, 25);
-      s.circle(X0 + 35, 254, 30);
-      s.circle(X0 + 95, 254, 30);
-      s.arrow(X0 + 130, 190, X0 + 230, 190);
-      s.text(X0 + 150, 180, 'v0 = 20', 30);
-      s.arrow(X0 + 220, 228, X0 + 150, 228);
-      s.text(X0 + 232, 238, 'a', 32);
-      s.rect(X0 + 380, 220, 14, 50);
-      s.text(X0 + 360, 205, 'v = 0', 30);
-      datos(s, X0 + 470, ['v0 = 20 m/s', 'a = -2.5 m/s²   vf = 0'], 't y d');
+      s.line(X0 - 20, 280, X0 + 460, 280);
+      s.text(X0, 316, '0', 30, 'center');
+      s.text(X0 + 430, 316, '240 m', 30, 'center');
+      s.line(X0, 280, X0, 292);
+      s.line(X0 + 430, 280, X0 + 430, 292);
+      // auto A (mira a la derecha)
+      s.rect(X0 + 10, 222, 96, 40);
+      s.circle(X0 + 30, 266, 26);
+      s.circle(X0 + 86, 266, 26);
+      s.text(X0 + 58, 252, 'A', 30, 'center');
+      s.arrow(X0 + 116, 210, X0 + 196, 210);
+      s.text(X0 + 120, 198, '12 m/s, a = 1', 26);
+      // auto B (mira a la izquierda)
+      s.rect(X0 + 334, 222, 96, 40);
+      s.circle(X0 + 354, 266, 26);
+      s.circle(X0 + 410, 266, 26);
+      s.text(X0 + 382, 252, 'B', 30, 'center');
+      s.arrow(X0 + 324, 210, X0 + 244, 210);
+      s.text(X0 + 262, 178, '14 m/s', 26);
+      datos(s, X0 + 510, ['A: x0 = 0, v0 = 12 m/s, a = 1', 'B: x0 = 240 m, v = −14 m/s'], 't y x del encuentro');
     },
   },
   {
-    module: 'physics', skill: 'physics', exercise_type: 'atwood_machine', title: 'Atwood con masas cercanas',
-    explanation: 'Polea ideal con masas de 4.5 kg y 6.2 kg.',
-    question: 'Hallar la aceleración, la tensión y la velocidad tras 1 m de recorrido',
-    data: { mass_1_kg: 4.5, mass_2_kg: 6.2, pulley_radius_m: 0.15, gravity_m_s2: 9.8, acceleration_m_s2: 1.56, tension_n: 51.08 },
+    module: 'physics', skill: 'physics', exercise_type: 'atwood_machine', title: 'Atwood con dos poleas y mesa',
+    explanation: 'm1 = 2 kg y m2 = 5 kg cuelgan de dos poleas a los bordes de una mesa; sobre la mesa, m3 = 3 kg con μ = 0.2.',
+    question: 'Hallar la aceleración del sistema y las tensiones T1 y T2',
+    data: { mass_1_kg: 2, mass_2_kg: 5, mass_3_kg: 3, table_friction_coefficient: 0.2, pulley_radius_m: 0.1, gravity_m_s2: 9.8, acceleration_m_s2: 2.35, tension_n: 24.3 },
     sketch: (s) => {
-      const cx = X0 + 120, cy = 140, r = 50;
-      s.hatch(cx - 100, 78, cx + 100, 78, -1);
-      s.line(cx, 78, cx, cy);
-      s.circle(cx, cy, r * 2);
-      s.circle(cx, cy, 10);
-      s.line(cx - r, cy, cx - r, 240);
-      s.line(cx + r, cy, cx + r, 250);
-      s.rect(cx - r - 30, 240, 60, 54);
-      s.rect(cx + r - 33, 250, 66, 62);
-      s.text(cx - r, 276, '4.5', 28, 'center');
-      s.text(cx + r, 290, '6.2', 28, 'center');
-      s.dashed(cx + r + 50, 250, cx + r + 50, 320);
-      s.text(cx + r + 60, 300, '1 m', 30);
-      datos(s, X0 + 380, ['m1 = 4.5 kg   m2 = 6.2 kg', 'd = 1 m'], 'a, T y v');
+      const tl = X0 + 40, tr = X0 + 340, ty = 140;
+      s.rect(tl, ty, tr - tl, 18);
+      s.line(tl + 14, ty + 18, tl + 14, 320);
+      s.line(tr - 14, ty + 18, tr - 14, 320);
+      s.circle(tl - 6, ty - 4, 34);
+      s.circle(tr + 6, ty - 4, 34);
+      s.rect((tl + tr) / 2 - 36, ty - 56, 72, 56);
+      s.text((tl + tr) / 2, ty - 20, 'm3', 30, 'center');
+      s.line(tl - 6, ty - 21, (tl + tr) / 2 - 36, ty - 28);
+      s.line((tl + tr) / 2 + 36, ty - 28, tr + 6, ty - 21);
+      s.line(tl - 23, ty - 4, tl - 23, 230);
+      s.line(tr + 23, ty - 4, tr + 23, 250);
+      s.rect(tl - 50, 230, 54, 48);
+      s.rect(tr - 4, 250, 54, 54);
+      s.text(tl - 23, 262, 'm1', 28, 'center');
+      s.text(tr + 23, 285, 'm2', 28, 'center');
+      s.text((tl + tr) / 2, ty + 50, 'μ = 0.2', 30, 'center');
+      datos(s, X0 + 450, ['m1 = 2 kg   m2 = 5 kg', 'm3 = 3 kg   μ = 0.2'], 'a, T1 y T2');
     },
   },
   // ============================== CIRCUITOS ==============================
   {
-    module: 'circuits', skill: 'circuit', exercise_type: 'single_loop', title: 'LED con resistencia limitadora',
-    explanation: 'Fuente de 12 V, resistencia de 48 Ω y un LED rojo en serie.',
-    question: 'Hallar la corriente del LED y la potencia disipada',
-    data: { voltage_v: 12, resistance_ohms: 48, current_a: 0.25, power_w: 3, has_led: true, led_color: 'red' },
+    module: 'circuits', skill: 'circuit', exercise_type: 'single_loop', title: 'Fuente real con resistencia interna',
+    explanation: 'Batería de FEM 12 V con resistencia interna r = 1 Ω alimentando un foco de R = 5 Ω.',
+    question: 'Hallar la corriente, la tensión en bornes y la potencia del foco',
+    data: { voltage_v: 12, resistance_ohms: 5, internal_resistance_ohms: 1, current_a: 2, power_w: 20, has_led: true, led_color: 'yellow' },
     sketch: (s) => {
-      s.rect(X0, 100, 340, 180);
-      s.zigzag(X0 + 90, 100, X0 + 230, 4, 12);
-      s.poly([[X0 + 320, 170], [X0 + 360, 170], [X0 + 340, 205]]);
-      s.line(X0 + 318, 205, X0 + 362, 205);
-      s.arrow(X0 + 370, 175, X0 + 400, 155);
-      s.text(X0 - 10, 200, '12 V', 40, 'right');
-      s.text(X0 + 160, 80, 'R = 48 Ω', 36, 'center');
-      s.text(X0 + 410, 200, 'LED rojo', 36);
+      s.rect(X0, 100, 360, 200);
+      s.dashedRect(X0 - 45, 150, 90, 110);
+      s.line(X0 - 28, 180, X0 + 28, 180);
+      s.line(X0 - 16, 194, X0 + 16, 194);
+      s.text(X0 + 32, 176, '+', 28);
+      s.zigzag(X0, 215, X0, 3, 8);
+      s.text(X0 + 60, 196, 'ε = 12 V', 30);
+      s.text(X0 + 60, 246, 'r = 1 Ω', 30);
+      s.circle(X0 + 360, 200, 46);
+      s.line(X0 + 344, 184, X0 + 376, 216);
+      s.line(X0 + 344, 216, X0 + 376, 184);
+      s.text(X0 + 390, 210, 'R = 5 Ω', 34);
+      s.circle(X0 + 180, 100, 40);
+      s.text(X0 + 180, 112, 'A', 30, 'center');
     },
   },
   {
@@ -867,19 +958,28 @@ const EXAMPLES_L2: Example[] = [
     },
   },
   {
-    module: 'circuits', skill: 'circuit', exercise_type: 'interactive_switch', title: 'Interruptor cerrado',
-    explanation: 'Interruptor inicialmente cerrado que controla una carga de 24 Ω con 12 V.',
-    question: 'Hallar la corriente cerrado y abierto, y la potencia de la carga',
-    data: { initial_state: 'closed', voltage_v: 12, load_resistance_ohms: 24, current_open_a: 0, current_closed_a: 0.5 },
+    module: 'circuits', skill: 'circuit', exercise_type: 'interactive_switch', title: 'Dos interruptores y dos focos',
+    explanation: 'S1 controla todo el circuito; S2 solo al foco 2. Los focos (24 Ω y 12 Ω) están en paralelo con 12 V.',
+    question: 'Hallar la corriente de cada foco y la total según el estado de S1 y S2',
+    data: { initial_state: 'closed', voltage_v: 12, load_resistance_ohms: 24, current_open_a: 0, current_closed_a: 0.5, second_load_ohms: 12, second_switch_state: 'open' },
     sketch: (s) => {
-      s.rect(X0, 100, 340, 180);
-      s.circle(X0 + 120, 100, 12);
-      s.circle(X0 + 200, 100, 12);
-      s.line(X0 + 120, 100, X0 + 200, 96);
-      s.zigzag(X0 + 340, 150, X0 + 340, 3, 10);
-      s.text(X0 - 10, 200, '12 V', 40, 'right');
-      s.text(X0 + 380, 200, 'R = 24 Ω', 36);
-      s.text(X0 + 160, 80, 'S (cerrado)', 32, 'center');
+      s.rect(X0, 100, 380, 200);
+      s.line(X0 + 220, 100, X0 + 220, 300);
+      s.circle(X0 + 60, 100, 12);
+      s.circle(X0 + 130, 100, 12);
+      s.line(X0 + 60, 100, X0 + 130, 96);
+      s.text(X0 + 95, 82, 'S1', 30, 'center');
+      s.circle(X0 + 220, 200, 44);
+      s.text(X0 + 160, 210, 'L1 24Ω', 28, 'right');
+      s.circle(X0 + 380, 140, 12);
+      s.circle(X0 + 380, 190, 12);
+      s.line(X0 + 380, 140, X0 + 405, 185);
+      s.text(X0 + 410, 170, 'S2', 30);
+      s.circle(X0 + 380, 250, 44);
+      s.text(X0 + 410, 262, 'L2 12Ω', 28);
+      s.line(X0 - 26, 190, X0 + 26, 190);
+      s.line(X0 - 14, 204, X0 + 14, 204);
+      s.text(X0 - 30, 205, '12 V', 34, 'right');
     },
   },
   {
@@ -899,24 +999,43 @@ const EXAMPLES_L2: Example[] = [
     },
   },
   {
-    module: 'circuits', skill: 'circuit', exercise_type: 'logic_gates', title: 'Compuerta XOR',
-    explanation: 'Compuerta XOR con entradas A = 1 y B = 1.',
-    question: 'Hallar la salida S y completar la tabla de verdad',
+    module: 'circuits', skill: 'circuit', exercise_type: 'logic_gates', title: 'Red de 4 compuertas',
+    explanation: 'S = (A·B) + (B + C)\': AND, OR, NOT y OR conectadas con tres entradas.',
+    question: 'Hallar la salida S para A = 1, B = 0, C = 0 y completar la tabla de verdad',
     data: {
-      gate_type: 'XOR', inputs: [1, 1], output: 0, boolean_expression: 'A ⊕ B',
-      truth_table: [{ inputs: [0, 0], output: 0 }, { inputs: [0, 1], output: 1 }, { inputs: [1, 0], output: 1 }, { inputs: [1, 1], output: 0 }],
+      gate_type: 'OR', inputs: [1, 0, 0], output: 1, boolean_expression: "(A·B) + (B + C)'",
+      input_names: ['A', 'B', 'C'],
+      network: [
+        { id: 'G1', gate_type: 'AND', inputs: ['A', 'B'] },
+        { id: 'G2', gate_type: 'OR', inputs: ['B', 'C'] },
+        { id: 'G3', gate_type: 'NOT', inputs: ['G2'] },
+        { id: 'G4', gate_type: 'OR', inputs: ['G1', 'G3'] },
+      ],
+      output_id: 'G4',
+      truth_table: [],
     },
     sketch: (s) => {
-      s.curve([[X0 + 80, 110], [X0 + 100, 170], [X0 + 80, 230]]);
-      s.curve([[X0 + 95, 110], [X0 + 115, 170], [X0 + 95, 230]]);
-      s.curve([[X0 + 95, 110], [X0 + 190, 120], [X0 + 240, 170]]);
-      s.curve([[X0 + 95, 230], [X0 + 190, 220], [X0 + 240, 170]]);
-      s.line(X0, 140, X0 + 100, 140);
-      s.line(X0, 200, X0 + 100, 200);
-      s.line(X0 + 240, 170, X0 + 320, 170);
-      s.text(X0 - 40, 150, 'A=1', 34);
-      s.text(X0 - 40, 210, 'B=1', 34);
-      s.text(X0 + 340, 180, 'S = ?');
+      const gate = (x: number, y: number, label: string) => {
+        s.rect(x, y - 26, 70, 52);
+        s.text(x + 35, y + 10, label, 26, 'center');
+      };
+      gate(X0 + 90, 120, 'AND');
+      gate(X0 + 90, 230, 'OR');
+      gate(X0 + 200, 230, 'NOT');
+      gate(X0 + 320, 175, 'OR');
+      s.text(X0 - 20, 108, 'A', 34);
+      s.text(X0 - 20, 168, 'B', 34);
+      s.text(X0 - 20, 258, 'C', 34);
+      s.path([[X0, 100], [X0 + 90, 105]]);
+      s.path([[X0, 160], [X0 + 50, 160], [X0 + 50, 135], [X0 + 90, 135]]);
+      s.path([[X0 + 50, 160], [X0 + 50, 215], [X0 + 90, 215]]);
+      s.path([[X0, 250], [X0 + 90, 245]]);
+      s.line(X0 + 160, 230, X0 + 200, 230);
+      s.path([[X0 + 160, 120], [X0 + 280, 120], [X0 + 280, 165], [X0 + 320, 165]]);
+      s.path([[X0 + 270, 230], [X0 + 290, 230], [X0 + 290, 188], [X0 + 320, 188]]);
+      s.line(X0 + 390, 175, X0 + 440, 175);
+      s.text(X0 + 450, 185, 'S = ?', 40);
+      s.text(X0 + 560, 120, 'A = 1, B = 0, C = 0', 38);
     },
   },
   // ============================== ALGORITMOS ==============================
@@ -1074,31 +1193,38 @@ const EXAMPLES_L2: Example[] = [
     },
   },
   {
-    module: 'flowcharts', skill: 'flowchart', exercise_type: 'trace_table', title: 'Traza de Fibonacci',
-    explanation: 'a, b = 0, 1 y se repite t = a + b; a = b; b = t cinco veces.',
-    question: 'Completar la tabla de traza de a, b y t',
+    module: 'flowcharts', skill: 'flowchart', exercise_type: 'trace_table', title: 'Recorrido BFS de un árbol',
+    explanation: 'Recorrido en anchura (BFS) desde la raíz A usando una cola.',
+    question: 'Hallar el orden de visita de los nodos con BFS',
     data: {
-      watched_variables: ['a', 'b', 't'],
+      watched_variables: ['actual', 'cola', 'visitados'],
+      traversal: 'BFS',
+      graph_nodes: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+      graph_edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F'], ['C', 'G']],
       rows: [
-        { iteration: 0, variables: { a: '0', b: '1', t: '-' }, condition_evaluated: 'k<5 V' },
-        { iteration: 1, variables: { a: '1', b: '1', t: '1' }, condition_evaluated: 'k<5 V' },
-        { iteration: 2, variables: { a: '1', b: '2', t: '2' }, condition_evaluated: 'k<5 V' },
-        { iteration: 3, variables: { a: '2', b: '3', t: '3' }, condition_evaluated: 'k<5 V' },
-        { iteration: 4, variables: { a: '3', b: '5', t: '5' }, condition_evaluated: 'k<5 V' },
-        { iteration: 5, variables: { a: '5', b: '8', t: '8' }, condition_evaluated: 'k<5 F' },
+        { iteration: 1, variables: { actual: 'A', cola: '["B", "C"]', visitados: '["A"]' }, condition_evaluated: 'Visita A y encola sus hijos B, C' },
+        { iteration: 2, variables: { actual: 'B', cola: '["C", "D", "E"]', visitados: '["A", "B"]' }, condition_evaluated: 'Visita B y encola D, E' },
+        { iteration: 3, variables: { actual: 'C', cola: '["D", "E", "F", "G"]', visitados: '["A", "B", "C"]' }, condition_evaluated: 'Visita C y encola F, G' },
+        { iteration: 4, variables: { actual: 'D', cola: '["E", "F", "G"]', visitados: '["A", "B", "C", "D"]' }, condition_evaluated: 'Visita D (hoja)' },
+        { iteration: 5, variables: { actual: 'E', cola: '["F", "G"]', visitados: '["A", "B", "C", "D", "E"]' }, condition_evaluated: 'Visita E (hoja)' },
+        { iteration: 6, variables: { actual: 'F', cola: '["G"]', visitados: '["A", "B", "C", "D", "E", "F"]' }, condition_evaluated: 'Visita F (hoja)' },
+        { iteration: 7, variables: { actual: 'G', cola: '[]', visitados: '["A", "B", "C", "D", "E", "F", "G"]' }, condition_evaluated: 'Visita G: la cola queda vacía, termina' },
       ],
-      initial_memory: { a: '0', b: '1' }, final_memory: { a: '5', b: '8', t: '8' },
+      initial_memory: { cola: '["A"]' }, final_memory: { visitados: '["A", "B", "C", "D", "E", "F", "G"]' },
     },
     sketch: (s) => {
-      s.text(X0, 90, 'a = 0;  b = 1', 40);
-      s.text(X0, 138, 'repetir 5 veces:', 40);
-      s.text(X0 + 40, 184, 't = a + b', 40);
-      s.text(X0 + 40, 230, 'a = b;   b = t', 40);
-      s.rect(X0 + 470, 70, 270, 170);
-      s.line(X0 + 560, 70, X0 + 560, 240);
-      s.line(X0 + 650, 70, X0 + 650, 240);
-      s.line(X0 + 470, 112, X0 + 740, 112);
-      ['a', 'b', 't'].forEach((c, i) => s.text(X0 + 515 + i * 90, 102, c, 34, 'center'));
+      const P: Record<string, [number, number]> = {
+        A: [X0 + 200, 80], B: [X0 + 100, 170], C: [X0 + 300, 170],
+        D: [X0 + 50, 260], E: [X0 + 150, 260], F: [X0 + 250, 260], G: [X0 + 350, 260],
+      };
+      [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F'], ['C', 'G']].forEach(([a, b]) => s.line(P[a][0], P[a][1] + 22, P[b][0], P[b][1] - 22));
+      Object.entries(P).forEach(([n, [x, y]]) => {
+        s.circle(x, y, 46);
+        s.text(x, y + 12, n, 32, 'center');
+      });
+      s.text(X0 + 470, 130, 'Recorrido BFS desde A', 42);
+      s.text(X0 + 470, 190, 'cola = [A]', 40);
+      s.text(X0 + 470, 250, 'Orden de visita = ?', 40);
     },
   },
   {
@@ -1142,38 +1268,43 @@ const EXAMPLES_L2: Example[] = [
   },
   // ============================== MATEMÁTICAS ==============================
   {
-    module: 'math', skill: 'math_geo', exercise_type: 'equation_solver', title: 'Cuadrática con raíz fraccionaria',
-    explanation: 'Resolver 3x² − 5x − 2 = 0.',
-    question: 'Resolver la ecuación y comprobar por aspa',
-    data: { equation_latex: '3x^2 - 5x - 2 = 0', equation_plain: '3x^2 - 5x - 2 = 0', equation_type: 'quadratic', discriminant_delta: 49, steps: ['Δ = 49'], solution_set: ['-1/3', '2'] },
-    sketch: (s) => s.text(X0, 150, '3x² − 5x − 2 = 0', 72),
-  },
-  {
-    module: 'math', skill: 'math_geo', exercise_type: 'function_graph', title: 'Parábola cóncava hacia abajo',
-    explanation: 'Graficar f(x) = −2x² + 4x + 6.',
-    question: 'Graficar y hallar vértice, raíces y corte con el eje y',
-    data: { function_expression: 'f(x) = -2x^2 + 4x + 6', function_type: 'quadratic', domain: 'R', range_y: '(-inf, 8]', roots: [-1, 3], y_intercept: 6, vertex: [1, 8], critical_points_explanation: '' },
+    module: 'math', skill: 'math_geo', exercise_type: 'equation_solver', title: 'Inecuación cuadrática',
+    explanation: 'Resolver 2x² − 3x − 5 ≥ 0.',
+    question: 'Resolver la inecuación y expresar el conjunto solución como intervalo',
+    data: { equation_latex: '2x^2 - 3x - 5 \\geq 0', equation_plain: '2x^2 - 3x - 5 >= 0', equation_type: 'inequality', discriminant_delta: 49, steps: ['Δ = 49'], solution_set: ['(-inf, -1]', '[2.5, +inf)'] },
     sketch: (s) => {
-      s.text(X0, 120, 'f(x) = −2x² + 4x + 6', 64);
-      s.text(X0, 195, 'Vértice, raíces y gráfica', 44);
+      s.text(X0, 140, '2x² − 3x − 5 ≥ 0', 72);
+      s.text(X0, 215, 'Resolver en R', 44);
     },
   },
   {
-    module: 'math', skill: 'math_geo', exercise_type: 'geometry_3d', title: 'Pirámide cuadrangular',
-    explanation: 'Pirámide regular de base cuadrada de lado 6 y altura 8.',
-    question: 'Hallar el volumen, la apotema y el área total',
-    data: { solid_type: 'pyramid', edge_units: 6, height_units: 8, volume_units3: 96, total_area_units2: 134.88, formulas_applied: [] },
+    module: 'math', skill: 'math_geo', exercise_type: 'function_graph', title: 'Función valor absoluto',
+    explanation: 'Graficar f(x) = |x − 2| − 3.',
+    question: 'Graficar y hallar el vértice, las raíces y el rango',
+    data: { function_expression: 'f(x) = |x - 2| - 3', function_type: 'absolute_value', domain: 'R', range_y: '[-3, +inf)', roots: [-1, 5], y_intercept: -1, vertex: [2, -3], critical_points_explanation: '' },
     sketch: (s) => {
-      const base: [number, number][] = [[X0, 270], [X0 + 200, 270], [X0 + 260, 220], [X0 + 60, 220]];
-      const apex: [number, number] = [X0 + 130, 70];
-      s.path([base[0], base[1], base[2]]);
-      s.line(base[0][0], base[0][1], base[3][0], base[3][1]);
-      s.dashed(base[3][0], base[3][1], base[2][0], base[2][1]);
-      base.forEach((b, i) => (i === 3 ? s.dashed(b[0], b[1], apex[0], apex[1]) : s.line(b[0], b[1], apex[0], apex[1])));
-      s.dashed(apex[0], apex[1], apex[0], 245);
-      s.text(apex[0] + 8, 170, 'h = 8', 32);
-      s.text(X0 + 90, 305, 'a = 6', 32);
-      s.text(X0 + 330, 160, 'V = ?   A = ?', 44);
+      s.text(X0, 120, 'f(x) = |x − 2| − 3', 66);
+      s.text(X0, 195, 'Vértice, raíces y rango', 44);
+    },
+  },
+  {
+    module: 'math', skill: 'math_geo', exercise_type: 'geometry_3d', title: 'Cono recto',
+    explanation: 'Cono de radio 3 y altura 4: la generatriz es la hipotenusa del triángulo (h, r, g).',
+    question: 'Hallar la generatriz, el volumen y el área total',
+    data: { solid_type: 'cone', radius_units: 3, height_units: 4, volume_units3: 37.7, total_area_units2: 75.4, formulas_applied: [] },
+    sketch: (s) => {
+      const cx = X0 + 120, by = 280, apexY = 80;
+      s.ellipse(cx, by, 220, 56);
+      s.line(cx, apexY, cx - 110, by);
+      s.line(cx, apexY, cx + 110, by);
+      s.dashed(cx, apexY, cx, by);
+      s.line(cx, by, cx + 110, by);
+      s.rect(cx, by - 14, 14, 14);
+      s.text(cx + 8, 215, 'h = 4', 30);
+      s.text(cx + 55, by + 36, 'r = 3', 32, 'center');
+      s.text(cx + 72, 170, 'g', 34);
+      s.text(X0 + 340, 140, 'Cono:  r = 3,  h = 4', 42);
+      s.text(X0 + 340, 200, 'Hallar: g, V y A', 42);
     },
   },
   {
@@ -1182,37 +1313,50 @@ const EXAMPLES_L2: Example[] = [
     question: 'Hallar la pendiente, la ecuación de la recta, la distancia AB y el punto medio',
     data: { entity_type: 'straight_line', point_a: [-3, 4], point_b: [5, -2], distance: 10, slope_m: -0.75, midpoint: [1, 1], general_equation: '3x + 4y - 7 = 0' },
     sketch: (s) => {
-      s.arrow(X0 - 10, 200, X0 + 290, 200);
-      s.arrow(X0 + 110, 300, X0 + 110, 70);
-      s.line(X0 + 10, 110, X0 + 280, 270);
-      s.circle(X0 + 40, 128, 12);
-      s.circle(X0 + 250, 252, 12);
-      s.text(X0 + 330, 140, 'A(−3; 4)   B(5; −2)', 42);
-      s.text(X0 + 330, 200, 'Recta AB: m = ?   y = ?', 42);
+      grid(s, X0 + 150, 200, 28, -4, 6, -3, 5);
+      const P = (x: number, y: number): [number, number] => [X0 + 150 + x * 28, 200 - y * 28];
+      s.line(...P(-4, 4.75), ...P(6, -2.75));
+      s.circle(...P(-3, 4), 14);
+      s.circle(...P(5, -2), 14);
+      s.text(P(-3, 4)[0] + 14, P(-3, 4)[1] - 14, 'A(−3; 4)', 30);
+      s.text(P(5, -2)[0] - 10, P(5, -2)[1] + 36, 'B(5; −2)', 30, 'center');
+      s.text(X0 + 480, 140, 'A(−3; 4)   B(5; −2)', 42);
+      s.text(X0 + 480, 200, 'Recta AB: m = ?   y = ?', 42);
     },
   },
   {
-    module: 'math', skill: 'math_geo', exercise_type: 'geometric_angles', title: 'Paralelas cortadas por una secante',
-    explanation: 'L1 ∥ L2 cortadas por una secante; un ángulo mide 65° y x es su conjugado interno.',
-    question: 'Hallar el valor de x',
+    module: 'math', skill: 'math_geo', exercise_type: 'geometric_angles', title: 'Congruencia de triángulos (LAL)',
+    explanation: 'AB = DE, AC = DF y ∠A = ∠D = 70°; en ΔABC, ∠C = 48°. Hallar x = ∠E.',
+    question: 'Hallar x usando la congruencia de los triángulos',
     data: {
-      problem_type: 'parallel_transversal', known_angles_deg: { α: 65 }, unknown_variable: 'x', solved_value_deg: 115,
-      theorem_applied: 'Ángulos conjugados internos suman 180°',
-      proof_steps: ['L1 ∥ L2: los conjugados internos son suplementarios', '65° + x = 180°', 'x = 180° − 65°'],
+      problem_type: 'triangle_congruence', known_angles_deg: { A: 70, C: 48 }, unknown_variable: 'x', solved_value_deg: 62,
+      theorem_applied: 'Congruencia de triángulos (LAL)',
+      proof_steps: ['AB = DE, AC = DF y ∠A = ∠D: ΔABC ≅ ΔDEF (LAL)', 'Ángulos correspondientes: x = ∠E = ∠B', '∠B = 180° − 70° − 48° = 62°'],
     },
     sketch: (s) => {
-      s.line(X0, 120, X0 + 380, 120);
-      s.line(X0, 250, X0 + 380, 250);
-      s.text(X0 + 390, 128, 'L1', 32);
-      s.text(X0 + 390, 258, 'L2', 32);
-      s.line(X0 + 110, 300, X0 + 270, 70);
-      const at = (y: number) => X0 + 110 + ((300 - y) / 230) * 160;
-      const a = Math.atan2(-230, 160);
-      s.arc(at(120), 120, 40, 0, a + Math.PI);
-      s.text(at(120) + 44, 112, '65°', 32);
-      s.arc(at(250), 250, 40, a, 0);
-      s.text(at(250) + 44, 242, 'x', 34);
-      s.text(X0 + 470, 190, 'L1 ∥ L2.  Hallar x', 42);
+      const T1: [number, number][] = [[X0, 290], [X0 + 200, 290], [X0 + 60, 110]];
+      const T2: [number, number][] = [[X0 + 520, 290], [X0 + 320, 290], [X0 + 460, 110]];
+      s.poly(T1);
+      s.poly(T2);
+      [['A', T1[0], -26, 22], ['B', T1[1], 14, 22], ['C', T1[2], -6, -16], ['D', T2[0], 14, 22], ['E', T2[1], -26, 22], ['F', T2[2], 6, -16]].forEach(([n, p, dx, dy]) => {
+        const q = p as [number, number];
+        s.text(q[0] + (dx as number), q[1] + (dy as number), n as string, 32);
+      });
+      const tick = (a: [number, number], b: [number, number], n: number) => {
+        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        for (let i = 0; i < n; i++) s.line(mx - 6 + i * 10, my - 12, mx - 6 + i * 10, my + 12);
+      };
+      tick(T1[0], T1[1], 1); tick(T2[0], T2[1], 1);
+      tick(T1[0], T1[2], 2); tick(T2[0], T2[2], 2);
+      s.arc(T1[0][0], T1[0][1], 40, -Math.atan2(180, 60), 0);
+      s.arc(T2[0][0], T2[0][1], 40, Math.PI, Math.PI + Math.atan2(180, 60));
+      s.arc(T1[2][0], T1[2][1], 36, Math.atan2(180, 140), Math.atan2(180, -60) );
+      s.arc(T2[1][0], T2[1][1], 40, -Math.atan2(180, 140), 0);
+      s.text(T1[0][0] + 46, T1[0][1] - 14, '70°', 28);
+      s.text(T2[0][0] - 76, T2[0][1] - 14, '70°', 28);
+      s.text(T1[2][0] + 4, T1[2][1] + 52, '48°', 28);
+      s.text(T2[1][0] + 46, T2[1][1] - 14, 'x', 32);
+      s.text(X0 + 600, 190, 'Hallar x', 44);
     },
   },
 ];

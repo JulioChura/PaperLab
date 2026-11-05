@@ -1,8 +1,8 @@
 {
-  "title": "Frenado (MRUV con a < 0)",
+  "title": "Encuentro de dos autos",
   "exercise_id": "rectilinear_motion",
   "exercise_type": "rectilinear_motion",
-  "exercise_name": "Frenado (MRUV con a < 0)",
+  "exercise_name": "Encuentro de dos autos",
   "skill": "physics",
   "confidence": 0.99,
   "detected_elements": [],
@@ -10,14 +10,17 @@
     "exercise_type": "rectilinear_motion",
     "motion_type": "MRUV",
     "initial_position_m": 0,
-    "initial_velocity_m_s": 20,
-    "acceleration_m_s2": -2.5,
-    "total_time_s": 8,
-    "final_velocity_m_s": 0,
-    "distance_traveled_m": 80
+    "initial_velocity_m_s": 12,
+    "acceleration_m_s2": 1,
+    "total_time_s": 10,
+    "final_velocity_m_s": 22,
+    "distance_traveled_m": 170,
+    "second_initial_position_m": 240,
+    "second_initial_velocity_m_s": -14,
+    "second_acceleration_m_s2": 0
   },
-  "explanation": "Un auto a 20 m/s frena con 2.5 m/s² hasta detenerse.",
-  "question": "Hallar el tiempo de frenado y la distancia recorrida",
+  "explanation": "El auto A parte del origen a 12 m/s y acelera 1 m/s²; el auto B parte a 240 m y va hacia A a 14 m/s constantes.",
+  "question": "Hallar cuándo y dónde se encuentran",
   "bounding_boxes": [
     {
       "x": 0.16,

@@ -1,27 +1,27 @@
 {
-  "title": "Cuadrática con raíz fraccionaria",
+  "title": "Inecuación cuadrática",
   "exercise_id": "equation_solver",
   "exercise_type": "equation_solver",
-  "exercise_name": "Cuadrática con raíz fraccionaria",
+  "exercise_name": "Inecuación cuadrática",
   "skill": "math_geo",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "equation_solver",
-    "equation_latex": "3x^2 - 5x - 2 = 0",
-    "equation_plain": "3x^2 - 5x - 2 = 0",
-    "equation_type": "quadratic",
+    "equation_latex": "2x^2 - 3x - 5 \\geq 0",
+    "equation_plain": "2x^2 - 3x - 5 >= 0",
+    "equation_type": "inequality",
     "discriminant_delta": 49,
     "steps": [
       "Δ = 49"
     ],
     "solution_set": [
-      "-1/3",
-      "2"
+      "(-inf, -1]",
+      "[2.5, +inf)"
     ]
   },
-  "explanation": "Resolver 3x² − 5x − 2 = 0.",
-  "question": "Resolver la ecuación y comprobar por aspa",
+  "explanation": "Resolver 2x² − 3x − 5 ≥ 0.",
+  "question": "Resolver la inecuación y expresar el conjunto solución como intervalo",
   "bounding_boxes": [
     {
       "x": 0.16,

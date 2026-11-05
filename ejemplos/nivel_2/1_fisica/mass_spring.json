@@ -15,8 +15,8 @@
     "angular_frequency_rad_s": 13.69,
     "period_s": 0.46
   },
-  "explanation": "Masa de 0.8 kg en un resorte de 150 N/m, estirada 0.25 m, con amortiguamiento b = 1.2 kg/s.",
-  "question": "Hallar ω, el periodo y cómo decae la amplitud",
+  "explanation": "Masa de 0.8 kg en un resorte de 150 N/m con un amortiguador b = 1.2 kg/s; se estira 0.25 m y se suelta.",
+  "question": "Hallar ω, el periodo y cuánto decae la amplitud en cada oscilación",
   "bounding_boxes": [
     {
       "x": 0.16,

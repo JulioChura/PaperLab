@@ -1,22 +1,24 @@
 {
-  "title": "Atwood con masas cercanas",
+  "title": "Atwood con dos poleas y mesa",
   "exercise_id": "atwood_machine",
   "exercise_type": "atwood_machine",
-  "exercise_name": "Atwood con masas cercanas",
+  "exercise_name": "Atwood con dos poleas y mesa",
   "skill": "physics",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "atwood_machine",
-    "mass_1_kg": 4.5,
-    "mass_2_kg": 6.2,
-    "pulley_radius_m": 0.15,
+    "mass_1_kg": 2,
+    "mass_2_kg": 5,
+    "mass_3_kg": 3,
+    "table_friction_coefficient": 0.2,
+    "pulley_radius_m": 0.1,
     "gravity_m_s2": 9.8,
-    "acceleration_m_s2": 1.56,
-    "tension_n": 51.08
+    "acceleration_m_s2": 2.35,
+    "tension_n": 24.3
   },
-  "explanation": "Polea ideal con masas de 4.5 kg y 6.2 kg.",
-  "question": "Hallar la aceleración, la tensión y la velocidad tras 1 m de recorrido",
+  "explanation": "m1 = 2 kg y m2 = 5 kg cuelgan de dos poleas a los bordes de una mesa; sobre la mesa, m3 = 3 kg con μ = 0.2.",
+  "question": "Hallar la aceleración del sistema y las tensiones T1 y T2",
   "bounding_boxes": [
     {
       "x": 0.16,

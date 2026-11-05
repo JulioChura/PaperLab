@@ -1,8 +1,8 @@
 {
-  "title": "Interruptor cerrado",
+  "title": "Dos interruptores y dos focos",
   "exercise_id": "interactive_switch",
   "exercise_type": "interactive_switch",
-  "exercise_name": "Interruptor cerrado",
+  "exercise_name": "Dos interruptores y dos focos",
   "skill": "circuit",
   "confidence": 0.99,
   "detected_elements": [],
@@ -12,10 +12,12 @@
     "voltage_v": 12,
     "load_resistance_ohms": 24,
     "current_open_a": 0,
-    "current_closed_a": 0.5
+    "current_closed_a": 0.5,
+    "second_load_ohms": 12,
+    "second_switch_state": "open"
   },
-  "explanation": "Interruptor inicialmente cerrado que controla una carga de 24 Ω con 12 V.",
-  "question": "Hallar la corriente cerrado y abierto, y la potencia de la carga",
+  "explanation": "S1 controla todo el circuito; S2 solo al foco 2. Los focos (24 Ω y 12 Ω) están en paralelo con 12 V.",
+  "question": "Hallar la corriente de cada foco y la total según el estado de S1 y S2",
   "bounding_boxes": [
     {
       "x": 0.16,

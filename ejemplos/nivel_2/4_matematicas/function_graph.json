@@ -1,30 +1,30 @@
 {
-  "title": "Parábola cóncava hacia abajo",
+  "title": "Función valor absoluto",
   "exercise_id": "function_graph",
   "exercise_type": "function_graph",
-  "exercise_name": "Parábola cóncava hacia abajo",
+  "exercise_name": "Función valor absoluto",
   "skill": "math_geo",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "function_graph",
-    "function_expression": "f(x) = -2x^2 + 4x + 6",
-    "function_type": "quadratic",
+    "function_expression": "f(x) = |x - 2| - 3",
+    "function_type": "absolute_value",
     "domain": "R",
-    "range_y": "(-inf, 8]",
+    "range_y": "[-3, +inf)",
     "roots": [
       -1,
-      3
+      5
     ],
-    "y_intercept": 6,
+    "y_intercept": -1,
     "vertex": [
-      1,
-      8
+      2,
+      -3
     ],
     "critical_points_explanation": ""
   },
-  "explanation": "Graficar f(x) = −2x² + 4x + 6.",
-  "question": "Graficar y hallar vértice, raíces y corte con el eje y",
+  "explanation": "Graficar f(x) = |x − 2| − 3.",
+  "question": "Graficar y hallar el vértice, las raíces y el rango",
   "bounding_boxes": [
     {
       "x": 0.16,

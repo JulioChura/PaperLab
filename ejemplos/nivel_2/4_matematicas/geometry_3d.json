@@ -1,22 +1,22 @@
 {
-  "title": "Pirámide cuadrangular",
+  "title": "Cono recto",
   "exercise_id": "geometry_3d",
   "exercise_type": "geometry_3d",
-  "exercise_name": "Pirámide cuadrangular",
+  "exercise_name": "Cono recto",
   "skill": "math_geo",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "geometry_3d",
-    "solid_type": "pyramid",
-    "edge_units": 6,
-    "height_units": 8,
-    "volume_units3": 96,
-    "total_area_units2": 134.88,
+    "solid_type": "cone",
+    "radius_units": 3,
+    "height_units": 4,
+    "volume_units3": 37.7,
+    "total_area_units2": 75.4,
     "formulas_applied": []
   },
-  "explanation": "Pirámide regular de base cuadrada de lado 6 y altura 8.",
-  "question": "Hallar el volumen, la apotema y el área total",
+  "explanation": "Cono de radio 3 y altura 4: la generatriz es la hipotenusa del triángulo (h, r, g).",
+  "question": "Hallar la generatriz, el volumen y el área total",
   "bounding_boxes": [
     {
       "x": 0.16,

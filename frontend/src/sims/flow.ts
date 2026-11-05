@@ -522,7 +522,7 @@ export function flowPlan(exerciseType: string, d: Record<string, unknown>): Solu
             line('Estructura', `${d.traversal ?? 'BFS'}: se usa una ${/dfs/i.test(String(d.traversal)) ? 'pila' : 'cola'} de nodos pendientes`),
             line('Orden de visita', order.join(' → ') || fin, true),
           ],
-          figure: spec('Recorrido', 1.6, () => new Debugger('tree', tsteps, [], [], [], null, [], { nodes: gnodes, edges: gedges })),
+          figure: spec('Recorrido', 1.6, () => new Debugger('tree', tsteps.map((st, i) => ({ ...st, description: String(rows[i]?.condition_evaluated ?? st.description) })), [], [], [], null, [], { nodes: gnodes, edges: gedges })),
         };
       }
       return {

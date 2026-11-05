@@ -1,22 +1,23 @@
 {
-  "title": "LED con resistencia limitadora",
+  "title": "Fuente real con resistencia interna",
   "exercise_id": "single_loop",
   "exercise_type": "single_loop",
-  "exercise_name": "LED con resistencia limitadora",
+  "exercise_name": "Fuente real con resistencia interna",
   "skill": "circuit",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "single_loop",
     "voltage_v": 12,
-    "resistance_ohms": 48,
-    "current_a": 0.25,
-    "power_w": 3,
+    "resistance_ohms": 5,
+    "internal_resistance_ohms": 1,
+    "current_a": 2,
+    "power_w": 20,
     "has_led": true,
-    "led_color": "red"
+    "led_color": "yellow"
   },
-  "explanation": "Fuente de 12 V, resistencia de 48 Ω y un LED rojo en serie.",
-  "question": "Hallar la corriente del LED y la potencia disipada",
+  "explanation": "Batería de FEM 12 V con resistencia interna r = 1 Ω alimentando un foco de R = 5 Ω.",
+  "question": "Hallar la corriente, la tensión en bornes y la potencia del foco",
   "bounding_boxes": [
     {
       "x": 0.16,

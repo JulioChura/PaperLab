@@ -1,53 +1,64 @@
 {
-  "title": "Compuerta XOR",
+  "title": "Red de 4 compuertas",
   "exercise_id": "logic_gates",
   "exercise_type": "logic_gates",
-  "exercise_name": "Compuerta XOR",
+  "exercise_name": "Red de 4 compuertas",
   "skill": "circuit",
   "confidence": 0.99,
   "detected_elements": [],
   "parameters": {
     "exercise_type": "logic_gates",
-    "gate_type": "XOR",
+    "gate_type": "OR",
     "inputs": [
       1,
-      1
+      0,
+      0
     ],
-    "output": 0,
-    "boolean_expression": "A ⊕ B",
-    "truth_table": [
+    "output": 1,
+    "boolean_expression": "(A·B) + (B + C)'",
+    "input_names": [
+      "A",
+      "B",
+      "C"
+    ],
+    "network": [
       {
+        "id": "G1",
+        "gate_type": "AND",
         "inputs": [
-          0,
-          0
-        ],
-        "output": 0
+          "A",
+          "B"
+        ]
       },
       {
+        "id": "G2",
+        "gate_type": "OR",
         "inputs": [
-          0,
-          1
-        ],
-        "output": 1
+          "B",
+          "C"
+        ]
       },
       {
+        "id": "G3",
+        "gate_type": "NOT",
         "inputs": [
-          1,
-          0
-        ],
-        "output": 1
+          "G2"
+        ]
       },
       {
+        "id": "G4",
+        "gate_type": "OR",
         "inputs": [
-          1,
-          1
-        ],
-        "output": 0
+          "G1",
+          "G3"
+        ]
       }
-    ]
+    ],
+    "output_id": "G4",
+    "truth_table": []
   },
-  "explanation": "Compuerta XOR con entradas A = 1 y B = 1.",
-  "question": "Hallar la salida S y completar la tabla de verdad",
+  "explanation": "S = (A·B) + (B + C)': AND, OR, NOT y OR conectadas con tres entradas.",
+  "question": "Hallar la salida S para A = 1, B = 0, C = 0 y completar la tabla de verdad",
   "bounding_boxes": [
     {
       "x": 0.16,
