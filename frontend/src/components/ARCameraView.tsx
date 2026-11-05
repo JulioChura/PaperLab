@@ -456,7 +456,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
       )}
 
       {!uploadedImage && streamStatus === 'simulated' && (
-        <div className="absolute inset-0 bg-[#f7f4ea] dark:bg-[#070a11] bg-notebook-grid z-0">
+        <div className="absolute inset-0 bg-[var(--surface-secondary)] dark:bg-[var(--bg-ground)] bg-notebook-grid z-0">
           <div className="absolute top-0 left-12 bottom-0 w-[1.5px] bg-red-400/50" />
           <div className="absolute top-8 left-16 text-xs font-telemetry text-slate-500">
             // CUADERNO SIMULADO · sube una foto para analizar
@@ -476,7 +476,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-display font-bold text-xs cursor-pointer flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-heading font-bold text-xs cursor-pointer flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
               <span>Subir foto de libreta</span>
@@ -503,7 +503,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-display font-bold text-xs cursor-pointer shadow-md flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-heading font-bold text-xs cursor-pointer shadow-md flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
               <span>Subir foto del cuaderno</span>
@@ -633,7 +633,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
         <div className="absolute top-16 right-4 z-40 w-[min(22rem,calc(100%-2rem))] rounded-2xl bg-slate-950/95 border border-slate-700 backdrop-blur-xl shadow-2xl text-white overflow-hidden animate-entrance">
           <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
             <div>
-              <p className="font-display font-bold text-sm">Ejercicios de ejemplo</p>
+              <p className="font-heading font-bold text-sm">Ejercicios de ejemplo</p>
               <p className="text-[10px] font-telemetry text-slate-400">Foto y datos de prueba · no usa el analizador de IA</p>
             </div>
             <button onClick={() => setShowExamples(false)} className="text-slate-400 hover:text-white cursor-pointer">
@@ -661,7 +661,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
                   data-testid={`example-${ex.id ?? ex.exercise_type}`}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/5 cursor-pointer"
                 >
-                  <span className="block text-sm font-display font-semibold">
+                  <span className="block text-sm font-heading font-semibold">
                     {ex.level === 'error' && <span className="mr-1.5 text-amber-300" aria-hidden="true">⚠</span>}
                     {ex.level === 'mission' && <span className="mr-1.5 text-fuchsia-300" aria-hidden="true">🎯</span>}
                     {ex.title}
@@ -683,7 +683,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
               <X className="w-4 h-4" />
             </button>
           </div>
-          <h3 className="font-display font-bold text-base text-white mb-1">{classificationResult.exercise_name}</h3>
+          <h3 className="font-heading font-bold text-base text-white mb-1">{classificationResult.exercise_name}</h3>
           <p className="text-[11px] text-slate-300 mb-2.5">{classificationResult.explanation}</p>
           <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 mb-3 overflow-auto max-h-32">
             <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold mb-1">

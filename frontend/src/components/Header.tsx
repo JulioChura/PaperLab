@@ -12,6 +12,13 @@ interface HeaderProps {
   onOpenProfile: () => void;
 }
 
+const MODULE_LABEL: Record<string, { label: string; ink: string }> = {
+  physics: { label: 'Física', ink: '#2f4bf0' },
+  circuits: { label: 'Circuitos', ink: '#ffc81f' },
+  flowcharts: { label: 'Algoritmos', ink: '#12a96e' },
+  math: { label: 'Matemáticas', ink: '#ff4f9e' },
+};
+
 export const Header: React.FC<HeaderProps> = ({
   currentModule,
   onGoHome,
@@ -20,53 +27,57 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   onOpenProfile,
 }) => {
+  const mod = currentModule ? MODULE_LABEL[currentModule] : null;
+  const darkText = currentModule === 'circuits';
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#f5f0e6]/90 dark:bg-[#070a11]/90 backdrop-blur-md border-b border-[#d8cebd] dark:border-[#212c42] px-4 sm:px-8 py-3 transition-colors">
+    <header className="sticky top-0 z-40 w-full bg-[var(--bg-ground)]/90 backdrop-blur-md border-b-[2.5px] border-[var(--ink)] px-4 sm:px-8 py-2.5 transition-colors">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand & Breadcrumb */}
         <div className="flex items-center gap-3 min-w-0">
-          <button
-            onClick={onGoSplash}
-            className="cursor-pointer hover:opacity-90 transition-opacity"
-            title="Inicio PaperLab"
-          >
+          <button onClick={onGoSplash} className="cursor-pointer" title="Inicio PaperLab">
             <Logo size="sm" />
           </button>
 
           {currentModule && (
-            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-slate-800 text-xs font-telemetry">
+            <div className="hidden sm:flex items-center gap-2 pl-3 text-xs font-telemetry">
               <button
                 onClick={onGoHome}
-                className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                data-juice
+                className="juicy ink-chip flex items-center gap-1.5 px-3 py-1.5 cursor-pointer"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={3} />
                 <span>Índice</span>
               </button>
-              <span className="text-slate-400">/</span>
-              <span className="text-cyan-700 dark:text-cyan-400 font-bold uppercase">
-                {currentModule}
+              <span
+                className="px-3 py-1.5 rounded-full border-2 border-[#211a33] font-bold uppercase -rotate-2 shadow-[2.5px_2.5px_0_var(--hard-shadow)] pop-in"
+                style={{
+                  background: mod?.ink ?? 'var(--riso-blue)',
+                  color: darkText ? '#211a33' : '#fffaf0',
+                  ['--rest' as string]: '-2deg',
+                }}
+              >
+                {mod?.label ?? currentModule}
               </span>
             </div>
           )}
         </div>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-2.5">
           <XpChip onOpen={onOpenProfile} />
-          {/* Day / Night Theme Toggle */}
           <button
             onClick={onToggleTheme}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 transition-all text-xs font-telemetry cursor-pointer shadow-xs"
-            title={isDarkMode ? "Cambiar a modo día" : "Cambiar a modo noche"}
+            data-juice
+            className="juicy ink-chip flex items-center gap-1.5 px-3 py-1.5 text-xs font-telemetry cursor-pointer"
+            title={isDarkMode ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
           >
             {isDarkMode ? (
               <>
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <Sun className="w-4 h-4 text-amber-400" strokeWidth={2.6} />
                 <span className="hidden sm:inline">Día</span>
               </>
             ) : (
               <>
-                <Moon className="w-3.5 h-3.5 text-slate-700" />
+                <Moon className="w-4 h-4 text-cyan-600" strokeWidth={2.6} />
                 <span className="hidden sm:inline">Noche</span>
               </>
             )}

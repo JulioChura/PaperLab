@@ -2,89 +2,327 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================
+   PaperLab · Riso Lab
+   Tintas de risografía sobre papel de cuaderno. Bordes de tinta
+   gruesos, sombras duras desplazadas (desregistro) y stickers.
+   Remapeamos la paleta de Tailwind para que TODA la app herede
+   las tintas sin tocar cada componente.
+   ============================================================ */
+@theme {
+  --font-sans: 'Gabarito', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Martian Mono', ui-monospace, monospace;
+
+  /* Neutros: papel cálido → tinta violeta */
+  --color-slate-50: #faf5ea;
+  --color-slate-100: #f1e9d6;
+  --color-slate-200: #e4d9c0;
+  --color-slate-300: #cdbf9f;
+  --color-slate-400: #a4957b;
+  --color-slate-500: #7d6f63;
+  --color-slate-600: #5d5258;
+  --color-slate-700: #433a4f;
+  --color-slate-800: #2f2742;
+  --color-slate-900: #211a33;
+  --color-slate-950: #150f24;
+
+  /* Azul riso (antes cian) */
+  --color-cyan-50: #eef1ff;
+  --color-cyan-100: #dde3ff;
+  --color-cyan-200: #bdc9ff;
+  --color-cyan-300: #93a6ff;
+  --color-cyan-400: #7088ff;
+  --color-cyan-500: #4a66ff;
+  --color-cyan-600: #2f4bf0;
+  --color-cyan-700: #2539c6;
+  --color-cyan-800: #1f2f9c;
+  --color-cyan-900: #1b2878;
+  --color-cyan-950: #11184a;
+  --color-sky-500: #4a66ff;
+  --color-sky-600: #2f4bf0;
+
+  /* Rosa fluorescente */
+  --color-fuchsia-50: #fff0f7;
+  --color-fuchsia-100: #ffdcec;
+  --color-fuchsia-200: #ffb9da;
+  --color-fuchsia-300: #ff8dc2;
+  --color-fuchsia-400: #ff62a9;
+  --color-fuchsia-500: #f73f93;
+  --color-fuchsia-600: #db2678;
+  --color-fuchsia-700: #b31a60;
+  --color-fuchsia-800: #8d164d;
+  --color-fuchsia-900: #6d133e;
+  --color-fuchsia-950: #420622;
+  --color-pink-500: #f73f93;
+
+  /* Amarillo girasol */
+  --color-amber-50: #fffae6;
+  --color-amber-100: #fff2c2;
+  --color-amber-200: #ffe58a;
+  --color-amber-300: #ffd84f;
+  --color-amber-400: #ffc81f;
+  --color-amber-500: #f5ad00;
+  --color-amber-600: #d18900;
+  --color-amber-700: #a5660a;
+  --color-amber-800: #7f4d10;
+  --color-amber-900: #633d11;
+  --color-yellow-300: #ffd84f;
+  --color-yellow-400: #ffc81f;
+  --color-yellow-500: #f5ad00;
+
+  /* Verde riso */
+  --color-emerald-50: #eafbf2;
+  --color-emerald-100: #cdf5e1;
+  --color-emerald-200: #9eeac6;
+  --color-emerald-300: #63d9a4;
+  --color-emerald-400: #2ec585;
+  --color-emerald-500: #12a96e;
+  --color-emerald-600: #098a59;
+  --color-emerald-700: #0b6d48;
+  --color-emerald-800: #0d563b;
+  --color-emerald-900: #0d4732;
+
+  /* Tomate (errores) */
+  --color-rose-400: #ff7a5c;
+  --color-rose-500: #ff5435;
+  --color-rose-600: #e23b1d;
+  --color-orange-500: #ff7a1a;
+
+  /* Curvas con rebote: el "juice" */
+  --ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.4%, 1.061 22.3%, 1.076 25.4%, 1.065 28.9%, 1.002 38.8%, 0.984 44.2%, 0.996 58.6%, 1);
+  --ease-squish: cubic-bezier(0.34, 1.8, 0.5, 1);
+}
+
 @layer base {
   :root {
-    --bg-ground: #f5f0e6;
-    --surface: #ffffff;
-    --surface-secondary: #eee7da;
-    --border-color: #d8cebd;
-    --text-primary: #14171f;
-    --text-secondary: #586071;
-    --accent-cyan: #0284c7;
-    --accent-amber: #d97706;
-    --accent-emerald: #059669;
-    --accent-violet: #7c3aed;
-    --grid-line: rgba(30, 41, 59, 0.07);
-    --grid-major: rgba(30, 41, 59, 0.14);
+    --bg-ground: #f4ecd8;
+    --surface: #fffaf0;
+    --surface-secondary: #efe5cd;
+    --border-color: #211a33;
+    --text-primary: #211a33;
+    --text-secondary: #5d5258;
+    --ink: #211a33;
+    --hard-shadow: #211a33;
+    --accent-cyan: #2f4bf0;
+    --accent-amber: #ffc81f;
+    --accent-emerald: #12a96e;
+    --accent-violet: #f73f93;
+    --riso-blue: #2f4bf0;
+    --riso-pink: #ff4f9e;
+    --riso-yellow: #ffc81f;
+    --riso-green: #12a96e;
+    --riso-tomato: #ff5435;
+    --grid-line: rgba(47, 75, 240, 0.09);
+    --grid-major: rgba(255, 79, 158, 0.18);
   }
 
   .dark {
-    --bg-ground: #070a11;
-    --surface: #0e1422;
-    --surface-secondary: #141c2e;
-    --border-color: #212c42;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent-cyan: #00f0ff;
-    --accent-amber: #f59e0b;
-    --accent-emerald: #10b981;
-    --accent-violet: #a855f7;
-    --grid-line: rgba(0, 240, 255, 0.04);
-    --grid-major: rgba(0, 240, 255, 0.09);
+    --bg-ground: #17112a;
+    --surface: #221a3c;
+    --surface-secondary: #1c1532;
+    --border-color: #f4ecd8;
+    --text-primary: #f4ecd8;
+    --text-secondary: #b6a9c9;
+    --ink: #f4ecd8;
+    --hard-shadow: #07040f;
+    --accent-cyan: #8097ff;
+    --accent-amber: #ffd84f;
+    --accent-emerald: #3fd696;
+    --accent-violet: #ff7ab8;
+    --riso-blue: #6f87ff;
+    --riso-pink: #ff62a9;
+    --riso-yellow: #ffd84f;
+    --riso-green: #3fd696;
+    --grid-line: rgba(128, 151, 255, 0.07);
+    --grid-major: rgba(255, 98, 169, 0.14);
   }
 
   body {
     background-color: var(--bg-ground);
     color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Gabarito', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   ::selection {
-    background-color: #00f0ff;
-    color: #050b14;
+    background-color: var(--riso-yellow);
+    color: #211a33;
+  }
+
+  :focus-visible {
+    outline: 3px dashed var(--riso-pink);
+    outline-offset: 3px;
   }
 }
 
-/* Custom Typography Utility Classes */
+/* ---------- Tipografía ---------- */
 .font-display {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  letter-spacing: -0.035em;
+  font-family: 'Bagel Fat One', 'Gabarito', sans-serif;
+  font-weight: 400 !important;
+  letter-spacing: -0.005em;
 }
-
+.font-heading {
+  font-family: 'Gabarito', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
 .font-telemetry {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Martian Mono', monospace;
+  font-size-adjust: 0.5;
+}
+.font-hand {
+  font-family: 'Gochi Hand', 'Caveat', cursive;
 }
 
-/* Atmospheric Architectural Background Grids */
+/* ---------- Fondos ---------- */
 .bg-optics-grid {
-  background-size: 24px 24px, 120px 120px;
-  background-image: 
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px);
+  background-size: 22px 22px, 100% 30px;
+  background-image:
+    radial-gradient(circle at 1px 1px, var(--grid-major) 1.4px, transparent 1.7px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
 }
 
-.paper-surface {
+/* Grano de impresión riso */
+.riso-grain { position: relative; }
+.riso-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.1 0 0 0 0 0.2 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark .riso-grain::after { mix-blend-mode: screen; opacity: 0.07; }
+
+/* ---------- Superficies con tinta ---------- */
+.paper-surface,
+.ink-card {
   background-color: var(--surface);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  border: 2.5px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--hard-shadow);
 }
 
-.dark .paper-surface {
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
+.ink-chip {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2.5px 2.5px 0 var(--hard-shadow);
 }
 
-/* Keyframe Reveals & Motion Orchestration */
+/* ---------- JUICE: botones gelatina ---------- */
+.juicy {
+  transition:
+    transform 0.5s var(--ease-spring),
+    box-shadow 0.25s var(--ease-squish),
+    background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.juicy:hover {
+  transform: translate(-2px, -2px) rotate(-1.2deg);
+}
+.juicy:active {
+  transform: translate(3px, 3px) scale(0.95, 0.88);
+  transition-duration: 0.07s;
+  box-shadow: 0 0 0 var(--hard-shadow) !important;
+}
+
+.btn-ink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--hard-shadow);
+  cursor: pointer;
+  font-family: 'Gabarito', sans-serif;
+  font-weight: 900;
+}
+.btn-ink:hover { box-shadow: 7px 7px 0 var(--hard-shadow); }
+
+/* Entrada con rebote (stagger por --i) */
+@keyframes popIn {
+  0% { opacity: 0; transform: translateY(26px) scale(0.6) rotate(var(--r, -6deg)); }
+  55% { opacity: 1; transform: translateY(-6px) scale(1.06, 0.95) rotate(calc(var(--r, -6deg) * -0.4)); }
+  78% { transform: translateY(2px) scale(0.98, 1.03) rotate(var(--rest, 0deg)); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--rest, 0deg)); }
+}
+.pop-in {
+  opacity: 0;
+  animation: popIn 0.75s var(--ease-squish) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(var(--rest, 0deg)); }
+  25% { transform: rotate(calc(var(--rest, 0deg) - 5deg)) scale(1.06); }
+  60% { transform: rotate(calc(var(--rest, 0deg) + 3deg)) scale(0.98); }
+}
+.wobble-hover:hover { animation: wobble 0.5s var(--ease-squish); }
+
+@keyframes floaty {
+  0%, 100% { transform: translate(0, 0) rotate(var(--rest, 0deg)); }
+  50% { transform: translate(var(--fx, 6px), var(--fy, -14px)) rotate(calc(var(--rest, 0deg) + 10deg)); }
+}
+.floaty { animation: floaty var(--dur, 7s) ease-in-out infinite; }
+
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+.spin-slow { animation: spinSlow 18s linear infinite; }
+
+/* Palabras del título que saltan una a una */
+@keyframes jellyWord {
+  0% { opacity: 0; transform: translateY(0.6em) scale(0.4, 1.4); }
+  45% { opacity: 1; transform: translateY(-0.12em) scale(1.15, 0.85); }
+  70% { transform: translateY(0.03em) scale(0.95, 1.06); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes jellyHover {
+  0%, 100% { transform: none; }
+  30% { transform: translateY(-0.08em) scale(1.12, 0.88); }
+  60% { transform: translateY(0.02em) scale(0.94, 1.08); }
+}
+.jelly-word {
+  display: inline-block;
+  isolation: isolate;
+  opacity: 0;
+  transform-origin: 50% 100%;
+  animation: jellyWord 0.8s var(--ease-squish) forwards;
+  animation-delay: calc(120ms + var(--i, 0) * 90ms);
+}
+.jelly-word.done { opacity: 1; animation: none; }
+.jelly-word.done:hover { animation: jellyHover 0.5s var(--ease-squish); }
+
+/* Subrayado garabato animado */
+.squiggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12' viewBox='0 0 40 12'%3E%3Cpath d='M0 6 Q5 0 10 6 T20 6 T30 6 T40 6' fill='none' stroke='%23ff4f9e' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  background-size: 40px 12px;
+  padding-bottom: 0.14em;
+  animation: squiggleMove 1.4s linear infinite;
+}
+@keyframes squiggleMove { to { background-position: 40px 100%; } }
+
+/* Marquesina */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { display: flex; width: max-content; animation: marquee 28s linear infinite; }
+
+/* Partículas de impacto (las genera utils/juice.ts) */
+.juice-particle {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform, opacity;
+}
+
+/* Keyframe Reveals & Motion Orchestration (compat) */
 @keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.97) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  0% { opacity: 0; transform: scale(0.94) translateY(14px); }
+  60% { opacity: 1; transform: scale(1.01) translateY(-2px); }
+  100% { opacity: 1; transform: none; }
 }
 
 @keyframes laserSweepHorizontal {
@@ -99,7 +337,7 @@
 }
 
 .animate-entrance {
-  animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInScale 0.6s var(--ease-squish) both;
 }
 
 .animate-laser {
@@ -112,8 +350,8 @@
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -235,6 +473,9 @@
 .xp-shine { background-image: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%); background-size: 120px 100%; background-repeat: no-repeat; animation: xpShine 2.8s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
+  .pop-in, .jelly-word { animation: none !important; opacity: 1 !important; }
+  .floaty, .spin-slow, .squiggle, .marquee-track, .wobble-hover:hover { animation: none !important; }
+  .juicy, .juicy:hover, .juicy:active { transform: none !important; }
   .lumi *, .holo-warning, .holo-scanlines, .animate-stamp-in, .animate-toast-in, .animate-bubble-in, .xp-shine,
   .animate-scan-sweep, .animate-entrance, .animate-capture-thumb, .animate-freeze-in, .animate-shutter-flash {
     animation: none !important;

@@ -51,18 +51,19 @@ export const XpChip: React.FC<{ onOpen: () => void }> = ({ onOpen }) => {
   return (
     <button
       onClick={onOpen}
-      className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-lg border border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] hover:border-slate-400 dark:hover:border-slate-500 transition-all text-xs font-telemetry cursor-pointer"
+      data-juice
+      className="juicy ink-chip flex items-center gap-2 pl-1 pr-3 py-1 text-xs font-telemetry cursor-pointer"
       title={`Nivel ${lv.level} · ${lv.title} · ${p.xp} XP`}
       aria-label={`Perfil: nivel ${lv.level}, ${p.xp} puntos de experiencia. Ver logros y misiones`}
       data-testid="xp-chip"
     >
-      <span className="w-6 h-6 rounded-md bg-gradient-to-br from-cyan-400 to-emerald-400 text-slate-950 font-display font-black text-[11px] flex items-center justify-center">
+      <span className="w-7 h-7 rounded-full bg-[#ff4f9e] border-2 border-[#211a33] text-[#fffaf0] font-display text-[13px] flex items-center justify-center -rotate-6">
         {lv.level}
       </span>
       <span className="hidden sm:flex flex-col items-start leading-none gap-1">
         <span className="text-slate-800 dark:text-slate-200 font-bold" data-testid="xp-value">{p.xp} XP</span>
-        <span className="relative w-16 h-1 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-          <span className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" style={{ width: `${Math.round(lv.progress * 100)}%` }} />
+        <span className="relative w-16 h-2 rounded-full border-[1.5px] border-[var(--ink)] bg-[var(--surface-secondary)] overflow-hidden">
+          <span className="absolute inset-y-0 left-0 rounded-full bg-[#ffc81f] border-r-2 border-[#211a33]" style={{ width: `${Math.round(lv.progress * 100)}%` }} />
         </span>
       </span>
       <span className="sm:hidden text-slate-700 dark:text-slate-200 font-bold">{p.xp}</span>
@@ -94,11 +95,11 @@ const Modal: React.FC<{ title: string; onClose: () => void; children: React.Reac
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-2xl max-h-[88vh] overflow-hidden flex flex-col rounded-t-2xl sm:rounded-2xl bg-[#0b111d] border border-slate-700 text-white shadow-2xl animate-entrance outline-none"
+        className="w-full sm:max-w-2xl max-h-[88vh] overflow-hidden flex flex-col rounded-t-2xl sm:rounded-2xl bg-[var(--surface-secondary)] border border-slate-700 text-white shadow-2xl animate-entrance outline-none"
         data-testid={testId}
       >
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800">
-          <h2 className="font-display font-black text-lg">{title}</h2>
+          <h2 className="font-heading font-black text-lg">{title}</h2>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-white cursor-pointer" aria-label="Cerrar">
             <X className="w-5 h-5" />
           </button>
@@ -134,7 +135,7 @@ export const ProfilePanel: React.FC<{ onClose: () => void }> = ({ onClose }) => 
           <p className="font-telemetry text-[11px] text-cyan-300 uppercase tracking-widest">Nivel {lv.level}</p>
           <p className="font-display font-black text-xl leading-tight">{lv.title}</p>
           <div className="mt-2 h-2 rounded-full bg-slate-800 overflow-hidden relative">
-            <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" style={{ width: `${Math.round(lv.progress * 100)}%` }} />
+            <div className="absolute inset-y-0 left-0 rounded-full bg-[#ffc81f] border-r-2 border-[#211a33]" style={{ width: `${Math.round(lv.progress * 100)}%` }} />
             <div className="absolute inset-0 xp-shine" />
           </div>
           <p className="mt-1 font-telemetry text-[11px] text-slate-400">
@@ -150,13 +151,13 @@ export const ProfilePanel: React.FC<{ onClose: () => void }> = ({ onClose }) => 
           ['Misiones', `${p.completedMissions.length}/${MISSIONS.length}`],
         ].map(([k, v]) => (
           <div key={String(k)} className="rounded-xl bg-white/5 border border-white/10 py-2.5">
-            <p className="font-display font-black text-lg">{v}</p>
+            <p className="font-heading font-black text-lg">{v}</p>
             <p className="text-[10px] text-slate-400">{k}</p>
           </div>
         ))}
       </div>
 
-      <h3 className="font-display font-bold text-sm mb-2 flex items-center gap-2">
+      <h3 className="font-heading font-bold text-sm mb-2 flex items-center gap-2">
         <Trophy className="w-4 h-4 text-yellow-300" /> Logros ({Object.keys(p.achievements).length}/{ACHIEVEMENTS.length})
       </h3>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
@@ -175,7 +176,7 @@ export const ProfilePanel: React.FC<{ onClose: () => void }> = ({ onClose }) => 
         })}
       </ul>
 
-      <h3 className="font-display font-bold text-sm mb-2">Accesibilidad y avisos</h3>
+      <h3 className="font-heading font-bold text-sm mb-2">Accesibilidad y avisos</h3>
       <div className="space-y-2 font-telemetry text-xs">
         <label className="flex items-center justify-between gap-3 rounded-xl border border-slate-800 px-3 py-2.5 cursor-pointer">
           <span className="flex items-center gap-2"><Volume2 className="w-4 h-4 text-cyan-300" /> Leer en voz alta automáticamente las simulaciones y al tutor</span>
@@ -216,7 +217,7 @@ export const MissionCard: React.FC<{ m: Mission; onStart?: (m: Mission) => void;
       <div className="flex items-start gap-2">
         <Target className={`w-4 h-4 mt-0.5 shrink-0 ${done ? 'text-emerald-300' : 'text-fuchsia-300'}`} />
         <div className="flex-1 min-w-0">
-          <p className="font-display font-bold text-sm leading-tight flex flex-wrap items-center gap-x-2">
+          <p className="font-heading font-bold text-sm leading-tight flex flex-wrap items-center gap-x-2">
             {m.title}
             {daily && <span className="text-[9px] font-telemetry uppercase px-1.5 py-0.5 rounded bg-yellow-400/20 text-yellow-200 border border-yellow-400/40">Misión del día ×2</span>}
             {done && <span className="text-[9px] font-telemetry uppercase px-1.5 py-0.5 rounded bg-emerald-400/15 text-emerald-200">Cumplida</span>}
@@ -260,7 +261,7 @@ export const MissionPanel: React.FC<{ module?: string; onClose: () => void; onSt
       </ul>
       {others.length > 0 && (
         <>
-          <p className="mt-6 mb-2 font-display font-bold text-sm text-slate-300">En otros módulos</p>
+          <p className="mt-6 mb-2 font-heading font-bold text-sm text-slate-300">En otros módulos</p>
           <ul className="space-y-2.5 opacity-80">{others.map((m) => <MissionCard key={m.id} m={m} compact />)}</ul>
         </>
       )}
@@ -350,9 +351,9 @@ export const MissionStamp: React.FC<{ title: string; xp: number; measure?: strin
         <div className="absolute inset-3 rounded-full border-2 border-dashed border-emerald-300/50" />
         <p className="font-telemetry text-[11px] tracking-[0.35em] text-emerald-200 uppercase">PaperLab</p>
         <p className="font-display font-black text-3xl sm:text-4xl leading-none text-emerald-300 drop-shadow-[0_0_12px_rgba(52,211,153,0.9)] my-2 px-4">¡Misión<br />Cumplida!</p>
-        <p className="font-display font-bold text-sm text-white px-6 leading-tight">{title}</p>
+        <p className="font-heading font-bold text-sm text-white px-6 leading-tight">{title}</p>
         {measure && <p className="font-telemetry text-[11px] text-emerald-200/90 mt-1">{measure}</p>}
-        {xp > 0 && <p className="mt-2 px-3 py-0.5 rounded-full bg-emerald-400 text-slate-950 font-display font-black text-lg" data-testid="mission-stamp-xp">+{xp} XP</p>}
+        {xp > 0 && <p className="mt-2 px-3 py-0.5 rounded-full bg-emerald-400 text-slate-950 font-heading font-black text-lg" data-testid="mission-stamp-xp">+{xp} XP</p>}
       </div>
     </div>
   );

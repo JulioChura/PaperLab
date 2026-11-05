@@ -6,11 +6,20 @@ import {
   Triangle, 
   Camera, 
   ArrowRight,
-  ChevronRight,
   Upload,
   Target
 } from 'lucide-react';
 import { audioJuice } from '../utils/audioJuice';
+import { squash } from '../utils/juice';
+
+/** Tinta de cada disciplina: fondo, texto, tono suave y forma del sticker. */
+const INKS: Record<string, { bg: string; fg: string; soft: string; radius: string }> = {
+  physics: { bg: '#2f4bf0', fg: '#fffaf0', soft: '#bdc9ff', radius: '22px 22px 22px 6px' },
+  circuits: { bg: '#ffc81f', fg: '#211a33', soft: '#ffe58a', radius: '6px 26px 22px 22px' },
+  flowcharts: { bg: '#12a96e', fg: '#fffaf0', soft: '#9eeac6', radius: '22px 6px 26px 22px' },
+  math: { bg: '#ff4f9e', fg: '#fffaf0', soft: '#ffb9da', radius: '26px 22px 6px 22px' },
+};
+const BLOBS = ['46% 54% 42% 58% / 52% 44% 56% 48%', '60% 40% 55% 45% / 45% 60% 40% 55%', '38% 62% 50% 50% / 60% 40% 60% 40%'];
 import { MissionCard } from '../game/GameUI';
 import { missionsFor, type Mission } from '../game/missions';
 
@@ -249,162 +258,185 @@ export const ModuleSelector: React.FC<ModuleSelectorProps> = ({ onSelectModule, 
   const currentDiscipline = disciplines.find(d => d.id === activeTab) || disciplines[0];
   const CurrentIcon = currentDiscipline.icon;
   const currentExercises = moduleExercises[currentDiscipline.id] || [];
+  const ink = INKS[currentDiscipline.id];
+
+  const selectTab = (id: string, el: HTMLElement) => {
+    if (id === activeTab) {
+      squash(el, 0.6);
+      return;
+    }
+    audioJuice.playPaperFlip();
+    squash(el, 1.2);
+    setActiveTab(id);
+  };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12 select-none animate-entrance">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12 select-none text-left">
       {/* Header */}
-      <div className="border-b border-[#d8cebd] dark:border-[#212c42] pb-6 mb-8 text-left">
-        <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 dark:text-white tracking-tight">
-          Selecciona tu experimento
-        </h2>
-        <p className="font-telemetry text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Elige una disciplina para ver los ejercicios canónicos listos para escaneo y simulación.
+      <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <span className="pop-in inline-block font-hand text-2xl text-[var(--riso-pink)]" style={{ ['--rest' as string]: '-3deg' }}>
+            paso 1 →
+          </span>
+          <h2 className="pop-in font-display text-4xl sm:text-6xl text-[var(--ink)] leading-[0.95]" style={{ ['--i' as string]: 1, ['--r' as string]: '-3deg' }}>
+            ¿Qué vas a <span className="squiggle">dibujar</span> hoy?
+          </h2>
+        </div>
+        <p className="pop-in font-telemetry text-[11px] text-[var(--text-secondary)] max-w-xs" style={{ ['--i' as string]: 2 }}>
+          Elige una disciplina y dibuja cualquiera de sus ejercicios en tu cuaderno.
         </p>
       </div>
 
-      {/* Main Layout: Master-Detail Deck */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">
-        
-        {/* Left Column (4 Cols): Discipline Switcher */}
-        <div className="lg:col-span-4 flex flex-col gap-2.5">
-          {disciplines.map((d) => {
-            const isSelected = d.id === activeTab;
-            const Icon = d.icon;
-
-            return (
+      {/* Stickers de disciplina */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-10">
+        {disciplines.map((d, idx) => {
+          const isSelected = d.id === activeTab;
+          const Icon = d.icon;
+          const c = INKS[d.id];
+          const tilt = [-2.5, 1.8, -1.2, 2.4][idx];
+          return (
+            <button
+              key={d.id}
+              data-juice
+              onClick={(e) => selectTab(d.id, e.currentTarget)}
+              aria-pressed={isSelected}
+              className="pop-in group relative cursor-pointer text-left"
+              style={{ ['--i' as string]: idx + 2, ['--r' as string]: `${tilt * 3}deg` }}
+            >
               <div
-                key={d.id}
-                onClick={() => {
-                  audioJuice.playPaperFlip();
-                  setActiveTab(d.id);
+                className="relative h-full border-[2.5px] border-[#211a33] p-4 sm:p-5 transition-all duration-500 [transition-timing-function:var(--ease-spring)] group-hover:-translate-y-1.5"
+                style={{
+                  background: c.bg,
+                  color: c.fg,
+                  borderRadius: c.radius,
+                  rotate: `${isSelected ? 0 : tilt}deg`,
+                  translate: `0 ${isSelected ? -8 : 0}px`,
+                  boxShadow: isSelected ? '8px 10px 0 var(--hard-shadow)' : '4px 4px 0 var(--hard-shadow)',
                 }}
-                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                  isSelected
-                    ? 'border-slate-900 dark:border-cyan-400 bg-white dark:bg-[#101726] shadow-md translate-x-1'
-                    : 'border-[#d8cebd] dark:border-[#212c42] bg-[#fdfbf7] dark:bg-[#0c101a] hover:border-slate-400 dark:hover:border-slate-600'
-                }`}
               >
-                <div className="flex items-center gap-3.5">
-                  <span className="font-telemetry text-xs font-bold text-slate-400 dark:text-slate-500">
-                    {d.index}
+                <div className="flex items-start justify-between">
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-[#fffaf0] border-[2.5px] border-[#211a33] transition-transform duration-500 [transition-timing-function:var(--ease-spring)] group-hover:rotate-[-14deg] group-hover:scale-110">
+                    <Icon className="w-6 h-6" style={{ color: '#211a33' }} strokeWidth={2.6} />
                   </span>
-                  <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900">
-                    <Icon className="w-5 h-5" style={{ color: d.accent }} />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-base text-slate-900 dark:text-white leading-tight">
-                      {d.title}
-                    </h3>
-                    <span className="font-telemetry text-[11px] text-slate-500 dark:text-slate-400 block">
-                      {d.exerciseCount} ejercicios disponibles
-                    </span>
-                  </div>
+                  <span className="font-display text-3xl sm:text-4xl opacity-90 leading-none">{d.index}</span>
                 </div>
-
-                <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'text-slate-900 dark:text-cyan-400 translate-x-0.5' : 'text-slate-400'}`} />
+                <h3 className="font-heading text-lg sm:text-xl leading-tight mt-4">{d.title}</h3>
+                <span className="font-telemetry text-[10px] opacity-80 block mt-1">{d.exerciseCount} ejercicios</span>
+                {isSelected && (
+                  <span className="absolute -top-3 -right-2 px-2 py-0.5 rounded-full bg-[#211a33] text-[#fffaf0] font-telemetry text-[9px] uppercase pop-in" style={{ ['--rest' as string]: '6deg' }}>
+                    elegido
+                  </span>
+                )}
               </div>
-            );
-          })}
-        </div>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Right Column (8 Cols): Exercise Cards Grid */}
-        <div className="lg:col-span-8 rounded-2xl border border-[#d8cebd] dark:border-[#212c42] bg-white dark:bg-[#0e1422] p-6 sm:p-7 shadow-xl flex flex-col justify-between min-h-[460px]">
-          <div>
-            {/* Discipline Header & Action Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-6 gap-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                  <CurrentIcon className="w-6 h-6" style={{ color: currentDiscipline.accent }} />
-                </div>
-                <div>
-                  <span className="font-telemetry text-xs text-slate-400">DISCIPLINA {currentDiscipline.index}</span>
-                  <h3 className="font-display font-black text-2xl text-slate-900 dark:text-white">
-                    {currentDiscipline.title}
-                  </h3>
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  audioJuice.playTap();
-                  onSelectModule(currentDiscipline.id);
-                }}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-400 dark:hover:bg-cyan-300 text-white dark:text-slate-950 font-display font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 cursor-pointer"
-              >
-                <Camera className="w-4 h-4" />
-                <span>Activar Cámara o Subir Foto</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Grid of Implemented Exercise Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-6">
-              {currentExercises.map((ex) => (
-                <div
-                  key={ex.id}
-                  onClick={() => {
-                    audioJuice.playTap();
-                    onSelectModule(currentDiscipline.id);
-                  }}
-                  className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-[#fbf9f4] dark:bg-[#080c14] hover:border-cyan-500/60 dark:hover:border-cyan-400/50 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-                >
-                  <div className="mb-2.5">
-                    <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl shrink-0">{ex.emoji}</span>
-                        <h4 className="font-display font-bold text-sm text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-                          {ex.name}
-                        </h4>
-                      </div>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                      {ex.drawnSyntax}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between font-telemetry text-[11px]">
-                    <span className="text-cyan-700 dark:text-cyan-400 font-mono font-medium truncate max-w-[200px]">
-                      {ex.formula}
-                    </span>
-                    <span className="text-slate-400 group-hover:translate-x-0.5 transition-transform text-[10px]">
-                      Escanear →
-                    </span>
-                  </div>
-                </div>
-              ))}
+      {/* Panel de la disciplina */}
+      <div className="ink-card overflow-hidden !rounded-[26px] animate-entrance" key={currentDiscipline.id}>
+        {/* Banda de color */}
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 sm:px-7 py-5 border-b-[2.5px] border-[#211a33] overflow-hidden" style={{ background: ink.bg, color: ink.fg }}>
+          <svg aria-hidden="true" className="absolute -right-6 -top-10 w-40 h-40 opacity-25 spin-slow" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray="3 12" strokeLinecap="round" />
+          </svg>
+          <div className="relative flex items-center gap-3">
+            <span className="grid place-items-center w-14 h-14 shrink-0 rounded-[18px] bg-[#fffaf0] border-[2.5px] border-[#211a33] -rotate-6 shadow-[3px_3px_0_#211a33]">
+              <CurrentIcon className="w-7 h-7 text-[#211a33]" strokeWidth={2.6} />
+            </span>
+            <div>
+              <span className="font-telemetry text-[10px] uppercase tracking-widest opacity-80">Disciplina {currentDiscipline.index}</span>
+              <h3 className="font-display text-3xl sm:text-4xl leading-none">{currentDiscipline.title}</h3>
+              <p className="text-sm opacity-85 mt-1">{currentDiscipline.concept}</p>
             </div>
           </div>
 
-          {/* Misiones de la disciplina */}
-          <div className="mb-6 rounded-xl border border-fuchsia-300/60 dark:border-fuchsia-500/30 bg-fuchsia-50/60 dark:bg-fuchsia-500/[0.04] p-4" data-testid="menu-missions">
+          <button
+            data-juice="big"
+            onClick={() => {
+              audioJuice.playTap();
+              window.setTimeout(() => onSelectModule(currentDiscipline.id), 180);
+            }}
+            className="juicy btn-ink relative px-6 py-3 text-base bg-[#fffaf0] text-[#211a33] shrink-0"
+          >
+            <Camera className="w-5 h-5" strokeWidth={2.6} />
+            <span>Abrir cámara</span>
+            <ArrowRight className="w-5 h-5" strokeWidth={3} />
+          </button>
+        </div>
+
+        <div className="p-5 sm:p-7">
+          {/* Ejercicios */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
+            {currentExercises.map((ex, i) => (
+              <button
+                key={ex.id}
+                data-juice
+                onClick={() => {
+                  audioJuice.playTap();
+                  window.setTimeout(() => onSelectModule(currentDiscipline.id), 160);
+                }}
+                className="pop-in group text-left cursor-pointer"
+                style={{ ['--i' as string]: i, ['--r' as string]: `${i % 2 ? 6 : -6}deg` }}
+              >
+                <div className="juicy h-full flex flex-col justify-between rounded-[18px] border-[2.5px] border-[var(--ink)] bg-[var(--surface-secondary)] p-4 shadow-[3px_3px_0_var(--hard-shadow)] hover:shadow-[6px_6px_0_var(--hard-shadow)]">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span
+                        className="grid place-items-center w-11 h-11 shrink-0 text-xl border-[2.5px] border-[#211a33] transition-transform duration-500 [transition-timing-function:var(--ease-spring)] group-hover:scale-125 group-hover:rotate-12"
+                        style={{ background: ink.soft, borderRadius: BLOBS[i % BLOBS.length] }}
+                      >
+                        {ex.emoji}
+                      </span>
+                      <h4 className="font-heading text-base text-[var(--ink)] leading-tight">{ex.name}</h4>
+                    </div>
+                    <p className="text-[13px] text-[var(--text-secondary)] leading-snug">{ex.drawnSyntax}</p>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <span className="font-telemetry text-[10px] px-2 py-1 rounded-lg border-[1.5px] border-[#211a33] bg-[#fffaf0] text-[#211a33] truncate max-w-[70%]">
+                      {ex.formula}
+                    </span>
+                    <span className="font-hand text-lg text-[var(--riso-pink)] whitespace-nowrap transition-transform duration-500 [transition-timing-function:var(--ease-spring)] group-hover:translate-x-1 group-hover:-rotate-6">
+                      ¡a escanear!
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Misiones */}
+          <div className="mb-6 rounded-[20px] border-[2.5px] border-dashed border-[var(--ink)] bg-[var(--bg-ground)] p-4 sm:p-5" data-testid="menu-missions">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <h4 className="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                <Target className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-300" />
+              <h4 className="font-heading text-lg text-[var(--ink)] flex items-center gap-2">
+                <span className="grid place-items-center w-8 h-8 rounded-full bg-[#ff4f9e] border-2 border-[#211a33] rotate-6">
+                  <Target className="w-4 h-4 text-[#fffaf0]" strokeWidth={2.8} />
+                </span>
                 Misiones en papel
               </h4>
-              <button onClick={onOpenMissions} className="font-telemetry text-[11px] text-fuchsia-700 dark:text-fuchsia-300 hover:underline cursor-pointer">
+              <button onClick={onOpenMissions} data-juice className="juicy ink-chip font-telemetry text-[10px] px-3 py-1.5 cursor-pointer">
                 Ver todas →
               </button>
             </div>
-            <ul className="space-y-2 [&_li]:bg-slate-950 [&_li]:text-white">
+            <ul className="space-y-2 [&_li]:bg-[#211a33] [&_li]:text-[#fffaf0] [&_li]:rounded-2xl">
               {missionsFor(currentDiscipline.id).map((m) => (
                 <MissionCard key={m.id} m={m} onStart={onStartMission} compact />
               ))}
             </ul>
           </div>
 
-          {/* Quick Footer Info */}
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-telemetry text-slate-500 dark:text-slate-400">
-            <span>Dibuja cualquiera de estos ejercicios en tu cuaderno físico.</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-telemetry text-[var(--text-secondary)]">
+            <span className="font-hand text-xl text-[var(--ink)]">psst… cualquiera de estos sirve en tu cuaderno ✏️</span>
             <button
+              data-juice
               onClick={() => {
                 audioJuice.playPaperFlip();
                 onSelectModule(currentDiscipline.id);
               }}
-              className="inline-flex items-center gap-1.5 text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
+              className="juicy ink-chip inline-flex items-center gap-1.5 px-3 py-1.5 cursor-pointer"
             >
-              <Upload className="w-3.5 h-3.5" />
-              <span>O sube una foto directamente</span>
+              <Upload className="w-3.5 h-3.5" strokeWidth={2.6} />
+              <span>O sube una foto</span>
             </button>
           </div>
         </div>

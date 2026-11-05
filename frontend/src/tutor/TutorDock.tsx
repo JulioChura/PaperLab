@@ -92,7 +92,7 @@ export const TutorDock: React.FC<Props> = ({ message, module, placement, autoSpe
           data-tone={message.tone}
         >
           <div className="flex items-start gap-2 mb-1">
-            <p className="flex-1 font-display font-bold text-sm leading-tight" style={{ color: message.tone === 'error' ? '#fbbf24' : '#fff' }}>
+            <p className="flex-1 font-heading font-bold text-sm leading-tight" style={{ color: message.tone === 'error' ? '#fbbf24' : '#fff' }}>
               {message.title}
             </p>
             <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-white cursor-pointer -mt-0.5" aria-label="Cerrar mensaje">

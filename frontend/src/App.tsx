@@ -79,7 +79,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f0e6] dark:bg-[#070a11] text-[#14171f] dark:text-[#f8fafc] flex flex-col font-sans transition-colors duration-200">
+    <div className="relative min-h-screen bg-[var(--bg-ground)] text-[var(--text-primary)] flex flex-col font-sans transition-colors duration-300">
       {currentView === 'splash' ? (
         <SplashScreen
           onEnter={handleEnterFromSplash}

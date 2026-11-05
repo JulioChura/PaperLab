@@ -325,7 +325,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
               <span className="block text-[10px] font-telemetry uppercase tracking-widest truncate" style={{ color: accent }} data-testid="ar-summary">
                 {session.plan.summary}
               </span>
-              <span className="block font-display font-bold text-sm truncate">
+              <span className="block font-heading font-bold text-sm truncate">
                 {titles.length ? `${Math.min(active + 1, titles.length)}/${titles.length} · ${titles[active] ?? ''}` : 'Preparando trazos…'}
                 {!done && titles.length > 0 && <span className="ml-2 text-[11px] font-telemetry font-normal text-slate-400 animate-pulse">escribiendo</span>}
               </span>

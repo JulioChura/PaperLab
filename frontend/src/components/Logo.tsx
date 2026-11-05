@@ -6,81 +6,50 @@ interface LogoProps {
   className?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ 
-  size = 'md', 
-  showText = true,
-  className = '' 
-}) => {
+/**
+ * Sticker de PaperLab: una hoja con la esquina doblada que "mira" con un ojo
+ * de cámara. Hover = tambaleo de sticker mal pegado.
+ */
+export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '' }) => {
   const sizeMap = {
-    sm: { icon: 26, text: 'text-lg', sub: 'text-[9px]' },
-    md: { icon: 34, text: 'text-2xl', sub: 'text-[10px]' },
-    lg: { icon: 46, text: 'text-4xl', sub: 'text-xs' }
+    sm: { icon: 34, text: 'text-xl', sub: 'text-[8px]' },
+    md: { icon: 44, text: 'text-[28px]', sub: 'text-[9px]' },
+    lg: { icon: 60, text: 'text-5xl', sub: 'text-xs' },
   };
-
   const { icon, text, sub } = sizeMap[size];
 
   return (
-    <div className={`inline-flex items-center gap-3 select-none ${className}`}>
-      {/* Precision Geometric Logo Mark: Folded Paper Plane + Optic Aperture */}
+    <div className={`group inline-flex items-center gap-2.5 select-none ${className}`}>
       <svg
         width={icon}
         height={icon}
-        viewBox="0 0 44 44"
+        viewBox="0 0 48 48"
         fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="shrink-0 transition-transform hover:scale-105"
+        aria-hidden="true"
+        className="shrink-0 wobble-hover"
+        style={{ ['--rest' as string]: '-8deg', transform: 'rotate(-8deg)' }}
       >
-        {/* Outer Hexagonal Framing Caliper */}
-        <polygon
-          points="22,3 39,13 39,31 22,41 5,31 5,13"
-          className="stroke-slate-300 dark:stroke-slate-700/80 fill-slate-100/50 dark:fill-slate-900/60"
-          strokeWidth="1.5"
-        />
-
-        {/* Isometric Folded Paper Geometry */}
-        <polygon
-          points="22,6 36,14 22,23 8,14"
-          className="fill-cyan-500/15 dark:fill-cyan-400/20 stroke-cyan-600 dark:stroke-cyan-400"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        <polygon
-          points="8,14 22,23 22,38 8,30"
-          className="fill-slate-200/80 dark:fill-slate-800/80 stroke-slate-400 dark:stroke-slate-600"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        <polygon
-          points="22,23 36,14 36,30 22,38"
-          className="fill-slate-300/60 dark:fill-slate-700/60 stroke-slate-400 dark:stroke-slate-600"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-
-        {/* Optical Sensor Aperture */}
-        <circle
-          cx="22"
-          cy="23"
-          r="5.5"
-          className="fill-white dark:fill-slate-950 stroke-cyan-600 dark:stroke-cyan-400"
-          strokeWidth="1.8"
-        />
-        <circle
-          cx="22"
-          cy="23"
-          r="2"
-          className="fill-cyan-600 dark:fill-cyan-400"
-        />
+        {/* sombra dura */}
+        <path d="M9 7 H31 L41 17 V41 H9 Z" transform="translate(3 3)" fill="var(--hard-shadow)" />
+        {/* hoja */}
+        <path d="M9 7 H31 L41 17 V41 H9 Z" fill="#ffc81f" stroke="#211a33" strokeWidth="2.8" strokeLinejoin="round" />
+        {/* esquina doblada */}
+        <path d="M31 7 V17 H41 Z" fill="#ff4f9e" stroke="#211a33" strokeWidth="2.8" strokeLinejoin="round" />
+        {/* renglones */}
+        <path d="M14 34 H34" stroke="#211a33" strokeWidth="2" strokeLinecap="round" opacity="0.35" />
+        {/* ojo-lente */}
+        <ellipse cx="22" cy="24" rx="9" ry="7" fill="#fffaf0" stroke="#211a33" strokeWidth="2.6" />
+        <circle cx="23" cy="24" r="4" fill="#2f4bf0" stroke="#211a33" strokeWidth="2" className="origin-center transition-transform duration-500 group-hover:translate-x-[2px]" />
+        <circle cx="24.4" cy="22.6" r="1.3" fill="#fffaf0" />
       </svg>
 
-      {/* Distinctive Typography */}
       {showText && (
         <div className="flex flex-col text-left">
-          <span className={`font-display font-black tracking-tight leading-none text-slate-900 dark:text-white ${text}`}>
-            Paper<span className="text-cyan-600 dark:text-cyan-400">Lab</span>
+          <span className={`font-display leading-[0.85] text-[var(--ink)] ${text}`}>
+            Paper<span className="text-[var(--riso-pink)]">Lab</span>
           </span>
-          <span className={`font-telemetry tracking-widest uppercase text-slate-500 dark:text-slate-400 mt-1 leading-none ${sub}`}>
-            Augmented Paper
+          <span className={`font-telemetry tracking-[0.2em] uppercase text-[var(--text-secondary)] mt-1 leading-none ${sub}`}>
+            papel aumentado
           </span>
         </div>
       )}
