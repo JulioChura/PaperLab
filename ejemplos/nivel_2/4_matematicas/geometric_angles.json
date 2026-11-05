@@ -1,0 +1,35 @@
+{
+  "title": "Paralelas cortadas por una secante",
+  "exercise_id": "geometric_angles",
+  "exercise_type": "geometric_angles",
+  "exercise_name": "Paralelas cortadas por una secante",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "geometric_angles",
+    "problem_type": "parallel_transversal",
+    "known_angles_deg": {
+      "α": 65
+    },
+    "unknown_variable": "x",
+    "solved_value_deg": 115,
+    "theorem_applied": "Ángulos conjugados internos suman 180°",
+    "proof_steps": [
+      "L1 ∥ L2: los conjugados internos son suplementarios",
+      "65° + x = 180°",
+      "x = 180° − 65°"
+    ]
+  },
+  "explanation": "L1 ∥ L2 cortadas por una secante; un ángulo mide 65° y x es su conjugado interno.",
+  "question": "Hallar el valor de x",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

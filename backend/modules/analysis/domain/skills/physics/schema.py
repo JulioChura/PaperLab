@@ -63,6 +63,9 @@ class RectilinearMotionSimulation(BaseModel):
     total_time_s: float = Field(default=5.0, gt=0.0, description="Ventana de tiempo simulada (s)")
     final_velocity_m_s: float = Field(..., description="Velocidad al final del tramo")
     distance_traveled_m: float = Field(..., description="Distancia total recorrida")
+    second_initial_position_m: Optional[float] = Field(default=None, description="Si hay un SEGUNDO móvil (problema de encuentro): su posición inicial x0 (m)")
+    second_initial_velocity_m_s: Optional[float] = Field(default=None, description="Velocidad inicial del segundo móvil (negativa si va en sentido contrario)")
+    second_acceleration_m_s2: Optional[float] = Field(default=None, description="Aceleración del segundo móvil")
 
 
 class AtwoodMachineSimulation(BaseModel):
@@ -74,6 +77,8 @@ class AtwoodMachineSimulation(BaseModel):
     gravity_m_s2: float = Field(default=9.8, gt=0.0, description="Gravedad")
     acceleration_m_s2: float = Field(..., description="Aceleración neta: g*|m1-m2|/(m1+m2)")
     tension_n: float = Field(..., description="Tensión en la cuerda: 2*m1*m2*g/(m1+m2)")
+    mass_3_kg: Optional[float] = Field(default=None, gt=0.0, description="Si hay DOS poleas: masa apoyada en la mesa entre ambas (kg)")
+    table_friction_coefficient: Optional[float] = Field(default=None, ge=0.0, description="Fricción entre la masa 3 y la mesa")
 
 
 PhysicsSimulationData = Annotated[

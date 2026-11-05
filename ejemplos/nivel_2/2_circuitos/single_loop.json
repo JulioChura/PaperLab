@@ -1,0 +1,29 @@
+{
+  "title": "LED con resistencia limitadora",
+  "exercise_id": "single_loop",
+  "exercise_type": "single_loop",
+  "exercise_name": "LED con resistencia limitadora",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "single_loop",
+    "voltage_v": 12,
+    "resistance_ohms": 48,
+    "current_a": 0.25,
+    "power_w": 3,
+    "has_led": true,
+    "led_color": "red"
+  },
+  "explanation": "Fuente de 12 V, resistencia de 48 Ω y un LED rojo en serie.",
+  "question": "Hallar la corriente del LED y la potencia disipada",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

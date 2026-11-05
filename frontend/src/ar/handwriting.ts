@@ -396,6 +396,21 @@ export function renderGraph(
     }
   }
 
+  // Solución de una inecuación: franja de resaltador sobre el eje x y extremos abiertos/cerrados
+  if (spec.shade?.length) {
+    for (const [a, b] of spec.shade) {
+      const xa = X(Math.max(spec.xMin, a));
+      const xb = X(Math.min(spec.xMax, b));
+      rc.rectangle(Math.min(xa, xb), ay - labelPx * 0.32, Math.max(2, Math.abs(xb - xa)), labelPx * 0.64, {
+        fill: HIGHLIGHT, fillStyle: 'hachure', hachureAngle: -20, hachureGap: labelPx * 0.12, fillWeight: labelPx * 0.14, stroke: 'none', roughness: 1.2, seed: style.seed + 9,
+      });
+      for (const e of [a, b]) {
+        if (!Number.isFinite(e) || e < spec.xMin || e > spec.xMax) continue;
+        rc.circle(X(e), ay, labelPx * 0.45, { ...roughOpts(style, PENCIL, 1), ...(spec.shadeClosed ? { fill: PENCIL, fillStyle: 'solid' } : {}) });
+      }
+    }
+  }
+
   // Etiqueta de la función
   if (spec.label.length) {
     const label = layoutTokens(spec.label, labelPx * 0.9, labelStyle);

@@ -189,6 +189,11 @@ class AnalyticSim implements FigureRuntime {
   }
   draw(fc: FigureCanvas) {
     const { w, h, u } = fc;
+    const label = (s: string, x: number, y: number, size: number, ch: 'ink' | 'pencil') => {
+      const tw = fc.textWidth(s, size);
+      const right = x + tw > w - u * 0.3;
+      fc.text(s, right ? Math.min(x, w - u * 0.3) - (right ? u * 0.9 : 0) : x, Math.max(u * 1.1, Math.min(h - u * 0.3, y)), size, ch, right ? 'right' : 'left');
+    };
     const pts = [this.A, ...(this.B ? [this.B] : [])];
     const r = this.entity === 'circle' && this.B ? Math.hypot(this.B[0] - this.A[0], this.B[1] - this.A[1]) : 0;
     const xs = pts.map((p) => p[0]).concat([0, this.A[0] - r, this.A[0] + r]);
@@ -222,7 +227,7 @@ class AnalyticSim implements FigureRuntime {
       fc.line(X(ax), Y(ay), X(bx), Y(ay), 'ink', 0.6, true);
       fc.line(X(bx), Y(ay), X(bx), Y(by), 'ink', 0.6, true);
       fc.text('Δx = ' + f(bx - ax), X((ax + bx) / 2), Y(ay) + (by >= ay ? u * 1.2 : -u * 0.5), 0.7, 'ink', 'center');
-      fc.text('Δy = ' + f(by - ay), X(bx) + u * 0.4, Y((ay + by) / 2), 0.7, 'ink');
+      label('Δy = ' + f(by - ay), X(bx) + u * 0.4, Y((ay + by) / 2), 0.7, 'ink');
       if (k >= 1) {
         const mx = (ax + bx) / 2;
         const my = (ay + by) / 2;
@@ -230,7 +235,7 @@ class AnalyticSim implements FigureRuntime {
         fc.text(`M(${f(mx)}; ${f(my)})`, X(mx) - u * 0.4, Y(my) - u * 0.6, 0.75, 'pencil', 'right');
       }
       fc.circle(X(bx), Y(by), u * 0.6, 'ink', 1, 'solid');
-      fc.text(`B(${f(bx)}; ${f(by)})`, X(bx) + u * 0.5, Y(by) - u * 0.5, 0.8, 'ink');
+      label(`B(${f(bx)}; ${f(by)})`, X(bx) + u * 0.5, Y(by) - u * 0.5, 0.8, 'ink');
       fc.glow(X(ax + (bx - ax) * k), Y(ay + (by - ay) * k), u * 1.3, ACCENT, 0.6);
     }
     if (this.entity === 'circle' && r > 0) {
@@ -253,7 +258,7 @@ class AnalyticSim implements FigureRuntime {
       fc.path(pts2, 'pencil', 1.2, true);
     }
     fc.circle(X(ax), Y(ay), u * 0.6, 'ink', 1, 'solid');
-    fc.text(`A(${f(ax)}; ${f(ay)})`, X(ax) + u * 0.5, Y(ay) + u * 1.2, 0.8, 'ink');
+    label(`A(${f(ax)}; ${f(ay)})`, X(ax) + u * 0.5, Y(ay) + u * 1.2, 0.8, 'ink');
   }
 }
 
@@ -275,11 +280,11 @@ class AnglesSim implements FigureRuntime {
   readouts() {
     return [{ label: this.unknown, value: `${f(this.x)}°` }];
   }
-  private angleMark(fc: FigureCanvas, c: Pt, a0: number, a1: number, label: string, highlight: boolean, k = 1) {
+  private angleMark(fc: FigureCanvas, c: Pt, a0: number, a1: number, label: string, highlight: boolean, k = 1, lf = 1.65) {
     const r = fc.u * (highlight ? 2.4 : 1.9);
     fc.arc(c[0], c[1], r, a0, a0 + (a1 - a0) * k, highlight ? 'pencil' : 'ink', highlight ? 1.3 : 0.8);
     const am = (a0 + a1) / 2;
-    if (k >= 1 || !highlight) fc.text(label, c[0] + Math.cos(am) * r * 1.65, c[1] + Math.sin(am) * r * 1.65 + fc.u * 0.35, 0.8, highlight ? 'pencil' : 'ink', 'center');
+    if (k >= 1 || !highlight) fc.text(label, c[0] + Math.cos(am) * r * lf, c[1] + Math.sin(am) * r * lf + fc.u * 0.35, 0.8, highlight ? 'pencil' : 'ink', 'left');
     if (highlight) fc.glow(c[0] + Math.cos(am) * r, c[1] + Math.sin(am) * r, fc.u * 1.4, ACCENT, 0.7);
   }
   draw(fc: FigureCanvas) {
@@ -288,7 +293,7 @@ class AnglesSim implements FigureRuntime {
     const xl = `${this.unknown} = ${k >= 1 ? f(this.x) : '?'}°`;
     const kn = this.known.map(([, v]) => `${v}°`);
     if (this.kind === 'parallel_transversal') {
-      const yA = h * 0.32, yB = h * 0.7;
+      const yA = h * 0.18, yB = h * 0.84;
       fc.line(u, yA, w - u, yA);
       fc.line(u, yB, w - u, yB);
       fc.text('L1', w - u, yA - u * 0.4, 0.75, 'ink', 'right');
@@ -297,8 +302,9 @@ class AnglesSim implements FigureRuntime {
       fc.line(t0[0], t0[1], t1[0], t1[1]);
       const ang = Math.atan2(t1[1] - t0[1], t1[0] - t0[0]);
       const at = (y: number): Pt => [t0[0] + ((y - t0[1]) / (t1[1] - t0[1])) * (t1[0] - t0[0]), y];
-      this.angleMark(fc, at(yA), ang, 0, kn[0] ?? '', false);
-      this.angleMark(fc, at(yB), ang + PI, PI, xl, true, k);
+      // conjugados internos: ambos entre L1 y L2, a la derecha de la secante
+      this.angleMark(fc, at(yA), 0, ang + PI, kn[0] ?? '', false, 1, 1.15);
+      this.angleMark(fc, at(yB), ang, 0, xl, true, k, 1.15);
     } else if (this.kind === 'inscribed_quadrilateral') {
       const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.38;
       fc.circle(cx, cy, R * 2, 'ink', 0.8);
@@ -396,7 +402,7 @@ export function mathFigurePlan(exerciseType: string, d: Record<string, unknown>)
       ...base,
       summary: 'Geometría analítica',
       lines,
-      figure: spec('Plano cartesiano', 1.2, () => new AnalyticSim(entity, A, B, curve), 12),
+      figure: spec('Plano cartesiano', 1.2, () => new AnalyticSim(entity, A, B, curve), 17),
     };
   }
   if (exerciseType === 'geometric_angles') {

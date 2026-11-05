@@ -84,7 +84,8 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
   const mod = moduleThemeConfig[moduleId as keyof typeof moduleThemeConfig] || moduleThemeConfig.physics;
   // Los 4 módulos tienen solución/simulación sobre la hoja
   const supportsArSolver = true;
-  const examples = examplesFor(moduleId);
+  const [exampleLevel, setExampleLevel] = useState<1 | 2>(1);
+  const examples = examplesFor(moduleId, exampleLevel);
   const [showExamples, setShowExamples] = useState(false);
   /** Ejemplo activo: su JSON sustituye al análisis de la IA (no gasta llamadas). */
   const [mockExample, setMockExample] = useState<Example | null>(null);
@@ -447,7 +448,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
         </div>
 
         <div className="flex items-center gap-2">
-          {examples.length > 0 && (
+          {examplesFor(moduleId, 1).length > 0 && (
             <button
               onClick={() => setShowExamples((v) => !v)}
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-lg backdrop-blur-md cursor-pointer"
@@ -517,9 +518,21 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
               <X className="w-4 h-4" />
             </button>
           </div>
+          <div className="flex gap-1 px-3 pt-2.5">
+            {([1, 2] as const).map((lv) => (
+              <button
+                key={lv}
+                onClick={() => setExampleLevel(lv)}
+                className="flex-1 py-1.5 rounded-lg text-xs font-telemetry border cursor-pointer"
+                style={exampleLevel === lv ? { background: `${mod.accent}33`, borderColor: mod.accent, color: '#fff' } : { borderColor: '#334155', color: '#94a3b8' }}
+              >
+                Nivel {lv}{lv === 2 ? ' · más exigente' : ''}
+              </button>
+            ))}
+          </div>
           <ul className="max-h-[50vh] overflow-y-auto p-1.5">
             {examples.map((ex) => (
-              <li key={ex.exercise_type}>
+              <li key={`${ex.level}-${ex.exercise_type}`}>
                 <button
                   onClick={() => void handlePickExample(ex)}
                   className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/5 cursor-pointer"

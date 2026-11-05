@@ -14,6 +14,7 @@ class SingleLoopSimulation(BaseModel):
     power_w: float = Field(..., description="Potencia disipada P = V * I en Watts")
     has_led: bool = Field(default=True, description="Indica si contiene una bombilla o LED")
     led_color: Optional[str] = Field(default="yellow", description="Color proyectado para el LED")
+    internal_resistance_ohms: Optional[float] = Field(default=None, ge=0.0, description="Resistencia interna r de la fuente (si se indica)")
 
 
 class SeriesResistorsSimulation(BaseModel):
@@ -45,6 +46,8 @@ class InteractiveSwitchSimulation(BaseModel):
     current_open_a: float = Field(default=0.0, description="Corriente en estado abierto (0 A)")
     current_closed_a: float = Field(..., description="Corriente en estado cerrado (V / R)")
     switch_location: Optional[BoundingBox] = Field(default=None, description="Ubicación para botón interactivo táctil")
+    second_load_ohms: Optional[float] = Field(default=None, gt=0.0, description="Si hay un SEGUNDO foco en paralelo controlado por un segundo interruptor S2: su resistencia")
+    second_switch_state: Optional[Literal["open", "closed"]] = Field(default=None, description="Estado inicial del interruptor S2")
 
 
 class RCCircuitSimulation(BaseModel):
@@ -64,6 +67,13 @@ class LogicGateRow(BaseModel):
     output: int = Field(..., description="Valor binario resultante [0|1]")
 
 
+class LogicNetworkGate(BaseModel):
+    """Compuerta dentro de una red combinacional."""
+    id: str = Field(..., description="Identificador, ej: 'G1'")
+    gate_type: Literal["AND", "OR", "NOT", "NAND", "NOR", "XOR"] = Field(..., description="Tipo de compuerta")
+    inputs: list[str] = Field(..., min_length=1, max_length=2, description="Entradas: nombres externos ('A') o ids de compuertas ('G1')")
+
+
 class LogicGatesSimulation(BaseModel):
     """2.6. Puertas Lógicas Básicas (AND, OR, NOT, etc.)."""
     exercise_type: Literal["logic_gates"] = "logic_gates"
@@ -72,6 +82,12 @@ class LogicGatesSimulation(BaseModel):
     output: int = Field(..., description="Resultado binario en la salida")
     boolean_expression: str = Field(..., description="Expresión booleana (ej: 'A * B', 'A + B', '!A')")
     truth_table: list[LogicGateRow] = Field(default_factory=list, description="Tabla de verdad completa")
+    input_names: list[str] = Field(default_factory=list, description="Si es una RED de varias compuertas: nombres de las entradas (ej: ['A', 'B', 'C'])")
+    network: list[LogicNetworkGate] = Field(
+        default_factory=list,
+        description="Red de compuertas en orden de cálculo; cada entrada es una entrada externa o el id de otra compuerta",
+    )
+    output_id: Optional[str] = Field(default=None, description="id de la compuerta cuya salida es S")
 
 
 CircuitSimulationData = Annotated[

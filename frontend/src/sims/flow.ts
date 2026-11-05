@@ -79,7 +79,7 @@ function parseArray(v: string): string[] | null {
 }
 
 // ------------------------------------------------------------------ runtime
-type Mode = 'flow' | 'code' | 'table' | 'recursion';
+type Mode = 'flow' | 'code' | 'table' | 'recursion' | 'tree';
 
 interface TableData {
   cols: string[];
@@ -109,6 +109,7 @@ class Debugger implements FigureRuntime {
     private code: string[] = [],
     private table: TableData | null = null,
     private header: string[] = [],
+    private tree: { nodes: string[]; edges: [string, string][] } | null = null,
   ) {}
 
   onControl(id: string) {
@@ -153,6 +154,7 @@ class Debugger implements FigureRuntime {
     if (this.mode === 'flow') this.drawFlow(fc, 0, 0, leftW - u * 0.5, fc.h);
     else if (this.mode === 'code') this.drawCode(fc, 0, 0, leftW - u * 0.5, fc.h);
     else if (this.mode === 'recursion') this.drawCode(fc, 0, 0, leftW - u * 0.5, fc.h, true);
+    else if (this.mode === 'tree') this.drawTree(fc, 0, 0, leftW - u * 0.5, fc.h);
     else this.drawTable(fc, 0, 0, fc.w, fc.h);
     if (memW > 0) {
       fc.line(leftW, u * 0.6, leftW, fc.h - u * 0.6, 'ink', 0.5, true);
@@ -243,6 +245,66 @@ class Debugger implements FigureRuntime {
         fc.lightRect(cx - hw - 3, cy - hh - 3, b.w + 6, b.h + 6, ACTIVE, 0.7);
       }
     }
+  }
+
+  private treeCache: { pos: Map<string, Pt>; r: number } | null = null;
+
+  /** Árbol / grafo: nodo actual iluminado, visitados sombreados, aristas recorridas resaltadas. */
+  private drawTree(fc: FigureCanvas, x0: number, y0: number, w: number, h: number) {
+    const u = fc.u;
+    const t = this.tree;
+    if (!t) return;
+    if (!this.treeCache) {
+      const g = new dagre.graphlib.Graph();
+      g.setGraph({ rankdir: 'TB', nodesep: u * 1.4, ranksep: u * 1.8, marginx: u, marginy: u });
+      g.setDefaultEdgeLabel(() => ({}));
+      const size = u * 2.4;
+      t.nodes.forEach((n) => g.setNode(n, { width: size, height: size }));
+      t.edges.forEach(([a, b]) => g.hasNode(a) && g.hasNode(b) && g.setEdge(a, b));
+      dagre.layout(g);
+      const gw = g.graph().width ?? w;
+      const gh = g.graph().height ?? h;
+      const sc = Math.min(1.3, w / gw, (h - u * 1.5) / gh);
+      const ox = x0 + (w - gw * sc) / 2;
+      const oy = y0 + u * 1.5 + (h - u * 1.5 - gh * sc) / 2;
+      const pos = new Map<string, Pt>();
+      g.nodes().forEach((n) => {
+        const nd = g.node(n);
+        pos.set(n, [ox + nd.x * sc, oy + nd.y * sc]);
+      });
+      this.treeCache = { pos, r: (size * sc) / 2 };
+    }
+    const { pos, r } = this.treeCache;
+    const step = this.steps[this.i];
+    const parseList = (v?: string) => (v ? (parseArray(v) ?? []).map((x) => x.replace(/^"|"$/g, '')) : []);
+    const visited = new Set(parseList(step?.vars.visitados ?? step?.vars.visited));
+    const current = (step?.vars.actual ?? step?.vars.current ?? '').replace(/^"|"$/g, '');
+    const queue = new Set(parseList(step?.vars.cola ?? step?.vars.pila ?? step?.vars.queue));
+    for (const [a, b] of t.edges) {
+      const pa = pos.get(a);
+      const pb = pos.get(b);
+      if (!pa || !pb) continue;
+      const d = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]) || 1;
+      const ux = (pb[0] - pa[0]) / d;
+      const uy = (pb[1] - pa[1]) / d;
+      const both = visited.has(a) && visited.has(b);
+      fc.line(pa[0] + ux * r, pa[1] + uy * r, pb[0] - ux * r, pb[1] - uy * r, both ? 'pencil' : 'ink', both ? 1.2 : 0.8);
+    }
+    for (const n of t.nodes) {
+      const p = pos.get(n);
+      if (!p) continue;
+      const isCur = n === current;
+      fc.circle(p[0], p[1], r * 2, isCur ? 'pencil' : 'ink', isCur ? 1.5 : 1, visited.has(n) ? 'hi' : undefined);
+      fc.fitText(n, p[0], p[1], r * 1.5, 0.85, isCur ? 'pencil' : 'ink');
+      if (isCur) {
+        fc.glow(p[0], p[1], r * 2.2, ACTIVE, 0.7);
+        fc.lightRect(p[0] - r - 3, p[1] - r - 3, r * 2 + 6, r * 2 + 6, ACTIVE, 0.5);
+      } else if (queue.has(n)) fc.glow(p[0], p[1], r * 1.6, TOKEN, 0.45);
+    }
+    fc.text('visitado', x0 + u * 0.6, y0 + u * 1.1, 0.6, 'ink');
+    fc.highlight(x0 + u * 4, y0 + u * 0.35, u * 1.2, u * 0.9);
+    fc.text('en cola', x0 + u * 6, y0 + u * 1.1, 0.6, 'ink');
+    fc.glow(x0 + u * 9.2, y0 + u * 0.8, u * 0.8, TOKEN, 0.6);
   }
 
   private drawCode(fc: FigureCanvas, x0: number, y0: number, w: number, h: number, recursion = false) {
@@ -447,6 +509,22 @@ export function flowPlan(exerciseType: string, d: Record<string, unknown>): Solu
         stack: [],
       }));
       const fin = Object.entries((d.final_memory as Record<string, unknown>) ?? {}).map(([k, v]) => `${k} = ${v}`).join('   ');
+      const gnodes = (Array.isArray(d.graph_nodes) ? d.graph_nodes : []).map(String);
+      if (gnodes.length) {
+        const gedges = (Array.isArray(d.graph_edges) ? d.graph_edges : [])
+          .filter((e): e is unknown[] => Array.isArray(e) && e.length >= 2)
+          .map((e) => [String(e[0]), String(e[1])] as [string, string]);
+        const order = rows.map((r) => String((r.variables as Record<string, unknown>)?.actual ?? '')).filter(Boolean);
+        return {
+          ...base,
+          summary: `Recorrido ${d.traversal ?? 'BFS'} de un árbol`,
+          lines: [
+            line('Estructura', `${d.traversal ?? 'BFS'}: se usa una ${/dfs/i.test(String(d.traversal)) ? 'pila' : 'cola'} de nodos pendientes`),
+            line('Orden de visita', order.join(' → ') || fin, true),
+          ],
+          figure: spec('Recorrido', 1.6, () => new Debugger('tree', tsteps, [], [], [], null, [], { nodes: gnodes, edges: gedges })),
+        };
+      }
       return {
         ...base,
         summary: 'Tabla de traza',

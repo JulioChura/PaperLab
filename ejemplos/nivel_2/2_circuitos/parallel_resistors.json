@@ -1,0 +1,36 @@
+{
+  "title": "Tres ramas en paralelo",
+  "exercise_id": "parallel_resistors",
+  "exercise_type": "parallel_resistors",
+  "exercise_name": "Tres ramas en paralelo",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "parallel_resistors",
+    "voltage_v": 12,
+    "resistors_ohms": [
+      60,
+      30,
+      20
+    ],
+    "equivalent_resistance_ohms": 10,
+    "branch_currents_a": [
+      0.2,
+      0.4,
+      0.6
+    ],
+    "total_current_a": 1.2
+  },
+  "explanation": "Tres resistencias de 60 Ω, 30 Ω y 20 Ω en paralelo con 12 V.",
+  "question": "Hallar Req, la corriente de cada rama y la corriente total",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

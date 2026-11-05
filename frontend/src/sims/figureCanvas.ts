@@ -237,6 +237,78 @@ export class FigureCanvas {
     l.restore();
   }
 
+  /** Texto de color en la capa de luz (polaridades +/−, valores destacados). */
+  lightText(s: string, x: number, y: number, size: number, color: string, align: CanvasTextAlign = 'center', bold = true) {
+    const l = this.lctx;
+    l.save();
+    l.font = `${bold ? 700 : this.weight} ${this.u * size * 1.45}px ${FONT}`;
+    l.textAlign = align;
+    l.textBaseline = 'middle';
+    l.fillStyle = color;
+    l.shadowColor = color;
+    l.shadowBlur = this.u * 0.25;
+    l.fillText(s, x, y);
+    l.restore();
+  }
+
+  /** Cable coloreado por potencial: va del color c0 al c1 a lo largo del recorrido. */
+  potentialPath(points: Pt[], c0: string, c1: string, width: number, alpha = 0.5) {
+    if (points.length < 2) return;
+    const l = this.lctx;
+    let total = 0;
+    const lens = points.slice(1).map((p, i) => {
+      const d = Math.hypot(p[0] - points[i][0], p[1] - points[i][1]);
+      total += d;
+      return d;
+    });
+    let acc = 0;
+    l.save();
+    l.lineWidth = width;
+    l.lineCap = 'round';
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      const g = l.createLinearGradient(a[0], a[1], b[0], b[1]);
+      g.addColorStop(0, mixColor(c0, c1, acc / total, alpha));
+      acc += lens[i - 1];
+      g.addColorStop(1, mixColor(c0, c1, acc / total, alpha));
+      l.strokeStyle = g;
+      l.beginPath();
+      l.moveTo(a[0], a[1]);
+      l.lineTo(b[0], b[1]);
+      l.stroke();
+    }
+    l.restore();
+  }
+
+  /** Chevrones animados que muestran el SENTIDO de la corriente a lo largo de un recorrido. */
+  flowChevrons(points: Pt[], phase: number, color: string, alpha = 0.95, spacing = this.u * 2.2) {
+    const { total } = pointAlong(points, 0);
+    if (total <= 0) return;
+    const n = Math.max(1, Math.floor(total / spacing));
+    const l = this.lctx;
+    const s = this.u * 0.42;
+    l.save();
+    l.strokeStyle = withAlpha(color, alpha);
+    l.lineWidth = Math.max(2, this.stroke * 1.2);
+    l.lineCap = 'round';
+    l.lineJoin = 'round';
+    l.shadowColor = withAlpha(color, alpha);
+    l.shadowBlur = this.u * 0.4;
+    for (let i = 0; i < n; i++) {
+      const d = (((i * spacing + phase) % total) + total) % total;
+      const p = pointAlong(points, d).p;
+      const q = pointAlong(points, Math.min(total, d + 1)).p;
+      const a = Math.atan2(q[1] - p[1], q[0] - p[0]);
+      l.beginPath();
+      l.moveTo(p[0] - s * Math.cos(a - 0.6), p[1] - s * Math.sin(a - 0.6));
+      l.lineTo(p[0], p[1]);
+      l.lineTo(p[0] - s * Math.cos(a + 0.6), p[1] - s * Math.sin(a + 0.6));
+      l.stroke();
+    }
+    l.restore();
+  }
+
   lightRect(x: number, y: number, w: number, h: number, color: string, alpha = 0.6) {
     const l = this.lctx;
     l.save();
@@ -275,3 +347,15 @@ export function pointAlong(points: Pt[], s: number): { p: Pt; total: number } {
   }
   return { p: points[points.length - 1], total };
 }
+
+function mixColor(c0: string, c1: string, t: number, alpha: number): string {
+  const p = (h: string) => {
+    const n = parseInt(h.replace('#', ''), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const a = p(c0);
+  const b = p(c1);
+  const k = Math.max(0, Math.min(1, t));
+  return `rgba(${Math.round(a[0] + (b[0] - a[0]) * k)}, ${Math.round(a[1] + (b[1] - a[1]) * k)}, ${Math.round(a[2] + (b[2] - a[2]) * k)}, ${alpha})`;
+}
+

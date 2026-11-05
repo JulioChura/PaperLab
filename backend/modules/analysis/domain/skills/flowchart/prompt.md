@@ -26,3 +26,4 @@ El frontend la usa como un debugger paso a paso. Reglas:
 - `output` solo cuando el paso imprime algo. `call_stack` en recursión: marcos activos de abajo hacia arriba.
 - Si el diagrama lee datos (Leer N), elige un valor de ejemplo razonable y menciónalo en `description`.
 
+- Si la traza recorre un ÁRBOL o GRAFO (BFS/DFS), llena `graph_nodes`, `graph_edges`, `traversal`, y en cada fila incluye `actual`, `cola`/`pila` y `visitados` (arreglos como JSON).

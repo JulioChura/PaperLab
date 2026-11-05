@@ -1,0 +1,31 @@
+{
+  "title": "Rampa de 37° con fricción alta",
+  "exercise_id": "inclined_plane",
+  "exercise_type": "inclined_plane",
+  "exercise_name": "Rampa de 37° con fricción alta",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "inclined_plane",
+    "angle_degrees": 37,
+    "mass_kg": 5,
+    "friction_coefficient": 0.3,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 3.55,
+    "weight_n": 49,
+    "normal_force_n": 39.13,
+    "friction_force_n": 11.74
+  },
+  "explanation": "Bloque de 5 kg sobre una rampa de 37° con μ = 0.3; parte del reposo y recorre 4 m.",
+  "question": "Hallar la aceleración, la fricción y el tiempo en recorrer 4 m",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

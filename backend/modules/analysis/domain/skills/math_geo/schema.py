@@ -58,7 +58,7 @@ class EquationSolverSimulation(BaseModel):
         default=None,
         description="La misma ecuación en texto plano ASCII, usando ^ para potencias y * opcional (ej: 'x^2 + 2x - 3 = 0')",
     )
-    equation_type: Literal["linear", "quadratic", "system_2x2", "exponential"] = Field(
+    equation_type: Literal["linear", "quadratic", "system_2x2", "exponential", "inequality"] = Field(
         ..., description="Clase de ecuación algebraica"
     )
     discriminant_delta: Optional[float] = Field(default=None, description="Discriminante b^2 - 4ac para cuadráticas")
@@ -70,7 +70,7 @@ class EquationSolverSimulation(BaseModel):
 class GeometricAnglesSimulation(BaseModel):
     """4.5. Cálculo de Ángulos en Figuras Geométricas."""
     exercise_type: Literal["geometric_angles"] = "geometric_angles"
-    problem_type: Literal["parallel_transversal", "triangle_cevian", "inscribed_quadrilateral", "general_polygon"] = Field(
+    problem_type: Literal["parallel_transversal", "triangle_cevian", "inscribed_quadrilateral", "general_polygon", "triangle_congruence"] = Field(
         ..., description="Configuración angular de examen de admisión"
     )
     known_angles_deg: dict[str, float] = Field(default_factory=dict, description="Ángulos y etiquetas conocidas (ej: {'alpha': 40.0})")

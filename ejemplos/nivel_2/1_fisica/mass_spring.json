@@ -1,0 +1,29 @@
+{
+  "title": "Oscilador amortiguado",
+  "exercise_id": "mass_spring",
+  "exercise_type": "mass_spring",
+  "exercise_name": "Oscilador amortiguado",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "mass_spring",
+    "spring_constant_k_n_m": 150,
+    "mass_kg": 0.8,
+    "initial_displacement_m": 0.25,
+    "damping_coefficient": 1.2,
+    "angular_frequency_rad_s": 13.69,
+    "period_s": 0.46
+  },
+  "explanation": "Masa de 0.8 kg en un resorte de 150 N/m, estirada 0.25 m, con amortiguamiento b = 1.2 kg/s.",
+  "question": "Hallar ω, el periodo y cómo decae la amplitud",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

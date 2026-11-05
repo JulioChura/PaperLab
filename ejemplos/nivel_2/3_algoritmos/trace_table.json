@@ -1,0 +1,93 @@
+{
+  "title": "Traza de Fibonacci",
+  "exercise_id": "trace_table",
+  "exercise_type": "trace_table",
+  "exercise_name": "Traza de Fibonacci",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "trace_table",
+    "watched_variables": [
+      "a",
+      "b",
+      "t"
+    ],
+    "rows": [
+      {
+        "iteration": 0,
+        "variables": {
+          "a": "0",
+          "b": "1",
+          "t": "-"
+        },
+        "condition_evaluated": "k<5 V"
+      },
+      {
+        "iteration": 1,
+        "variables": {
+          "a": "1",
+          "b": "1",
+          "t": "1"
+        },
+        "condition_evaluated": "k<5 V"
+      },
+      {
+        "iteration": 2,
+        "variables": {
+          "a": "1",
+          "b": "2",
+          "t": "2"
+        },
+        "condition_evaluated": "k<5 V"
+      },
+      {
+        "iteration": 3,
+        "variables": {
+          "a": "2",
+          "b": "3",
+          "t": "3"
+        },
+        "condition_evaluated": "k<5 V"
+      },
+      {
+        "iteration": 4,
+        "variables": {
+          "a": "3",
+          "b": "5",
+          "t": "5"
+        },
+        "condition_evaluated": "k<5 V"
+      },
+      {
+        "iteration": 5,
+        "variables": {
+          "a": "5",
+          "b": "8",
+          "t": "8"
+        },
+        "condition_evaluated": "k<5 F"
+      }
+    ],
+    "initial_memory": {
+      "a": "0",
+      "b": "1"
+    },
+    "final_memory": {
+      "a": "5",
+      "b": "8",
+      "t": "8"
+    }
+  },
+  "explanation": "a, b = 0, 1 y se repite t = a + b; a = b; b = t cinco veces.",
+  "question": "Completar la tabla de traza de a, b y t",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

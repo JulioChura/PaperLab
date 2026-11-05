@@ -316,86 +316,138 @@ class Projectile extends PhysicsSim {
 }
 
 // =====================================================================================
-// 4. Masa-resorte (Hooke, con amortiguamiento)
+// 4. Masa-resorte (Hooke, con amortiguamiento): gráfica x(t) tipo sismógrafo bajo el bloque
 // =====================================================================================
 class MassSpring extends PhysicsSim {
   controls: SimControl[] = [
     PLAY, RESET,
     { id: 'k', kind: 'slider', label: 'Rigidez k', min: 5, max: 400, step: 5, unit: 'N/m' },
     { id: 'm', kind: 'slider', label: 'Masa m', min: 0.1, max: 5, step: 0.1, unit: 'kg' },
+    { id: 'b', kind: 'slider', label: 'Amortig. b', min: 0, max: 5, step: 0.1, unit: 'kg/s' },
   ];
-  private hist: number[] = [];
-  constructor(k: number, m: number, private A: number, private b: number) {
-    super({ k, m });
+  private hist: [number, number][] = [];
+  constructor(k: number, m: number, private A: number, b: number) {
+    super({ k, m, b });
   }
   reset() {
     super.reset();
     this.hist = [];
   }
+  private gamma() {
+    return this.n('b') / (2 * this.n('m'));
+  }
   x(t = this.t) {
     const m = this.n('m');
     const w0 = Math.sqrt(this.n('k') / m);
-    const gamma = this.b / (2 * m);
-    const wd = Math.sqrt(Math.max(1e-6, w0 * w0 - gamma * gamma));
-    return this.A * Math.exp(-gamma * t) * Math.cos(wd * t);
+    const g = this.gamma();
+    const wd = Math.sqrt(Math.max(1e-6, w0 * w0 - g * g));
+    return this.A * Math.exp(-g * t) * Math.cos(wd * t);
   }
   step(dt: number) {
     this.t += dt;
-    this.hist.push(this.x());
-    if (this.hist.length > 140) this.hist.shift();
+    this.hist.push([this.t, this.x()]);
+    const window = this.window();
+    while (this.hist.length && this.hist[0][0] < this.t - window) this.hist.shift();
+  }
+  private window() {
+    const T = (2 * Math.PI) / Math.sqrt(this.n('k') / this.n('m'));
+    return clamp(T * 6, 2, 8);
   }
   draw(fc: FigureCanvas) {
     const { w, h, u } = fc;
     const wallX = u * 1.6;
-    const yc = h * 0.36;
-    const eq = w * 0.55; // posición de equilibrio
-    const amp = Math.min(w * 0.28, u * 7);
+    const yc = u * 3.2;
+    const eq = w * 0.52;
+    const amp = Math.min(w * 0.3, u * 8);
     const A = Math.abs(this.A) || 1;
-    const bx = eq + (this.x() / A) * amp;
-    const s = u * 2.4;
-    fc.hatch(wallX, yc - s * 1.2, wallX, yc + s * 1.2, -1);
-    fc.hatch(wallX, yc + s * 0.6, w - u, yc + s * 0.6, -1);
-    fc.spring(wallX, yc, bx - s / 2, yc, 10, u * 0.55);
+    const X = (x: number) => eq + (x / A) * amp;
+    const bx = X(this.x());
+    const s = u * 2.2;
+    fc.hatch(wallX, yc - s, wallX, yc + s * 0.6, -1);
+    fc.hatch(wallX, yc + s * 0.5, w - u, yc + s * 0.5, -1);
+    fc.spring(wallX, yc, bx - s / 2, yc, 10, u * 0.5);
     fc.rect(bx - s / 2, yc - s / 2, s, s, 'ink', 1, 'ink');
     fc.text('m', bx, yc + u * 0.35, 0.8, 'ink', 'center');
-    fc.line(eq, yc - s, eq, yc + s * 0.6, 'pencil', 0.6, true);
-    fc.text('x = 0', eq, yc - s * 1.1, 0.75, 'pencil', 'center');
-    fc.arrow(eq, yc - s * 0.85, bx, yc - s * 0.85, 'pencil', 0.7);
-    // traza x(t) en vivo debajo
-    const gy = h * 0.8;
-    const gh = h * 0.16;
-    fc.line(u, gy, w - u, gy, 'ink', 0.5);
-    fc.text('x(t)', u, gy - gh - u * 0.2, 0.75, 'ink');
-    const pts = this.hist.map((v, i) => [w - u - (this.hist.length - 1 - i) * ((w - u * 2) / 140), gy - (v / A) * gh] as [number, number]);
-    fc.path(pts, 'pencil', 1, true);
-    fc.glow(bx, yc, s, '#a855f7', 0.25);
+    fc.text('x = 0', eq, yc - s * 0.85, 0.7, 'pencil', 'center');
+    // gráfica x(t) DEBAJO del bloque: mismo eje x que el movimiento, el tiempo corre hacia abajo
+    const gy0 = yc + s * 1.1;
+    const gy1 = h - u * 1.2;
+    const window = this.window();
+    const Yt = (ti: number) => gy0 + ((this.t - ti) / window) * (gy1 - gy0);
+    fc.line(eq, yc - s * 0.6, eq, gy1, 'pencil', 0.6, true);
+    fc.line(X(-A), gy0, X(A), gy0, 'ink', 0.5);
+    fc.text('−A', X(-A), gy0 - u * 0.3, 0.6, 'ink', 'center');
+    fc.text('+A', X(A), gy0 - u * 0.3, 0.6, 'ink', 'center');
+    fc.arrow(w - u * 1.2, gy0, w - u * 1.2, gy1, 'ink', 0.6);
+    fc.text('t', w - u * 0.6, gy1 - u * 0.2, 0.7, 'ink');
+    // envolvente ±A·e^(−γt): muestra cómo decae la amplitud
+    if (this.gamma() > 1e-6) {
+      const env: [number, number][] = [];
+      const envN: [number, number][] = [];
+      for (let i = 0; i <= 30; i++) {
+        const ti = Math.max(0, this.t - (window * i) / 30);
+        const e = Math.exp(-this.gamma() * ti);
+        env.push([X(A * e), Yt(ti)]);
+        envN.push([X(-A * e), Yt(ti)]);
+      }
+      fc.path(env, 'ink', 0.6, true, true);
+      fc.path(envN, 'ink', 0.6, true, true);
+      fc.text('A·e^(−bt/2m)', X(A * Math.exp(-this.gamma() * this.t)) + u * 0.4, gy0 + u * 1.2, 0.6, 'ink');
+    }
+    const pts = this.hist.map(([ti, xi]) => [X(xi), Yt(ti)] as [number, number]);
+    fc.path(pts, 'pencil', 1.1, true);
+    // "aguja" del sismógrafo: conecta el bloque con su trazo
+    fc.line(bx, yc + s / 2, bx, gy0, 'pencil', 0.5, true);
+    fc.circle(bx, gy0, u * 0.45, 'pencil', 1, 'solid');
+    fc.glow(bx, gy0, u * 1.2, '#a855f7', 0.6);
+    fc.glow(bx, yc, s, '#a855f7', 0.2);
   }
   readouts() {
     const omega = Math.sqrt(this.n('k') / this.n('m'));
     return [
       { label: 'x', value: `${f(this.x(), 3)} m` },
+      { label: 'Amplitud', value: `${f(Math.abs(this.A) * Math.exp(-this.gamma() * this.t), 3)} m` },
       { label: 'ω', value: `${f(omega)} rad/s` },
       { label: 'T', value: `${f((2 * Math.PI) / omega)} s` },
-      { label: 't', value: `${f(this.t, 1)} s` },
     ];
   }
 }
 
 // =====================================================================================
-// 5. MRU / MRUV
+// 5. MRU / MRUV (uno o dos móviles; con dos, punto de encuentro)
 // =====================================================================================
 class Rectilinear extends PhysicsSim {
-  controls: SimControl[] = [
-    PLAY, RESET,
-    { id: 'v0', kind: 'slider', label: 'Velocidad v₀', min: -10, max: 30, step: 0.5, unit: 'm/s' },
-    { id: 'a', kind: 'slider', label: 'Aceleración a', min: -5, max: 5, step: 0.1, unit: 'm/s²' },
-  ];
+  controls: SimControl[];
   private hold = 0;
-  constructor(private x0: number, v0: number, a: number, private T: number) {
-    super({ v0, a });
+  constructor(private x0: number, v0: number, a: number, private T: number, private second: { x0: number; v0: number; a: number } | null) {
+    super({ v0, a, v2: second?.v0 ?? 0 });
+    this.controls = [
+      PLAY, RESET,
+      { id: 'v0', kind: 'slider', label: second ? 'v₀ móvil A' : 'Velocidad v₀', min: -30, max: 30, step: 0.5, unit: 'm/s' },
+      { id: 'a', kind: 'slider', label: second ? 'a móvil A' : 'Aceleración a', min: -5, max: 5, step: 0.1, unit: 'm/s²' },
+    ];
+    if (second) this.controls.push({ id: 'v2', kind: 'slider', label: 'v₀ móvil B', min: -30, max: 30, step: 0.5, unit: 'm/s' });
   }
   pos(t: number) {
     return this.x0 + this.n('v0') * t + 0.5 * this.n('a') * t * t;
+  }
+  pos2(t: number) {
+    const s = this.second!;
+    return s.x0 + this.n('v2') * t + 0.5 * s.a * t * t;
+  }
+  /** Primer instante t > 0 en que ambos móviles coinciden. */
+  meeting(): number | null {
+    if (!this.second) return null;
+    const A = 0.5 * (this.n('a') - this.second.a);
+    const B = this.n('v0') - this.n('v2');
+    const C = this.x0 - this.second.x0;
+    const roots = Math.abs(A) < 1e-9 ? (Math.abs(B) < 1e-9 ? [] : [-C / B]) : (() => {
+      const D = B * B - 4 * A * C;
+      if (D < 0) return [];
+      return [(-B - Math.sqrt(D)) / (2 * A), (-B + Math.sqrt(D)) / (2 * A)];
+    })();
+    const ok = roots.filter((r) => r > 1e-6).sort((p, q) => p - q);
+    return ok[0] ?? null;
   }
   reset() {
     super.reset();
@@ -409,73 +461,105 @@ class Rectilinear extends PhysicsSim {
     }
     this.t = Math.min(this.T, this.t + dt * Math.max(1, this.T / 5));
   }
-  draw(fc: FigureCanvas) {
-    const { w, h, u } = fc;
-    const samples = Array.from({ length: 41 }, (_, i) => this.pos((this.T * i) / 40));
-    const lo = Math.min(...samples, this.x0);
-    const hi = Math.max(...samples, this.x0 + 1);
-    const pad = u * 2;
-    const X = (x: number) => pad + ((x - lo) / (hi - lo)) * (w - pad * 2);
-    const road = h * 0.62;
-    fc.line(u * 0.5, road, w - u * 0.5, road, 'ink');
-    // regla con marcas
-    const step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 5)));
-    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
-      fc.line(X(v), road, X(v), road + u * 0.4, 'ink', 0.6);
-      fc.text(f(v, 1), X(v), road + u * 1.4, 0.7, 'ink', 'center');
-    }
-    fc.text('x (m)', w - u * 0.5, road + u * 2.6, 0.7, 'ink', 'right');
-    // huellas cada 0.5 s: equiespaciadas en MRU, crecientes en MRUV
-    const dtMark = this.T / 10;
-    for (let tt = 0; tt <= this.t + 1e-9; tt += dtMark) {
-      fc.circle(X(this.pos(tt)), road - u * 0.25, u * 0.35, 'pencil', 1, 'solid');
-    }
-    // móvil
-    const cx = X(this.pos(this.t));
+  private car(fc: FigureCanvas, cx: number, road: number, facing: 1 | -1, label: string, v: number) {
+    const u = fc.u;
     const cw = u * 3;
-    const chh = u * 1.4;
+    const chh = u * 1.3;
     fc.rect(cx - cw / 2, road - chh - u * 0.6, cw, chh, 'ink', 1, 'ink');
+    fc.rect(cx - cw * 0.2 + facing * cw * 0.05, road - chh - u * 1.3, cw * 0.4, u * 0.7, 'ink', 0.8);
     fc.circle(cx - cw * 0.3, road - u * 0.45, u * 0.8, 'ink');
     fc.circle(cx + cw * 0.3, road - u * 0.45, u * 0.8, 'ink');
-    const v = this.n('v0') + this.n('a') * this.t;
-    fc.arrow(cx, road - chh - u * 1.3, cx + clamp(v, -20, 20) * u * 0.25, road - chh - u * 1.3, 'pencil');
-    fc.text('v = ' + f(v, 1) + ' m/s', cx, road - chh - u * 2, 0.8, 'pencil', 'center');
-    fc.text(Math.abs(this.n('a')) < 1e-9 ? 'MRU' : 'MRUV', u, u * 1.2, 0.9, 'pencil');
+    fc.text(label, cx, road - chh * 0.25 - u * 0.4, 0.7, 'ink', 'center');
+    fc.arrow(cx, road - chh - u * 1.9, cx + clamp(v, -20, 20) * u * 0.22, road - chh - u * 1.9, 'pencil');
+    fc.text(`${f(v, 1)} m/s`, cx, road - chh - u * 2.5, 0.7, 'pencil', 'center');
     fc.glow(cx, road - chh / 2 - u * 0.6, cw * 0.7, '#a855f7', 0.22);
   }
+  draw(fc: FigureCanvas) {
+    const { w, h, u } = fc;
+    const ts = Array.from({ length: 41 }, (_, i) => (this.T * i) / 40);
+    const samples = [...ts.map((t) => this.pos(t)), ...(this.second ? ts.map((t) => this.pos2(t)) : []), this.x0];
+    const lo = Math.min(...samples);
+    const hi = Math.max(...samples, lo + 1);
+    const pad = u * 2.2;
+    const X = (x: number) => pad + ((x - lo) / (hi - lo)) * (w - pad * 2);
+    const lanes = this.second ? [h * 0.42, h * 0.74] : [h * 0.62];
+    lanes.forEach((y) => fc.line(u * 0.5, y, w - u * 0.5, y, 'ink'));
+    const ruler = lanes[lanes.length - 1];
+    const step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 5)));
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+      fc.line(X(v), ruler, X(v), ruler + u * 0.4, 'ink', 0.6);
+      fc.text(f(v, 1), X(v), ruler + u * 1.4, 0.65, 'ink', 'center');
+    }
+    fc.text('x (m)', w - u * 0.5, ruler + u * 2.6, 0.7, 'ink', 'right');
+    const dtMark = this.T / 10;
+    for (let tt = 0; tt <= this.t + 1e-9; tt += dtMark) {
+      fc.circle(X(this.pos(tt)), lanes[0] - u * 0.25, u * 0.33, 'pencil', 1, 'solid');
+      if (this.second) fc.circle(X(this.pos2(tt)), lanes[1] - u * 0.25, u * 0.33, 'pencil', 1, 'solid');
+    }
+    const v1 = this.n('v0') + this.n('a') * this.t;
+    this.car(fc, X(this.pos(this.t)), lanes[0], v1 >= 0 ? 1 : -1, this.second ? 'A' : '', v1);
+    if (this.second) {
+      const v2 = this.n('v2') + this.second.a * this.t;
+      this.car(fc, X(this.pos2(this.t)), lanes[1], v2 >= 0 ? 1 : -1, 'B', v2);
+      const tm = this.meeting();
+      if (tm !== null && tm <= this.T) {
+        const xm = this.pos(tm);
+        fc.line(X(xm), u * 0.8, X(xm), ruler, 'pencil', 0.7, true);
+        const reached = this.t >= tm;
+        fc.text(`encuentro: t = ${f(tm)} s, x = ${f(xm)} m`, X(xm), u * 1.1, 0.68, reached ? 'pencil' : 'ink', X(xm) > w * 0.6 ? 'right' : 'left');
+        if (reached) fc.glow(X(xm), (lanes[0] + lanes[1]) / 2, u * 3, '#a855f7', 0.5);
+      }
+    } else {
+      fc.text(Math.abs(this.n('a')) < 1e-9 ? 'MRU' : 'MRUV', u, u * 1.2, 0.9, 'pencil');
+    }
+  }
   readouts() {
-    return [
+    const out = [
       { label: 't', value: `${f(this.t, 1)} s` },
-      { label: 'x', value: `${f(this.pos(this.t))} m` },
-      { label: 'v', value: `${f(this.n('v0') + this.n('a') * this.t)} m/s` },
+      { label: this.second ? 'xA' : 'x', value: `${f(this.pos(this.t))} m` },
+      { label: this.second ? 'vA' : 'v', value: `${f(this.n('v0') + this.n('a') * this.t)} m/s` },
     ];
+    if (this.second) {
+      out.push({ label: 'xB', value: `${f(this.pos2(this.t))} m` });
+      const tm = this.meeting();
+      out.push({ label: 'Encuentro', value: tm === null ? 'no se cruzan' : `${f(tm)} s` });
+    }
+    return out;
   }
 }
 
 // =====================================================================================
-// 6. Máquina de Atwood
+// 6. Máquina de Atwood (una polea, o dos poleas con una masa sobre la mesa)
 // =====================================================================================
 class Atwood extends PhysicsSim {
-  controls: SimControl[] = [
-    PLAY, RESET,
-    { id: 'm1', kind: 'slider', label: 'Masa m₁', min: 0.2, max: 10, step: 0.1, unit: 'kg' },
-    { id: 'm2', kind: 'slider', label: 'Masa m₂', min: 0.2, max: 10, step: 0.1, unit: 'kg' },
-  ];
-  y = 0; // desplazamiento de m2 hacia abajo (m)
+  controls: SimControl[];
+  y = 0;
   v = 0;
   private hold = 0;
-  constructor(m1: number, m2: number, private g: number) {
-    super({ m1, m2 });
+  constructor(m1: number, m2: number, private g: number, private m3: number | null, mu: number) {
+    super({ m1, m2, mu });
+    this.controls = [
+      PLAY, RESET,
+      { id: 'm1', kind: 'slider', label: 'Masa m₁', min: 0.2, max: 10, step: 0.1, unit: 'kg' },
+      { id: 'm2', kind: 'slider', label: 'Masa m₂', min: 0.2, max: 10, step: 0.1, unit: 'kg' },
+    ];
+    if (m3) this.controls.push({ id: 'mu', kind: 'slider', label: 'Fricción mesa μ', min: 0, max: 0.8, step: 0.01 });
   }
+  /** Aceleración (positiva: baja m2). Con mesa: fricción cinética sobre m3. */
   get a() {
     const m1 = this.n('m1');
     const m2 = this.n('m2');
-    return ((m2 - m1) * this.g) / (m1 + m2);
+    if (!this.m3) return ((m2 - m1) * this.g) / (m1 + m2);
+    const drive = (m2 - m1) * this.g;
+    const fr = this.n('mu') * this.m3 * this.g;
+    if (Math.abs(drive) <= fr) return 0; // la fricción lo mantiene en reposo
+    return (drive - Math.sign(drive) * fr) / (m1 + m2 + this.m3);
   }
-  get T() {
-    const m1 = this.n('m1');
-    const m2 = this.n('m2');
-    return (2 * m1 * m2 * this.g) / (m1 + m2);
+  get T1() {
+    return this.n('m1') * (this.g + this.a);
+  }
+  get T2() {
+    return this.n('m2') * (this.g - this.a);
   }
   reset() {
     super.reset();
@@ -484,7 +568,7 @@ class Atwood extends PhysicsSim {
     this.hold = 0;
   }
   step(dt: number) {
-    const limit = 1; // recorrido máximo (m)
+    const limit = 1;
     if (Math.abs(this.y) >= limit || Math.abs(this.a) < 1e-9) {
       this.hold += dt;
       if (this.hold > 1.4) this.reset();
@@ -494,45 +578,83 @@ class Atwood extends PhysicsSim {
     this.v += this.a * dt;
     this.y = clamp(this.y + this.v * dt, -limit, limit);
   }
-  draw(fc: FigureCanvas) {
-    const { w, h, u } = fc;
-    const cx = w / 2;
-    const r = Math.min(w * 0.16, u * 2.6);
-    const py = u * 1.2 + r + u;
-    fc.hatch(cx - r * 2, u * 1.2, cx + r * 2, u * 1.2, 1);
-    fc.line(cx, u * 1.2, cx, py, 'ink');
-    fc.circle(cx, py, r * 2, 'ink');
-    const rot = (this.y / r) * 60;
+  private box(fc: FigureCanvas, x: number, y: number, m: number, label: string, ropeFrom: number) {
+    const u = fc.u;
+    const s = clamp(u * 1.6 * Math.cbrt(m / 2), u * 1.4, u * 3);
+    fc.line(x, ropeFrom, x, y, 'ink');
+    fc.rect(x - s / 2, y, s, s, 'ink', 1, 'ink');
+    fc.text(label, x, y + s / 2 + u * 0.35, 0.72, 'ink', 'center');
+    fc.text(f(m, 1) + ' kg', x + s / 2 + u * 0.3, y + s / 2, 0.66, 'pencil');
+    fc.glow(x, y + s / 2, s, '#a855f7', 0.18);
+  }
+  private pulley(fc: FigureCanvas, cx: number, cy: number, r: number) {
+    fc.circle(cx, cy, r * 2, 'ink');
+    fc.circle(cx, cy, r * 0.3, 'ink', 1, 'solid');
+    const rot = (this.y / 0.12) % (Math.PI * 2);
     for (let i = 0; i < 3; i++) {
       const a = rot + (i * Math.PI * 2) / 3;
-      fc.line(cx, py, cx + Math.cos(a) * r * 0.85, py + Math.sin(a) * r * 0.85, 'ink', 0.6);
+      fc.line(cx, cy, cx + Math.cos(a) * r * 0.85, cy + Math.sin(a) * r * 0.85, 'ink', 0.6);
     }
-    const travel = (h - py - u * 4) / 2.4;
-    const base = py + (h - py) * 0.42;
-    const y1 = base - this.y * travel;
-    const y2 = base + this.y * travel;
-    const box = (x: number, y: number, m: number, label: string) => {
-      const s = clamp(u * 1.6 * Math.cbrt(m / 2), u * 1.4, u * 3.2);
-      fc.line(x, py, x, y, 'ink');
-      fc.rect(x - s / 2, y, s, s, 'ink', 1, 'ink');
-      fc.text(label, x, y + s / 2 + u * 0.35, 0.75, 'ink', 'center');
-      fc.text(f(m, 1) + ' kg', x + s / 2 + u * 0.3, y + s / 2, 0.7, 'pencil');
-      fc.glow(x, y + s / 2, s, '#a855f7', 0.18);
-    };
-    box(cx - r, y1, this.n('m1'), 'm₁');
-    box(cx + r, y2, this.n('m2'), 'm₂');
-    const down = this.a >= 0 ? cx + r : cx - r;
-    fc.arrow(down + r * 0.9, base, down + r * 0.9, base + u * 2.4, 'pencil');
-    fc.text('a', down + r * 0.9 + u * 0.4, base + u * 1.4, 0.8, 'pencil');
+  }
+  draw(fc: FigureCanvas) {
+    const { w, h, u } = fc;
+    if (!this.m3) {
+      const cx = w / 2;
+      const r = Math.min(w * 0.16, u * 2.6);
+      const py = u * 1.2 + r + u;
+      fc.hatch(cx - r * 2, u * 1.2, cx + r * 2, u * 1.2, 1);
+      fc.line(cx, u * 1.2, cx, py, 'ink');
+      this.pulley(fc, cx, py, r);
+      const travel = (h - py - u * 4) / 2.4;
+      const base = py + (h - py) * 0.42;
+      this.box(fc, cx - r, base - this.y * travel, this.n('m1'), 'm₁', py);
+      this.box(fc, cx + r, base + this.y * travel, this.n('m2'), 'm₂', py);
+      const down = this.a >= 0 ? cx + r : cx - r;
+      fc.arrow(down + r * 0.9, base, down + r * 0.9, base + u * 2.4, 'pencil');
+      fc.text('a', down + r * 0.9 + u * 0.4, base + u * 1.4, 0.8, 'pencil');
+      fc.hatch(u, h - u * 0.6, w - u, h - u * 0.6, -1);
+      return;
+    }
+    // dos poleas en los bordes de una mesa; m3 desliza sobre ella
+    const r = u * 1.4;
+    const tableY = h * 0.34;
+    const tl = w * 0.22;
+    const tr = w * 0.78;
+    fc.rect(tl, tableY, tr - tl, u * 0.9, 'ink', 1);
+    fc.line(tl + u, tableY + u * 0.9, tl + u, h - u * 0.6, 'ink', 0.8);
+    fc.line(tr - u, tableY + u * 0.9, tr - u, h - u * 0.6, 'ink', 0.8);
     fc.hatch(u, h - u * 0.6, w - u, h - u * 0.6, -1);
+    const p1: [number, number] = [tl - r * 0.2, tableY - r * 0.1];
+    const p2: [number, number] = [tr + r * 0.2, tableY - r * 0.1];
+    this.pulley(fc, p1[0], p1[1], r);
+    this.pulley(fc, p2[0], p2[1], r);
+    const travel = (tr - tl) * 0.18;
+    const bs = u * 2.6;
+    const bx = (tl + tr) / 2 + this.y * travel;
+    fc.rect(bx - bs / 2, tableY - bs, bs, bs, 'ink', 1, 'ink');
+    fc.text('m₃', bx, tableY - bs / 2 + u * 0.35, 0.72, 'ink', 'center');
+    fc.text(`${f(this.m3, 1)} kg  μ = ${f(this.n('mu'))}`, bx, tableY - bs - u * 0.5, 0.62, 'pencil', 'center');
+    // cuerdas horizontales hasta las poleas
+    fc.line(p1[0], p1[1] - r, bx - bs / 2, tableY - bs / 2, 'ink', 0.9);
+    fc.line(bx + bs / 2, tableY - bs / 2, p2[0], p2[1] - r, 'ink', 0.9);
+    const base = tableY + (h - tableY) * 0.32;
+    const vt = (h - base - u * 4) * 0.5;
+    this.box(fc, p1[0] - r, base - this.y * vt, this.n('m1'), 'm₁', p1[1]);
+    this.box(fc, p2[0] + r, base + this.y * vt, this.n('m2'), 'm₂', p2[1]);
+    if (Math.abs(this.a) > 1e-9) {
+      const dir = this.a > 0 ? 1 : -1;
+      fc.arrow(bx - dir * u * 1.5, tableY - bs - u * 1.6, bx + dir * u * 1.5, tableY - bs - u * 1.6, 'pencil');
+      fc.text('a', bx, tableY - bs - u * 2.1, 0.75, 'pencil', 'center');
+    } else fc.text('en reposo (la fricción lo sostiene)', w / 2, u * 1.2, 0.7, 'pencil', 'center');
   }
   readouts() {
-    return [
+    const out = [
       { label: 'a', value: `${f(Math.abs(this.a))} m/s²` },
-      { label: 'T', value: `${f(this.T)} N` },
-      { label: 'v', value: `${f(Math.abs(this.v))} m/s` },
-      { label: 't', value: `${f(this.t, 1)} s` },
+      { label: this.m3 ? 'T₁' : 'T', value: `${f(this.m3 ? this.T1 : (2 * this.n('m1') * this.n('m2') * this.g) / (this.n('m1') + this.n('m2')))} N` },
     ];
+    if (this.m3) out.push({ label: 'T₂', value: `${f(this.T2)} N` });
+    out.push({ label: 'v', value: `${f(Math.abs(this.v))} m/s` });
+    return out;
   }
 }
 
@@ -607,15 +729,20 @@ export function physicsPlan(exerciseType: string, d: Record<string, unknown>): S
       const A = num(d.initial_displacement_m, 0.2) || 0.2;
       const b = Math.max(0, num(d.damping_coefficient, 0));
       const w = Math.sqrt(k / m);
+      const gamma = b / (2 * m);
+      const lines: SolutionLine[] = [
+        line('Frecuencia angular', `ω = √(k/m) = ${f(w)} rad/s`),
+        line('Período', `T = 2π/ω = ${f((2 * Math.PI) / w)} s   Fmax = k·A = ${f(k * Math.abs(A))} N`),
+      ];
+      if (b > 0) {
+        lines.push(line('Decaimiento', `A(t) = A·e^(-bt/2m)   A(${f((2 * Math.PI) / w)} s) = ${f(Math.abs(A) * Math.exp((-gamma * 2 * Math.PI) / w), 3)} m`));
+        lines.push(line('Resultado', `Cada período la amplitud se reduce al ${f(100 * Math.exp((-gamma * 2 * Math.PI) / w), 0)} %`, true));
+      } else lines.push(line('Resultado', `x(t) = ${f(A)}·cos(${f(w)}t) m`, true));
       return {
         ...base,
-        summary: 'Sistema masa-resorte (Ley de Hooke)',
-        lines: [
-          line('Frecuencia angular', `ω = √(k/m) = ${f(w)} rad/s`),
-          line('Período', `T = 2π/ω = ${f((2 * Math.PI) / w)} s`),
-          line('Fuerza máxima', `F = k·A = ${f(k * Math.abs(A))} N`, true),
-        ],
-        figure: spec('Masa-resorte', 1.9, () => new MassSpring(k, m, A, b), 16),
+        summary: b > 0 ? 'Oscilador amortiguado' : 'Sistema masa-resorte (Ley de Hooke)',
+        lines,
+        figure: spec('Masa-resorte', 1.25, () => new MassSpring(k, m, A, b), 16),
       };
     }
     case 'rectilinear_motion': {
@@ -623,6 +750,22 @@ export function physicsPlan(exerciseType: string, d: Record<string, unknown>): S
       const v0 = num(d.initial_velocity_m_s, 5);
       const a = d.motion_type === 'MRU' ? 0 : num(d.acceleration_m_s2, 0);
       const T = Math.max(0.5, num(d.total_time_s, 5));
+      const two = d.second_initial_velocity_m_s !== undefined && d.second_initial_velocity_m_s !== null;
+      if (two) {
+        const second = { x0: num(d.second_initial_position_m, 100), v0: num(d.second_initial_velocity_m_s, -10), a: num(d.second_acceleration_m_s2, 0) };
+        const sim = new Rectilinear(x0, v0, a, T, second);
+        const tm = sim.meeting();
+        return {
+          ...base,
+          summary: 'Encuentro de dos móviles',
+          lines: [
+            line('Ecuaciones', `xA = ${f(x0)} + ${f(v0)}t${a ? ` + ½(${f(a)})t^2` : ''}    xB = ${f(second.x0)} + (${f(second.v0)})t${second.a ? ` + ½(${f(second.a)})t^2` : ''}`),
+            line('Condición', 'Se encuentran cuando xA = xB'),
+            line('Resultado', tm === null ? 'No se encuentran' : `t = ${f(tm)} s   x = ${f(sim.pos(tm))} m`, true),
+          ],
+          figure: spec('Encuentro', 2, () => sim, 22),
+        };
+      }
       const vf = v0 + a * T;
       const x = x0 + v0 * T + 0.5 * a * T * T;
       return {
@@ -633,12 +776,29 @@ export function physicsPlan(exerciseType: string, d: Record<string, unknown>): S
           line('Velocidad final', `v = v0 + a·t = ${f(vf)} m/s`),
           line('Resultado', `x(${f(T)} s) = ${f(x)} m   d = ${f(Math.abs(x - x0))} m`, true),
         ],
-        figure: spec('MRU / MRUV', 2.2, () => new Rectilinear(x0, v0, a, T), 18),
+        figure: spec('MRU / MRUV', 2.2, () => new Rectilinear(x0, v0, a, T, null), 18),
       };
     }
     case 'atwood_machine': {
       const m1 = Math.max(0.01, num(d.mass_1_kg, 2));
       const m2 = Math.max(0.01, num(d.mass_2_kg, 3));
+      const m3 = d.mass_3_kg ? Math.max(0.01, num(d.mass_3_kg, 2)) : null;
+      const mu = Math.max(0, num(d.table_friction_coefficient, 0));
+      if (m3) {
+        const drive = (m2 - m1) * g;
+        const fr = mu * m3 * g;
+        const a = Math.abs(drive) <= fr ? 0 : (drive - Math.sign(drive) * fr) / (m1 + m2 + m3);
+        return {
+          ...base,
+          summary: 'Atwood con dos poleas y masa sobre la mesa',
+          lines: [
+            line('Fuerzas', `(m2 - m1)g = ${f(drive)} N   fr = μ·m3·g = ${f(fr)} N`),
+            line('Aceleración', `a = [(m2 - m1)g - μ·m3·g]/(m1 + m2 + m3) = ${f(Math.abs(a))} m/s^2`),
+            line('Tensiones', `T1 = m1(g + a) = ${f(m1 * (g + a))} N   T2 = m2(g - a) = ${f(m2 * (g - a))} N`, true),
+          ],
+          figure: spec('Atwood doble', 1.5, () => new Atwood(m1, m2, g, m3, mu), 18),
+        };
+      }
       const a = ((m2 - m1) * g) / (m1 + m2);
       return {
         ...base,
@@ -648,7 +808,7 @@ export function physicsPlan(exerciseType: string, d: Record<string, unknown>): S
           line('Tensión', `T = 2·m1·m2·g/(m1 + m2) = ${f((2 * m1 * m2 * g) / (m1 + m2))} N`),
           line('Resultado', Math.abs(a) < 1e-9 ? 'Masas iguales: equilibrio' : `Baja la masa ${a > 0 ? 'm2' : 'm1'}`, true),
         ],
-        figure: spec('Máquina de Atwood', 0.95, () => new Atwood(m1, m2, g), 10),
+        figure: spec('Máquina de Atwood', 0.95, () => new Atwood(m1, m2, g, null, 0), 10),
       };
     }
   }

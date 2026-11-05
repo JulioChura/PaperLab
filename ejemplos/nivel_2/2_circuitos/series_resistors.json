@@ -1,0 +1,38 @@
+{
+  "title": "Cuatro resistencias en serie",
+  "exercise_id": "series_resistors",
+  "exercise_type": "series_resistors",
+  "exercise_name": "Cuatro resistencias en serie",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "series_resistors",
+    "voltage_v": 24,
+    "resistors_ohms": [
+      47,
+      100,
+      220,
+      330
+    ],
+    "equivalent_resistance_ohms": 697,
+    "current_a": 0.0344,
+    "voltage_drops_v": [
+      1.62,
+      3.44,
+      7.57,
+      11.36
+    ]
+  },
+  "explanation": "Cuatro resistencias en serie alimentadas con 24 V.",
+  "question": "Hallar Req, la corriente y la caída de tensión en cada resistencia",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

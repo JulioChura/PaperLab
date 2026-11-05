@@ -1,0 +1,29 @@
+{
+  "title": "Pirámide cuadrangular",
+  "exercise_id": "geometry_3d",
+  "exercise_type": "geometry_3d",
+  "exercise_name": "Pirámide cuadrangular",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "geometry_3d",
+    "solid_type": "pyramid",
+    "edge_units": 6,
+    "height_units": 8,
+    "volume_units3": 96,
+    "total_area_units2": 134.88,
+    "formulas_applied": []
+  },
+  "explanation": "Pirámide regular de base cuadrada de lado 6 y altura 8.",
+  "question": "Hallar el volumen, la apotema y el área total",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

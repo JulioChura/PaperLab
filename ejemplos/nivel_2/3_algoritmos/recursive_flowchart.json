@@ -1,0 +1,185 @@
+{
+  "title": "Fibonacci recursivo",
+  "exercise_id": "recursive_flowchart",
+  "exercise_type": "recursive_flowchart",
+  "exercise_name": "Fibonacci recursivo",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "recursive_flowchart",
+    "function_name": "fib",
+    "base_case": "n <= 1 → n",
+    "recursive_call": "fib(n - 1) + fib(n - 2)",
+    "call_stack_trace": [
+      "fib(3)",
+      "fib(2)",
+      "fib(1)",
+      "fib(0)",
+      "fib(1)"
+    ],
+    "generated_code_py": "def fib(n):\n    if n <= 1:\n        return n\n    return fib(n - 1) + fib(n - 2)\n\nprint(fib(3))",
+    "execution": [
+      {
+        "step": 1,
+        "line_number": 6,
+        "description": "Se llama fib(3)",
+        "variables": {
+          "n": "3"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)"
+        ]
+      },
+      {
+        "step": 2,
+        "line_number": 4,
+        "description": "3 > 1 → llama fib(2)",
+        "variables": {
+          "n": "2"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(2)"
+        ]
+      },
+      {
+        "step": 3,
+        "line_number": 4,
+        "description": "2 > 1 → llama fib(1)",
+        "variables": {
+          "n": "1"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(2)",
+          "fib(1)"
+        ]
+      },
+      {
+        "step": 4,
+        "line_number": 3,
+        "description": "Caso base: fib(1) = 1",
+        "variables": {
+          "n": "1",
+          "retorno": "1"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(2)",
+          "fib(1)"
+        ]
+      },
+      {
+        "step": 5,
+        "line_number": 4,
+        "description": "fib(2) ahora llama fib(0)",
+        "variables": {
+          "n": "0"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(2)",
+          "fib(0)"
+        ]
+      },
+      {
+        "step": 6,
+        "line_number": 3,
+        "description": "Caso base: fib(0) = 0",
+        "variables": {
+          "n": "0",
+          "retorno": "0"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(2)",
+          "fib(0)"
+        ]
+      },
+      {
+        "step": 7,
+        "line_number": 4,
+        "description": "fib(2) = 1 + 0 = 1",
+        "variables": {
+          "n": "2",
+          "retorno": "1"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(2)"
+        ]
+      },
+      {
+        "step": 8,
+        "line_number": 4,
+        "description": "fib(3) ahora llama fib(1)",
+        "variables": {
+          "n": "1"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(1)"
+        ]
+      },
+      {
+        "step": 9,
+        "line_number": 3,
+        "description": "Caso base: fib(1) = 1",
+        "variables": {
+          "n": "1",
+          "retorno": "1"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)",
+          "fib(1)"
+        ]
+      },
+      {
+        "step": 10,
+        "line_number": 4,
+        "description": "fib(3) = 1 + 1 = 2",
+        "variables": {
+          "n": "3",
+          "retorno": "2"
+        },
+        "call_stack": [
+          "main",
+          "fib(3)"
+        ]
+      },
+      {
+        "step": 11,
+        "line_number": 6,
+        "description": "Imprime 2",
+        "variables": {
+          "retorno": "2"
+        },
+        "output": "2",
+        "call_stack": [
+          "main"
+        ]
+      }
+    ]
+  },
+  "explanation": "fib(n) = fib(n−1) + fib(n−2): dos llamadas recursivas por nivel.",
+  "question": "Hallar fib(3) y seguir la pila de llamadas",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

@@ -1,0 +1,280 @@
+{
+  "title": "Suma de los dígitos de 472",
+  "exercise_id": "loop_flowchart",
+  "exercise_type": "loop_flowchart",
+  "exercise_name": "Suma de los dígitos de 472",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "loop_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "n = 472, s = 0"
+      },
+      {
+        "id": "n3",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "n > 0"
+      },
+      {
+        "id": "n4",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "d = n % 10"
+      },
+      {
+        "id": "n5",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "s = s + d"
+      },
+      {
+        "id": "n6",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "n = n // 10"
+      },
+      {
+        "id": "n7",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir s"
+      },
+      {
+        "id": "n8",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4",
+        "condition_label": "Sí"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n5"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n6"
+      },
+      {
+        "from_node_id": "n6",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n7",
+        "condition_label": "No"
+      },
+      {
+        "from_node_id": "n7",
+        "to_node_id": "n8"
+      }
+    ],
+    "loop_condition": "n > 0",
+    "loop_variable": "n",
+    "generated_code_py": "",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "n = 472, s = 0",
+        "variables": {
+          "n": "472",
+          "s": "0"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "¿472 > 0? verdadero",
+        "variables": {
+          "n": "472",
+          "s": "0"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n4",
+        "description": "d = 472 % 10 = 2",
+        "variables": {
+          "n": "472",
+          "s": "0",
+          "d": "2"
+        }
+      },
+      {
+        "step": 5,
+        "node_id": "n5",
+        "description": "s = 0 + 2",
+        "variables": {
+          "n": "472",
+          "s": "2",
+          "d": "2"
+        }
+      },
+      {
+        "step": 6,
+        "node_id": "n6",
+        "description": "n = 472 // 10 = 47",
+        "variables": {
+          "n": "47",
+          "s": "2",
+          "d": "2"
+        }
+      },
+      {
+        "step": 7,
+        "node_id": "n3",
+        "description": "¿47 > 0? verdadero",
+        "variables": {
+          "n": "47",
+          "s": "2",
+          "d": "2"
+        }
+      },
+      {
+        "step": 8,
+        "node_id": "n4",
+        "description": "d = 47 % 10 = 7",
+        "variables": {
+          "n": "47",
+          "s": "2",
+          "d": "7"
+        }
+      },
+      {
+        "step": 9,
+        "node_id": "n5",
+        "description": "s = 2 + 7",
+        "variables": {
+          "n": "47",
+          "s": "9",
+          "d": "7"
+        }
+      },
+      {
+        "step": 10,
+        "node_id": "n6",
+        "description": "n = 47 // 10 = 4",
+        "variables": {
+          "n": "4",
+          "s": "9",
+          "d": "7"
+        }
+      },
+      {
+        "step": 11,
+        "node_id": "n3",
+        "description": "¿4 > 0? verdadero",
+        "variables": {
+          "n": "4",
+          "s": "9",
+          "d": "7"
+        }
+      },
+      {
+        "step": 12,
+        "node_id": "n4",
+        "description": "d = 4 % 10 = 4",
+        "variables": {
+          "n": "4",
+          "s": "9",
+          "d": "4"
+        }
+      },
+      {
+        "step": 13,
+        "node_id": "n5",
+        "description": "s = 9 + 4",
+        "variables": {
+          "n": "4",
+          "s": "13",
+          "d": "4"
+        }
+      },
+      {
+        "step": 14,
+        "node_id": "n6",
+        "description": "n = 4 // 10 = 0",
+        "variables": {
+          "n": "0",
+          "s": "13",
+          "d": "4"
+        }
+      },
+      {
+        "step": 15,
+        "node_id": "n3",
+        "description": "¿0 > 0? falso: sale del bucle",
+        "variables": {
+          "n": "0",
+          "s": "13",
+          "d": "4"
+        }
+      },
+      {
+        "step": 16,
+        "node_id": "n7",
+        "description": "Imprime s",
+        "variables": {
+          "n": "0",
+          "s": "13",
+          "d": "4"
+        },
+        "output": "13"
+      },
+      {
+        "step": 17,
+        "node_id": "n8",
+        "description": "Fin",
+        "variables": {
+          "n": "0",
+          "s": "13",
+          "d": "4"
+        }
+      }
+    ]
+  },
+  "explanation": "Bucle que separa los dígitos con % y // y los acumula.",
+  "question": "Hallar la suma de los dígitos de 472",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

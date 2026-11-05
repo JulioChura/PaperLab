@@ -1,0 +1,39 @@
+{
+  "title": "Recta que pasa por dos puntos",
+  "exercise_id": "analytic_geometry",
+  "exercise_type": "analytic_geometry",
+  "exercise_name": "Recta que pasa por dos puntos",
+  "skill": "math_geo",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "analytic_geometry",
+    "entity_type": "straight_line",
+    "point_a": [
+      -3,
+      4
+    ],
+    "point_b": [
+      5,
+      -2
+    ],
+    "distance": 10,
+    "slope_m": -0.75,
+    "midpoint": [
+      1,
+      1
+    ],
+    "general_equation": "3x + 4y - 7 = 0"
+  },
+  "explanation": "Recta por A(−3; 4) y B(5; −2).",
+  "question": "Hallar la pendiente, la ecuación de la recta, la distancia AB y el punto medio",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

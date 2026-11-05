@@ -43,6 +43,9 @@ export interface GraphSpec {
   yMax: number;
   points: GraphPoint[];
   label: MathToken[];
+  /** Intervalos del eje x a sombrear (solución de una inecuación). */
+  shade?: [number, number][];
+  shadeClosed?: boolean;
 }
 
 export interface SolutionPlan {
@@ -619,6 +622,101 @@ export function plainTextTokens(s: string): MathToken[] {
   return parse(clean);
 }
 
+// ------------------------------------------------------------------
+// Inecuaciones (lineales y cuadráticas)
+// ------------------------------------------------------------------
+type RelOp = '<' | '<=' | '>' | '>=';
+const REL_SYMBOL: Record<RelOp, string> = { '<': '<', '<=': '≤', '>': '>', '>=': '≥' };
+const flipOp = (op: RelOp): RelOp => ({ '<': '>', '<=': '>=', '>': '<', '>=': '<=' } as const)[op];
+
+function splitInequality(src: string): { lhs: string; rhs: string; op: RelOp } | null {
+  const s = src.replace(/≤|=</g, '<=').replace(/≥|=>/g, '>=');
+  const m = /(<=|>=|<|>)/.exec(s);
+  if (!m) return null;
+  return { lhs: s.slice(0, m.index), rhs: s.slice(m.index + m[0].length), op: m[0] as RelOp };
+}
+
+const INF = '∞';
+const interval = (a: number, b: number, closedA: boolean, closedB: boolean) =>
+  `${Number.isFinite(a) && closedA ? '[' : '('}${Number.isFinite(a) ? fmt(a) : `${MINUS}${INF}`}; ${Number.isFinite(b) ? fmt(b) : `+${INF}`}${Number.isFinite(b) && closedB ? ']' : ')'}`;
+
+function inequalityPlan(p: Polynomial, op: RelOp): SolutionPlan {
+  const lines: SolutionLine[] = [];
+  const closed = op === '<=' || op === '>=';
+  const shade: [number, number][] = [];
+  const g: Fn = (x) => p.a * x * x + p.b * x + p.c;
+  lines.push({ title: 'Todo a un lado', tokens: [...polyTokens(p), t(` ${REL_SYMBOL[op]} 0`)] });
+  const points: GraphPoint[] = [];
+  let summary = 'Inecuación';
+
+  if (Math.abs(p.a) > EPS) {
+    summary = 'Inecuación cuadrática';
+    const D = snap(p.b * p.b - 4 * p.a * p.c);
+    const wantPositive = op === '>' || op === '>=';
+    if (D > EPS) {
+      const r1 = Math.min((-p.b - Math.sqrt(D)) / (2 * p.a), (-p.b + Math.sqrt(D)) / (2 * p.a));
+      const r2 = Math.max((-p.b - Math.sqrt(D)) / (2 * p.a), (-p.b + Math.sqrt(D)) / (2 * p.a));
+      lines.push({ title: 'Puntos críticos', tokens: [{ k: 'delta' }, t(` = ${fmt(D)}    x = ${fmt(r1)} ;  x = ${fmt(r2)}`)] });
+      const outer = p.a > 0 ? '+' : MINUS;
+      const inner = p.a > 0 ? MINUS : '+';
+      lines.push({ title: 'Tabla de signos', tokens: [t(`(${MINUS}${INF}; ${fmt(r1)}): ${outer}    (${fmt(r1)}; ${fmt(r2)}): ${inner}    (${fmt(r2)}; +${INF}): ${outer}`)] });
+      const insideWanted = (p.a > 0) !== wantPositive; // entre raíces es negativo si a > 0
+      if (insideWanted) {
+        shade.push([r1, r2]);
+        lines.push({ title: 'Conjunto solución', tokens: [t(`C.S. = ${interval(r1, r2, closed, closed)}`)], answer: true });
+      } else {
+        shade.push([-Infinity, r1], [r2, Infinity]);
+        lines.push({ title: 'Conjunto solución', tokens: [t(`C.S. = ${interval(-Infinity, r1, false, closed)} ∪ ${interval(r2, Infinity, closed, false)}`)], answer: true });
+      }
+      points.push({ x: r1, y: 0, label: fmt(r1), kind: 'root' }, { x: r2, y: 0, label: fmt(r2), kind: 'root' });
+    } else {
+      const sign = p.a > 0 ? '+' : MINUS;
+      const r = -p.b / (2 * p.a);
+      lines.push({ title: 'Discriminante', tokens: [{ k: 'delta' }, t(` = ${fmt(D)}  →  el polinomio siempre es ${sign === '+' ? 'positivo' : 'negativo'}${Math.abs(D) <= EPS ? ` (salvo en x = ${fmt(r)})` : ''}`)] });
+      const always = (p.a > 0) === wantPositive;
+      let cs: MathToken[];
+      if (always) {
+        cs = Math.abs(D) <= EPS && !closed ? [t(`C.S. = R ${MINUS} {${fmt(r)}}`)] : [t('C.S. = R')];
+        shade.push([-Infinity, Infinity]);
+      } else if (Math.abs(D) <= EPS && closed) {
+        cs = [t(`C.S. = {${fmt(r)}}`)];
+        shade.push([r, r]);
+      } else cs = [t('C.S. = '), { k: 'empty' }];
+      lines.push({ title: 'Conjunto solución', tokens: cs, answer: true });
+    }
+  } else if (Math.abs(p.b) > EPS) {
+    summary = 'Inecuación lineal';
+    const root = -p.c / p.b;
+    const finalOp = p.b < 0 ? flipOp(op) : op;
+    lines.push({ title: 'Transponemos', tokens: [t(`${fmt(p.b)}x ${REL_SYMBOL[op]} ${fmt(-p.c)}`)] });
+    lines.push({
+      title: p.b < 0 ? 'Dividimos entre un negativo (se invierte el sentido)' : `Dividimos entre ${fmt(p.b)}`,
+      tokens: [t(`x ${REL_SYMBOL[finalOp]} ${fmt(root)}`)],
+    });
+    const right = finalOp === '>' || finalOp === '>=';
+    const cl = finalOp === '<=' || finalOp === '>=';
+    shade.push(right ? [root, Infinity] : [-Infinity, root]);
+    lines.push({
+      title: 'Conjunto solución',
+      tokens: [t(`C.S. = ${right ? interval(root, Infinity, cl, false) : interval(-Infinity, root, false, cl)}`)],
+      answer: true,
+    });
+    points.push({ x: root, y: 0, label: fmt(root), kind: 'root' });
+  }
+
+  const xs = points.map((q) => q.x);
+  const center = xs.length ? (Math.min(...xs) + Math.max(...xs)) / 2 : 0;
+  const half = Math.max(3, xs.length === 2 ? Math.abs(xs[1] - xs[0]) * 0.9 + 1.5 : 4);
+  const win = graphWindow(g, center, half, Math.abs(p.a) > EPS ? [g(-p.b / (2 * p.a)), p.c] : [p.c]);
+  return {
+    kind: 'generic',
+    lines,
+    graph: { fn: g, ...win, points, label: [t('y = '), ...polyTokens(p)], shade, shadeClosed: closed },
+    graphPrimary: false,
+    summary,
+  };
+}
+
 export interface EquationSolverData {
   equation_plain?: string | null;
   equation_latex?: string;
@@ -635,6 +733,17 @@ export function planFromEquation(data: EquationSolverData): SolutionPlan | null 
   const candidates = [data.equation_plain, data.equation_latex].filter((s): s is string => !!s && s.trim().length > 0);
   for (const raw of candidates) {
     try {
+      const ineq = splitInequality(normalizeExpression(raw.replace(/\(le|leq)/g, '<=').replace(/\(ge|geq)/g, '>=').replace(/\lt/g, '<').replace(/\gt/g, '>')));
+      if (ineq) {
+        const G: Fn = (() => {
+          const L = compileExpression(ineq.lhs);
+          const R = compileExpression(ineq.rhs);
+          return (x: number) => L(x) - R(x);
+        })();
+        const poly = polynomialFromFn(G);
+        if (poly) return inequalityPlan(poly, ineq.op);
+        continue;
+      }
       const { lhs, rhs } = splitEquation(normalizeExpression(raw));
       const L = compileExpression(lhs);
       const R = compileExpression(rhs);

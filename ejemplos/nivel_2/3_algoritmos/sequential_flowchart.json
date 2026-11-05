@@ -1,0 +1,158 @@
+{
+  "title": "Promedio de tres notas",
+  "exercise_id": "sequential_flowchart",
+  "exercise_type": "sequential_flowchart",
+  "exercise_name": "Promedio de tres notas",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "sequential_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Leer a, b, c"
+      },
+      {
+        "id": "n3",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "s = a + b + c"
+      },
+      {
+        "id": "n4",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "p = s / 3"
+      },
+      {
+        "id": "n5",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir p"
+      },
+      {
+        "id": "n6",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n5"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n6"
+      }
+    ],
+    "variables": [
+      "a",
+      "b",
+      "c",
+      "s",
+      "p"
+    ],
+    "generated_code_py": "",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "Se leen a = 12, b = 15, c = 18",
+        "variables": {
+          "a": "12",
+          "b": "15",
+          "c": "18"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "s = 12 + 15 + 18 = 45",
+        "variables": {
+          "a": "12",
+          "b": "15",
+          "c": "18",
+          "s": "45"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n4",
+        "description": "p = 45 / 3 = 15",
+        "variables": {
+          "a": "12",
+          "b": "15",
+          "c": "18",
+          "s": "45",
+          "p": "15"
+        }
+      },
+      {
+        "step": 5,
+        "node_id": "n5",
+        "description": "Imprime el promedio",
+        "variables": {
+          "a": "12",
+          "b": "15",
+          "c": "18",
+          "s": "45",
+          "p": "15"
+        },
+        "output": "15"
+      },
+      {
+        "step": 6,
+        "node_id": "n6",
+        "description": "Fin",
+        "variables": {
+          "a": "12",
+          "b": "15",
+          "c": "18",
+          "s": "45",
+          "p": "15"
+        }
+      }
+    ]
+  },
+  "explanation": "Lee tres notas, calcula la suma y el promedio, e imprime.",
+  "question": "Ejecutar el diagrama con a = 12, b = 15, c = 18",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

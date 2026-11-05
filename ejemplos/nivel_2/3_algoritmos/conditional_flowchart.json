@@ -1,0 +1,218 @@
+{
+  "title": "Mayor de tres números",
+  "exercise_id": "conditional_flowchart",
+  "exercise_type": "conditional_flowchart",
+  "exercise_name": "Mayor de tres números",
+  "skill": "flowchart",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "conditional_flowchart",
+    "nodes": [
+      {
+        "id": "n1",
+        "shape": "oval",
+        "role": "start",
+        "label": "Inicio"
+      },
+      {
+        "id": "n2",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Leer a, b, c"
+      },
+      {
+        "id": "n3",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "a > b"
+      },
+      {
+        "id": "n4",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "a > c"
+      },
+      {
+        "id": "n5",
+        "shape": "diamond",
+        "role": "decision",
+        "label": "b > c"
+      },
+      {
+        "id": "n6",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "m = a"
+      },
+      {
+        "id": "n7",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "m = c"
+      },
+      {
+        "id": "n8",
+        "shape": "rectangle",
+        "role": "process",
+        "label": "m = b"
+      },
+      {
+        "id": "n9",
+        "shape": "parallelogram",
+        "role": "input_output",
+        "label": "Imprimir m"
+      },
+      {
+        "id": "n10",
+        "shape": "oval",
+        "role": "end",
+        "label": "Fin"
+      }
+    ],
+    "edges": [
+      {
+        "from_node_id": "n1",
+        "to_node_id": "n2"
+      },
+      {
+        "from_node_id": "n2",
+        "to_node_id": "n3"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n4",
+        "condition_label": "Sí"
+      },
+      {
+        "from_node_id": "n3",
+        "to_node_id": "n5",
+        "condition_label": "No"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n6",
+        "condition_label": "Sí"
+      },
+      {
+        "from_node_id": "n4",
+        "to_node_id": "n7",
+        "condition_label": "No"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n8",
+        "condition_label": "Sí"
+      },
+      {
+        "from_node_id": "n5",
+        "to_node_id": "n7",
+        "condition_label": "No"
+      },
+      {
+        "from_node_id": "n6",
+        "to_node_id": "n9"
+      },
+      {
+        "from_node_id": "n7",
+        "to_node_id": "n9"
+      },
+      {
+        "from_node_id": "n8",
+        "to_node_id": "n9"
+      },
+      {
+        "from_node_id": "n9",
+        "to_node_id": "n10"
+      }
+    ],
+    "decision_condition": "a > b",
+    "true_branch_node_id": "n4",
+    "false_branch_node_id": "n5",
+    "generated_code_py": "",
+    "generated_code_js": "",
+    "execution": [
+      {
+        "step": 1,
+        "node_id": "n1",
+        "description": "Inicio",
+        "variables": {}
+      },
+      {
+        "step": 2,
+        "node_id": "n2",
+        "description": "Se leen a = 7, b = 12, c = 9",
+        "variables": {
+          "a": "7",
+          "b": "12",
+          "c": "9"
+        }
+      },
+      {
+        "step": 3,
+        "node_id": "n3",
+        "description": "¿7 > 12? falso → rama No",
+        "variables": {
+          "a": "7",
+          "b": "12",
+          "c": "9"
+        }
+      },
+      {
+        "step": 4,
+        "node_id": "n5",
+        "description": "¿12 > 9? verdadero → rama Sí",
+        "variables": {
+          "a": "7",
+          "b": "12",
+          "c": "9"
+        }
+      },
+      {
+        "step": 5,
+        "node_id": "n8",
+        "description": "m = b = 12",
+        "variables": {
+          "a": "7",
+          "b": "12",
+          "c": "9",
+          "m": "12"
+        }
+      },
+      {
+        "step": 6,
+        "node_id": "n9",
+        "description": "Imprime el mayor",
+        "variables": {
+          "a": "7",
+          "b": "12",
+          "c": "9",
+          "m": "12"
+        },
+        "output": "12"
+      },
+      {
+        "step": 7,
+        "node_id": "n10",
+        "description": "Fin",
+        "variables": {
+          "a": "7",
+          "b": "12",
+          "c": "9",
+          "m": "12"
+        }
+      }
+    ]
+  },
+  "explanation": "Decisiones anidadas para obtener el mayor entre a, b y c.",
+  "question": "Determinar qué imprime con a = 7, b = 12, c = 9",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

@@ -117,6 +117,9 @@ class TraceTableSimulation(BaseModel):
     rows: list[TraceTableRow] = Field(..., min_length=1, description="Filas cronológicas de la traza")
     initial_memory: dict[str, str] = Field(default_factory=dict, description="Estado de memoria inicial")
     final_memory: dict[str, str] = Field(default_factory=dict, description="Estado de memoria al concluir")
+    graph_nodes: list[str] = Field(default_factory=list, description="Si la traza recorre un ÁRBOL o GRAFO: etiquetas de sus nodos")
+    graph_edges: list[list[str]] = Field(default_factory=list, description="Aristas del árbol/grafo como pares [origen, destino]")
+    traversal: Optional[str] = Field(default=None, description="Recorrido aplicado: 'BFS', 'DFS', 'preorden', etc. Cada fila debe incluir la variable 'actual'")
     execution: list[ExecutionStep] = Field(default_factory=list, max_length=60, description=EXECUTION_DESCRIPTION)
 
 

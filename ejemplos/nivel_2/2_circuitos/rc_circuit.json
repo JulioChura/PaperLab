@@ -1,0 +1,29 @@
+{
+  "title": "Descarga de un condensador",
+  "exercise_id": "rc_circuit",
+  "exercise_type": "rc_circuit",
+  "exercise_name": "Descarga de un condensador",
+  "skill": "circuit",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "rc_circuit",
+    "voltage_v": 9,
+    "resistance_ohms": 4700,
+    "capacitance_uf": 220,
+    "time_constant_tau_s": 1.034,
+    "max_charge_uc": 1980,
+    "mode": "discharging"
+  },
+  "explanation": "Condensador de 220 μF cargado a 9 V que se descarga por 4.7 kΩ.",
+  "question": "Hallar τ, la carga inicial y el voltaje tras un τ",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

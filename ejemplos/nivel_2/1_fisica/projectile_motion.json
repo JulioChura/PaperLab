@@ -1,0 +1,30 @@
+{
+  "title": "Lanzamiento desde un edificio",
+  "exercise_id": "projectile_motion",
+  "exercise_type": "projectile_motion",
+  "exercise_name": "Lanzamiento desde un edificio",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "projectile_motion",
+    "initial_velocity_m_s": 18,
+    "launch_angle_degrees": 30,
+    "initial_height_m": 20,
+    "gravity_m_s2": 9.8,
+    "max_height_m": 24.13,
+    "range_m": 50.05,
+    "flight_time_s": 3.21
+  },
+  "explanation": "Proyectil lanzado desde 20 m de altura con 18 m/s y 30° sobre la horizontal.",
+  "question": "Hallar la altura máxima, el tiempo de vuelo y el alcance al llegar al suelo",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}

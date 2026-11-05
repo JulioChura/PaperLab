@@ -1,4 +1,9 @@
-# Fotos de prueba (23 tipos de ejercicio)
+# Fotos de prueba (23 tipos de ejercicio × 2 niveles)
+
+Hay dos baterías de ejemplos:
+
+- **Nivel 1:** las carpetas `1_fisica/`, `2_circuitos/`, `3_algoritmos/` y `4_matematicas/` de esta misma carpeta.
+- **Nivel 2:** `nivel_2/`, con la misma estructura. Son versiones más exigentes: decisiones anidadas, bucles largos, arreglos con dos punteros, recursión con ramificación, 3–4 resistencias, descarga RC, compuerta XOR, péndulo de gran amplitud, tiro desde una altura, oscilador amortiguado, frenado, pirámide y ángulos entre paralelas.
 
 Cada carpeta tiene, por tipo de ejercicio:
 
@@ -7,7 +12,7 @@ Cada carpeta tiene, por tipo de ejercicio:
 
 ## Cómo probar
 
-- **Sin gastar el analizador de IA:** en la vista de cámara de cada módulo pulsa **Ejemplos** y elige el ejercicio. Se usan esta foto y este JSON.
+- **Sin gastar el analizador de IA:** en la vista de cámara de cada módulo pulsa **Ejemplos**, elige la pestaña **Nivel 1** o **Nivel 2** y luego el ejercicio. Se usan esta foto y este JSON.
 - **Con el analizador real (Gemini):** pulsa el botón de subir foto, elige uno de estos `.jpg` y luego **Escanear y resolver**.
 
 | Carpeta | Tipos |

@@ -1,0 +1,29 @@
+{
+  "title": "Atwood con masas cercanas",
+  "exercise_id": "atwood_machine",
+  "exercise_type": "atwood_machine",
+  "exercise_name": "Atwood con masas cercanas",
+  "skill": "physics",
+  "confidence": 0.99,
+  "detected_elements": [],
+  "parameters": {
+    "exercise_type": "atwood_machine",
+    "mass_1_kg": 4.5,
+    "mass_2_kg": 6.2,
+    "pulley_radius_m": 0.15,
+    "gravity_m_s2": 9.8,
+    "acceleration_m_s2": 1.56,
+    "tension_n": 51.08
+  },
+  "explanation": "Polea ideal con masas de 4.5 kg y 6.2 kg.",
+  "question": "Hallar la aceleración, la tensión y la velocidad tras 1 m de recorrido",
+  "bounding_boxes": [
+    {
+      "x": 0.16,
+      "y": 0.08,
+      "width": 0.45,
+      "height": 0.22,
+      "label": "ejercicio"
+    }
+  ]
+}
