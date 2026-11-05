@@ -39,7 +39,7 @@ export default defineConfig({
     {
       command: 'npx vite --port 5179 --strictPort',
       url: 'http://localhost:5179',
-      env: { PAPERLAB_API: 'http://127.0.0.1:8765' },
+      env: { PAPERLAB_API: 'http://127.0.0.1:8765', VITE_API_URL: '/api' },
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },

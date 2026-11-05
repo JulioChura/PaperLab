@@ -6,7 +6,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // `npm run dev:https` sirve por HTTPS (certificado local): los celulares solo permiten la cámara en contextos seguros.
 const https = process.env.HTTPS === '1'
 // Backend al que redirige /api (las pruebas e2e levantan uno propio en otro puerto)
-const apiTarget = process.env.PAPERLAB_API ?? 'http://localhost:8000'
+const apiTarget = process.env.PAPERLAB_API ?? 'https://paperlab-backend.onrender.com'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -19,7 +19,7 @@ export default defineConfig({
     // Accesible desde el celular en la misma red (npm run dev -> http://<IP-PC>:5173)
     host: true,
     proxy: {
-      // /api/analyze/physics -> http://localhost:8000/analyze/physics
+      // /api/analyze/physics -> https://paperlab-backend.onrender.com/analyze/physics
       '/api': {
         target: apiTarget,
         changeOrigin: true,

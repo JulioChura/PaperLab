@@ -6,10 +6,11 @@ import type { TutorFeedback } from '../tutor/types';
  * Cliente del backend de análisis (FastAPI).
  * La API key de Gemini vive SOLO en el backend; el navegador nunca la ve.
  *
- * En desarrollo, Vite redirige `/api/*` a http://localhost:8000 (ver vite.config.ts).
- * En producción, define VITE_API_URL con la URL pública del backend.
+ * Backend público en Render: https://paperlab-backend.onrender.com
+ * En desarrollo, Vite redirige `/api/*` al backend (ver vite.config.ts).
+ * En producción o despliegues personalizados, se puede sobreescribir con VITE_API_URL.
  */
-const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '/api';
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || 'https://paperlab-backend.onrender.com';
 
 export interface ClassificationResult {
   exercise_id: string;          // ID del ejercicio en el catálogo del frontend
@@ -107,7 +108,7 @@ export async function analyzeDrawing(imageDataUrl: string, moduleId: string): Pr
       body: form,
     });
   } catch {
-    throw new Error('No se pudo conectar con el backend. ¿Está corriendo en el puerto 8000?');
+    throw new Error('No se pudo conectar con el backend (https://paperlab-backend.onrender.com). Revisa tu conexión o espera unos segundos si el servicio está despertando en Render.');
   }
 
   if (!response.ok) {

@@ -47,7 +47,7 @@ npm run dev
 El frontend quedará activo en:
 👉 **`http://localhost:5173`** (y en `http://<IP-de-tu-PC>:5173` para probar desde el celular en la misma red)
 
-> 🔌 **Conexión con el backend:** el frontend envía las fotos a `/api/analyze/{módulo}`. En desarrollo, Vite redirige `/api/*` a `http://localhost:8000` (ver `frontend/vite.config.ts`), así que **el backend debe estar corriendo**. En producción define `VITE_API_URL` con la URL pública del backend.
+> 🔌 **Conexión con el backend:** el frontend se comunica con el backend desplegado en Render (`https://paperlab-backend.onrender.com`). En desarrollo local, Vite también puede redirigir `/api/*` al backend público o local (ver `frontend/vite.config.ts`), y se puede configurar mediante la variable de entorno `VITE_API_URL`.
 
 ### Scripts disponibles del Frontend:
 - `npm run dev`: Inicia el servidor de desarrollo con Hot Module Replacement (HMR).
