@@ -16,6 +16,7 @@
     "led_color": "yellow"
   },
   "explanation": "Pila de 9 V con una resistencia de 30 Ω y un foco.",
+  "question": "Hallar la corriente y la potencia del foco",
   "bounding_boxes": [
     {
       "x": 0.16,

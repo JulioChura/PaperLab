@@ -24,6 +24,7 @@
     "critical_points_explanation": ""
   },
   "explanation": "Graficar f(x) = x² − 4x + 3.",
+  "question": "Graficar la función y hallar vértice y raíces",
   "bounding_boxes": [
     {
       "x": 0.16,

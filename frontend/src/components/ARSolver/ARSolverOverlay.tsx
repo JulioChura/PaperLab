@@ -21,6 +21,8 @@ export interface ARSolverSession {
   space: { width: number; height: number };
   /** Rastreador vivo desde el instante de la captura (null en modo foto). */
   tracker: HybridPaperTracker | null;
+  /** Qué pide el enunciado. */
+  question?: string;
 }
 
 interface Props {
@@ -77,6 +79,8 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
   const [done, setDone] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [runtime, setRuntime] = useState<FigureRuntime | null>(null);
+  const [speed, setSpeed] = useState(1);
+  const speedRef = useRef(1);
   const [simState, setSimState] = useState<{ readouts: Readout[]; caption: string; values: Record<string, number | boolean> }>({
     readouts: [],
     caption: '',
@@ -140,7 +144,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
         const handle = scene.addAnimatedLayer(fc.ink, fc.light, figure.place, 1.8);
         const clock = { acc: 0 };
         scene.onFrame = (dt) => {
-          rt.update(dt);
+          rt.update(dt * speedRef.current);
           clock.acc += dt;
           if (clock.acc >= 1 / 30) {
             clock.acc = 0;
@@ -287,6 +291,11 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
                   ))}
                 </div>
               )}
+              {session.question && (
+                <p className="text-[11px] font-telemetry text-slate-300">
+                  <span className="text-slate-500">Se pide:</span> {session.question}
+                </p>
+              )}
               {simState.caption && (
                 <p className="text-[11px] font-telemetry text-slate-200 leading-snug line-clamp-2" style={{ borderLeft: `2px solid ${accent}`, paddingLeft: 8 }}>
                   {simState.caption}
@@ -311,6 +320,26 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
                     );
                   })}
               </div>
+              {runtime.animated && (
+                <label className="flex items-center gap-2 text-[11px] font-telemetry text-slate-300">
+                  <span className="w-24 shrink-0" title="Velocidad de la simulación">Velocidad sim.</span>
+                  <input
+                    type="range"
+                    min={0.25}
+                    max={3}
+                    step={0.25}
+                    value={speed}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      speedRef.current = v;
+                      setSpeed(v);
+                    }}
+                    className="flex-1 cursor-pointer"
+                    style={{ accentColor: accent }}
+                  />
+                  <span className="w-16 text-right text-white">{speed.toFixed(2).replace(/0$/, '')}×</span>
+                </label>
+              )}
               {runtime.controls
                 .filter((c) => c.kind === 'slider')
                 .map((c) => {

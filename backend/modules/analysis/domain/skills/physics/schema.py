@@ -1,6 +1,6 @@
 """Esquemas de datos Pydantic para el módulo de Física (6 tipos de ejercicios)."""
 
-from typing import Annotated, Literal, Union
+from typing import Optional, Annotated, Literal, Union
 from pydantic import BaseModel, Field
 from shared.types import BaseAnalysisResult, BoundingBox, SkillId
 
@@ -101,6 +101,10 @@ class PhysicsAnalysisResult(BaseModel):
         "atwood_machine",
     ] = Field(..., description="Subtipo de física clasificado")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Nivel de confianza de 0 a 1")
+    question: Optional[str] = Field(
+        default=None,
+        description="Qué pide el enunciado, en español breve (ej: 'Hallar la aceleración del bloque'). Si no está escrito, infiérelo.",
+    )
     detected_elements: list[str] = Field(default_factory=list, description="Lista de trazos reconocidos")
     bounding_boxes: list[BoundingBox] = Field(default_factory=list, description="Coordenadas para anclaje WebAR")
     explanation: str = Field(..., description="Resumen conciso del ejercicio físico identificado")

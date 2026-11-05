@@ -35,7 +35,14 @@ abstract class PhysicsSim implements FigureRuntime {
     this.t = 0;
   }
   update(dt: number) {
-    if (this.values.play) this.step(Math.min(dt, 1 / 30));
+    if (!this.values.play) return;
+    // subpasos de 1/120 s: el resultado es exacto aunque la velocidad de simulación sea 3×
+    let rest = Math.min(dt, 0.25);
+    while (rest > 1e-6) {
+      const h = Math.min(rest, 1 / 120);
+      this.step(h);
+      rest -= h;
+    }
   }
   protected n(id: string) {
     return this.values[id] as number;

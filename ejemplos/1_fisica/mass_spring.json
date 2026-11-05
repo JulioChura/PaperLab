@@ -15,7 +15,8 @@
     "angular_frequency_rad_s": 8.16,
     "period_s": 0.77
   },
-  "explanation": "Resorte de k = 80 N/m con masa de 1.2 kg estirado 0.15 m.",
+  "explanation": "Masa de 1.2 kg unida a un resorte de k = 80 N/m, estirado 0.15 m y soltado.",
+  "question": "Hallar la frecuencia angular, el periodo y la fuerza máxima",
   "bounding_boxes": [
     {
       "x": 0.16,

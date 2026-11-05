@@ -47,6 +47,7 @@
     ]
   },
   "explanation": "Compuerta AND con entradas A = 1 y B = 0.",
+  "question": "Hallar la salida S",
   "bounding_boxes": [
     {
       "x": 0.16,

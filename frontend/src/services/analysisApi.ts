@@ -19,6 +19,8 @@ export interface ClassificationResult {
   detected_elements: string[];
   parameters: Record<string, unknown>;
   explanation: string;
+  /** Qué pide el enunciado (si la IA lo detectó). */
+  question?: string;
   bounding_boxes: BoundingBox[];
   fullDefinition?: ExerciseDefinition;
 }
@@ -38,6 +40,7 @@ interface BackendAnalysisResponse {
   detected_elements?: string[];
   bounding_boxes?: BoundingBox[];
   explanation: string;
+  question?: string | null;
   simulation_data: Record<string, unknown>;
 }
 
@@ -121,6 +124,7 @@ export async function analyzeDrawing(imageDataUrl: string, moduleId: string): Pr
     parameters: data.simulation_data ?? {},
     explanation: data.explanation,
     bounding_boxes: data.bounding_boxes ?? [],
+    question: data.question ?? undefined,
     fullDefinition,
   };
 }

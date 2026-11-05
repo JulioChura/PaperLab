@@ -12,6 +12,8 @@ export interface Example {
   exercise_type: string;
   title: string;
   explanation: string;
+  /** Qué pide el enunciado. */
+  question?: string;
   data: Record<string, unknown>;
   /** Dibuja el ejercicio "a lápiz" en la parte superior de la hoja. */
   sketch: (s: Sketch) => void;
@@ -58,6 +60,36 @@ class Sketch {
   }
   ellipse(x: number, y: number, w: number, h: number) {
     this.rc.ellipse(x, y, w, h, this.o());
+  }
+  /** Arco de ángulo (radianes, sentido de las agujas en pantalla). */
+  arc(cx: number, cy: number, r: number, a0: number, a1: number) {
+    this.rc.arc(cx, cy, r * 2, r * 2, Math.min(a0, a1), Math.max(a0, a1), false, this.o({ roughness: 0.6 }));
+  }
+  curve(pts: [number, number][], smooth = true) {
+    if (smooth) this.rc.curve(pts, this.o({ roughness: 0.5 }));
+    else this.path(pts);
+  }
+  dashed(x1: number, y1: number, x2: number, y2: number) {
+    this.rc.line(x1, y1, x2, y2, this.o({ strokeLineDash: [10, 8], strokeWidth: 2.2 }));
+  }
+  arrow(x1: number, y1: number, x2: number, y2: number) {
+    this.line(x1, y1, x2, y2);
+    const a = Math.atan2(y2 - y1, x2 - x1);
+    const k = 16;
+    this.path([[x2 - k * Math.cos(a - 0.45), y2 - k * Math.sin(a - 0.45)], [x2, y2], [x2 - k * Math.cos(a + 0.45), y2 - k * Math.sin(a + 0.45)]]);
+  }
+  /** Superficie rayada (suelo, pared, techo). */
+  hatch(x1: number, y1: number, x2: number, y2: number, side: 1 | -1 = 1) {
+    this.line(x1, y1, x2, y2);
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    const n = Math.floor(len / 22);
+    const nx = (-(y2 - y1) / len) * side * 14;
+    const ny = ((x2 - x1) / len) * side * 14;
+    for (let i = 0; i <= n; i++) {
+      const px = x1 + ((x2 - x1) * i) / n;
+      const py = y1 + ((y2 - y1) * i) / n;
+      this.rc.line(px, py, px + nx - 8, py + ny + 8 * side, this.o({ strokeWidth: 1.8 }));
+    }
   }
   zigzag(x1: number, y: number, x2: number, n = 5, amp = 12) {
     const pts: [number, number][] = [[x1, y]];
@@ -127,6 +159,7 @@ export function exampleToResult(ex: Example): ClassificationResult {
     detected_elements: [],
     parameters: { exercise_type: ex.exercise_type, ...ex.data },
     explanation: ex.explanation,
+    question: ex.question ?? QUESTIONS[ex.exercise_type],
     // zona del dibujo (parte superior izquierda de la hoja) como pista para el análisis de la hoja
     bounding_boxes: [{ x: 0.16, y: 0.08, width: 0.45, height: 0.22, label: 'ejercicio' }],
   };
@@ -134,82 +167,176 @@ export function exampleToResult(ex: Example): ClassificationResult {
 
 // ------------------------------------------------------------------ catálogo
 const X0 = 180; // margen izquierdo del dibujo
+const QUESTIONS: Record<string, string> = {
+  single_loop: 'Hallar la corriente y la potencia del foco',
+  series_resistors: 'Hallar la resistencia equivalente, la corriente y la caída en cada resistencia',
+  parallel_resistors: 'Hallar la resistencia equivalente y la corriente en cada rama',
+  interactive_switch: 'Hallar la corriente con el interruptor abierto y cerrado',
+  rc_circuit: 'Hallar la constante de tiempo y la carga máxima del condensador',
+  logic_gates: 'Hallar la salida S',
+  sequential_flowchart: 'Ejecutar el diagrama y obtener la salida',
+  conditional_flowchart: 'Determinar qué imprime el diagrama',
+  loop_flowchart: 'Hallar el valor final de s',
+  code_debugger: 'Ejecutar el código paso a paso y obtener la salida',
+  trace_table: 'Completar la tabla de traza',
+  recursive_flowchart: 'Hallar fact(3)',
+  equation_solver: 'Resolver la ecuación',
+  function_graph: 'Graficar la función y hallar vértice y raíces',
+  geometry_3d: 'Hallar el volumen y el área total',
+  analytic_geometry: 'Hallar la distancia, el punto medio y la pendiente',
+  geometric_angles: 'Hallar el valor de x',
+};
+
 export const EXAMPLES: Example[] = [
   // ============================== FÍSICA ==============================
   {
     module: 'physics', skill: 'physics', exercise_type: 'inclined_plane', title: 'Plano inclinado con fricción',
-    explanation: 'Bloque de 2 kg sobre una rampa de 30° con μ = 0.2.',
-    data: { angle_degrees: 30, mass_kg: 2, friction_coefficient: 0.2, gravity_m_s2: 9.8, acceleration_m_s2: 3.2, weight_n: 19.6, normal_force_n: 17, friction_force_n: 3.4 },
+    explanation: 'Bloque de 2 kg que desliza por una rampa de 30° con coeficiente de fricción cinético μ = 0.2.',
+    question: 'Hallar la aceleración del bloque, la normal y la fuerza de fricción',
+    data: { angle_degrees: 30, mass_kg: 2, friction_coefficient: 0.2, gravity_m_s2: 9.8, acceleration_m_s2: 3.2, weight_n: 19.6, normal_force_n: 16.97, friction_force_n: 3.39 },
     sketch: (s) => {
-      s.poly([[X0, 260], [X0, 120], [X0 + 260, 260]]);
-      s.rect(X0 + 80, 150, 50, 40);
-      s.text(X0 + 175, 250, '30°', 38);
-      s.text(X0 + 320, 150, 'm = 2 kg');
-      s.text(X0 + 320, 210, 'μ = 0.2');
+      // rampa: punta alta a la izquierda, ángulo θ abajo a la derecha
+      const A: [number, number] = [X0, 110], B: [number, number] = [X0, 290], C: [number, number] = [X0 + 312, 290];
+      s.hatch(X0 - 30, 290, X0 + 360, 290);
+      s.poly([A, B, C]);
+      s.rect(X0, 272, 18, 18); // ángulo recto
+      const th = Math.atan2(B[1] - A[1], C[0] - A[0]);
+      // bloque apoyado sobre la hipotenusa
+      const t = 0.42, bx = A[0] + (C[0] - A[0]) * t, by = A[1] + (C[1] - A[1]) * t, w = 64;
+      const ux = Math.cos(th), uy = Math.sin(th), nx = uy, ny = -ux;
+      s.poly([[bx, by], [bx + ux * w, by + uy * w], [bx + ux * w + nx * w * 0.8, by + uy * w + ny * w * 0.8], [bx + nx * w * 0.8, by + ny * w * 0.8]]);
+      s.text(bx + ux * w * 0.5 + nx * w * 0.4, by + uy * w * 0.5 + ny * w * 0.4 + 12, 'm', 36, 'center');
+      s.arc(C[0], C[1], 78, Math.PI, Math.PI + th);
+      s.text(C[0] - 150, C[1] - 16, '30°', 36);
+      s.text(X0 + 420, 120, 'Datos:', 44);
+      s.text(X0 + 440, 170, 'm = 2 kg      μ = 0.2', 42);
+      s.text(X0 + 440, 220, 'θ = 30°      g = 9.8 m/s²', 42);
+      s.text(X0 + 420, 280, 'Hallar: a, N y fr', 44);
     },
   },
   {
     module: 'physics', skill: 'physics', exercise_type: 'simple_pendulum', title: 'Péndulo simple',
-    explanation: 'Péndulo de 1.5 m soltado desde 20°.',
+    explanation: 'Péndulo de 1.5 m que se suelta desde 20° respecto a la vertical.',
+    question: 'Hallar el periodo de oscilación y la velocidad máxima',
     data: { length_m: 1.5, initial_angle_degrees: 20, mass_kg: 0.5, gravity_m_s2: 9.8, period_s: 2.46, max_velocity_m_s: 1.33, tension_at_lowest_point_n: 5.5 },
     sketch: (s) => {
-      s.line(X0, 90, X0 + 160, 90);
-      s.line(X0 + 80, 90, X0 + 150, 250);
-      s.circle(X0 + 150, 262, 34);
-      s.text(X0 + 125, 170, 'L = 1.5 m', 38);
-      s.text(X0 + 260, 150, 'θ = 20°');
+      const px = X0 + 120, py = 90, L = 190, th = (20 * Math.PI) / 180;
+      s.hatch(px - 90, py, px + 90, py, -1);
+      s.dashed(px, py, px, py + L + 30);
+      const bx = px + Math.sin(th) * L, by = py + Math.cos(th) * L;
+      s.line(px, py, bx, by);
+      s.circle(bx, by, 40);
+      s.arc(px, py, 70, Math.PI / 2 - th, Math.PI / 2);
+      s.text(px + 14, py + 98, 'θ', 34);
+      s.text(bx + 30, py + L * 0.5, 'L', 38);
+      s.text(X0 + 360, 120, 'Datos:', 44);
+      s.text(X0 + 380, 170, 'L = 1.5 m     θ0 = 20°', 42);
+      s.text(X0 + 380, 220, 'g = 9.8 m/s²', 42);
+      s.text(X0 + 360, 280, 'Hallar: T y vmax', 44);
     },
   },
   {
     module: 'physics', skill: 'physics', exercise_type: 'projectile_motion', title: 'Tiro parabólico',
-    explanation: 'Proyectil lanzado a 25 m/s con 50° de elevación.',
-    data: { initial_velocity_m_s: 25, launch_angle_degrees: 50, initial_height_m: 0, gravity_m_s2: 9.8, max_height_m: 18.7, range_m: 62.8, flight_time_s: 3.9 },
+    explanation: 'Proyectil lanzado desde el suelo con 25 m/s y 50° de elevación.',
+    question: 'Hallar la altura máxima, el tiempo de vuelo y el alcance horizontal',
+    data: { initial_velocity_m_s: 25, launch_angle_degrees: 50, initial_height_m: 0, gravity_m_s2: 9.8, max_height_m: 18.71, range_m: 62.81, flight_time_s: 3.91 },
     sketch: (s) => {
-      s.line(X0, 270, X0 + 420, 270);
-      s.path([[X0, 270], [X0 + 80, 170], [X0 + 200, 120], [X0 + 320, 170], [X0 + 400, 270]]);
-      s.line(X0, 270, X0 + 60, 200);
-      s.text(X0 + 70, 250, '50°', 36);
-      s.text(X0 + 460, 160, 'v0 = 25 m/s');
+      // ejes y una parábola real y = x·tanθ − g·x²/(2·v0²·cos²θ), escalada
+      const ox = X0, oy = 300, sx = 6.2, sy = 8.5;
+      const v0 = 25, th = (50 * Math.PI) / 180, g = 9.8;
+      const R = (v0 * v0 * Math.sin(2 * th)) / g;
+      const H = (v0 * v0 * Math.sin(th) ** 2) / (2 * g);
+      s.arrow(ox - 10, oy, ox + R * sx + 60, oy);
+      s.arrow(ox, oy + 10, ox, oy - H * sy - 50);
+      s.text(ox + R * sx + 64, oy + 8, 'x', 34);
+      s.text(ox - 30, oy - H * sy - 46, 'y', 34);
+      const pts: [number, number][] = [];
+      for (let i = 0; i <= 24; i++) {
+        const x = (R * i) / 24;
+        const y = x * Math.tan(th) - (g * x * x) / (2 * v0 * v0 * Math.cos(th) ** 2);
+        pts.push([ox + x * sx, oy - y * sy]);
+      }
+      s.curve(pts, true);
+      s.arrow(ox, oy, ox + Math.cos(th) * 90, oy - Math.sin(th) * 90);
+      s.text(ox + Math.cos(th) * 90 + 8, oy - Math.sin(th) * 90 - 4, 'v0', 34);
+      s.arc(ox, oy, 48, -th, 0);
+      s.text(ox + 54, oy - 16, '50°', 32);
+      s.dashed(ox + (R / 2) * sx, oy, ox + (R / 2) * sx, oy - H * sy);
+      s.text(ox + (R / 2) * sx + 10, oy - H * sy * 0.55, 'Hmax', 32);
+      s.text(ox + R * sx - 10, oy + 36, 'R', 34);
+      s.text(X0 + 520, 120, 'Datos:', 44);
+      s.text(X0 + 540, 170, 'v0 = 25 m/s    θ = 50°', 42);
+      s.text(X0 + 540, 220, 'g = 9.8 m/s²', 42);
+      s.text(X0 + 520, 280, 'Hallar: Hmax, tv y R', 44);
     },
   },
   {
     module: 'physics', skill: 'physics', exercise_type: 'mass_spring', title: 'Masa-resorte',
-    explanation: 'Resorte de k = 80 N/m con masa de 1.2 kg estirado 0.15 m.',
+    explanation: 'Masa de 1.2 kg unida a un resorte de k = 80 N/m, estirado 0.15 m y soltado.',
+    question: 'Hallar la frecuencia angular, el periodo y la fuerza máxima',
     data: { spring_constant_k_n_m: 80, mass_kg: 1.2, initial_displacement_m: 0.15, damping_coefficient: 0.3, angular_frequency_rad_s: 8.16, period_s: 0.77 },
     sketch: (s) => {
-      s.line(X0, 120, X0, 260);
-      s.zigzag(X0, 190, X0 + 220, 6, 16);
-      s.rect(X0 + 220, 160, 70, 60);
-      s.text(X0 + 330, 160, 'k = 80 N/m');
-      s.text(X0 + 330, 220, 'm = 1.2 kg   x = 0.15 m');
+      s.hatch(X0, 120, X0, 270, 1);
+      s.hatch(X0, 270, X0 + 400, 270);
+      s.zigzag(X0, 225, X0 + 230, 7, 16);
+      s.rect(X0 + 230, 190, 72, 72);
+      s.text(X0 + 266, 238, 'm', 36, 'center');
+      s.dashed(X0 + 180, 150, X0 + 180, 270);
+      s.text(X0 + 160, 140, 'x = 0', 30);
+      s.arrow(X0 + 180, 165, X0 + 266, 165);
+      s.text(X0 + 205, 158, 'x', 30);
+      s.text(X0 + 420, 120, 'Datos:', 44);
+      s.text(X0 + 440, 170, 'k = 80 N/m    m = 1.2 kg', 42);
+      s.text(X0 + 440, 220, 'x0 = 0.15 m', 42);
+      s.text(X0 + 420, 280, 'Hallar: ω, T y Fmax', 44);
     },
   },
   {
     module: 'physics', skill: 'physics', exercise_type: 'rectilinear_motion', title: 'MRUV',
-    explanation: 'Móvil que parte con 4 m/s y acelera 2 m/s² durante 6 s.',
+    explanation: 'Un auto parte con 4 m/s y acelera a razón de 2 m/s² durante 6 s.',
+    question: 'Hallar la velocidad final y la distancia recorrida en 6 s',
     data: { motion_type: 'MRUV', initial_position_m: 0, initial_velocity_m_s: 4, acceleration_m_s2: 2, total_time_s: 6, final_velocity_m_s: 16, distance_traveled_m: 60 },
     sketch: (s) => {
-      s.line(X0, 250, X0 + 460, 250);
-      s.rect(X0 + 20, 200, 90, 40);
-      s.circle(X0 + 40, 245, 18);
-      s.circle(X0 + 90, 245, 18);
-      s.line(X0 + 130, 210, X0 + 220, 210);
-      s.text(X0 + 240, 150, 'v0 = 4 m/s   a = 2 m/s²');
-      s.text(X0 + 240, 205, 't = 6 s');
+      s.line(X0 - 20, 270, X0 + 400, 270);
+      for (let i = 0; i <= 4; i++) s.line(X0 + i * 95, 270, X0 + i * 95, 282);
+      s.rect(X0 + 10, 205, 110, 44);
+      s.rect(X0 + 35, 182, 55, 25);
+      s.circle(X0 + 35, 254, 30);
+      s.circle(X0 + 95, 254, 30);
+      s.arrow(X0 + 130, 190, X0 + 220, 190);
+      s.text(X0 + 150, 180, 'v0', 32);
+      s.arrow(X0 + 130, 225, X0 + 190, 225);
+      s.text(X0 + 196, 234, 'a', 32);
+      s.text(X0 + 470, 120, 'Datos:', 44);
+      s.text(X0 + 490, 170, 'v0 = 4 m/s    a = 2 m/s²', 42);
+      s.text(X0 + 490, 220, 't = 6 s', 42);
+      s.text(X0 + 470, 280, 'Hallar: v y d', 44);
     },
   },
   {
     module: 'physics', skill: 'physics', exercise_type: 'atwood_machine', title: 'Máquina de Atwood',
-    explanation: 'Polea ideal con masas de 3 kg y 5 kg.',
+    explanation: 'Polea ideal sin fricción con masas de 3 kg y 5 kg colgando a cada lado.',
+    question: 'Hallar la aceleración del sistema y la tensión de la cuerda',
     data: { mass_1_kg: 3, mass_2_kg: 5, pulley_radius_m: 0.1, gravity_m_s2: 9.8, acceleration_m_s2: 2.45, tension_n: 36.75 },
     sketch: (s) => {
-      s.line(X0, 80, X0 + 200, 80);
-      s.circle(X0 + 100, 130, 70);
-      s.line(X0 + 65, 130, X0 + 65, 220);
-      s.line(X0 + 135, 130, X0 + 135, 250);
-      s.rect(X0 + 40, 220, 50, 45);
-      s.rect(X0 + 110, 250, 50, 45);
-      s.text(X0 + 260, 170, 'm1 = 3 kg   m2 = 5 kg');
+      const cx = X0 + 110, cy = 140, r = 44;
+      s.hatch(cx - 90, 80, cx + 90, 80, -1);
+      s.line(cx, 80, cx, cy);
+      s.circle(cx, cy, r * 2);
+      s.circle(cx, cy, 10);
+      s.line(cx - r, cy, cx - r, 230);
+      s.line(cx + r, cy, cx + r, 260);
+      s.rect(cx - r - 28, 230, 56, 50);
+      s.rect(cx + r - 32, 260, 64, 58);
+      s.text(cx - r, 264, 'm1', 30, 'center');
+      s.text(cx + r, 298, 'm2', 30, 'center');
+      s.arrow(cx + r + 50, 250, cx + r + 50, 300);
+      s.arrow(cx - r - 50, 270, cx - r - 50, 220);
+      s.text(cx + r + 60, 284, 'a', 32);
+      s.text(X0 + 360, 120, 'Datos:', 44);
+      s.text(X0 + 380, 170, 'm1 = 3 kg    m2 = 5 kg', 42);
+      s.text(X0 + 380, 220, 'g = 9.8 m/s²', 42);
+      s.text(X0 + 360, 280, 'Hallar: a y T', 44);
     },
   },
   // ============================== CIRCUITOS ==============================
@@ -536,8 +663,11 @@ export const EXAMPLES: Example[] = [
     },
     sketch: (s) => {
       s.poly([[X0, 270], [X0 + 280, 270], [X0 + 110, 80]]);
-      s.text(X0 + 30, 255, '50°', 34);
-      s.text(X0 + 220, 255, '70°', 34);
+      s.arc(X0, 270, 46, -Math.atan2(190, 110), 0);
+      s.arc(X0 + 280, 270, 46, Math.PI, Math.PI + Math.atan2(190, 170));
+      s.arc(X0 + 110, 80, 40, Math.atan2(190, 170), Math.PI - Math.atan2(190, 110));
+      s.text(X0 + 56, 258, '50°', 32);
+      s.text(X0 + 196, 258, '70°', 32);
       s.text(X0 + 100, 140, 'x', 40);
       s.text(X0 + 330, 180, 'Hallar x');
     },

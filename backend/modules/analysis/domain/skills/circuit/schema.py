@@ -99,6 +99,10 @@ class CircuitAnalysisResult(BaseModel):
         "logic_gates",
     ] = Field(..., description="Subtipo de circuito detectado")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Nivel de certeza de 0 a 1")
+    question: Optional[str] = Field(
+        default=None,
+        description="Qué pide el enunciado, en español breve (ej: 'Hallar la aceleración del bloque'). Si no está escrito, infiérelo.",
+    )
     detected_elements: list[str] = Field(default_factory=list, description="Componentes reconocidos (batería, R, switch, LED)")
     bounding_boxes: list[BoundingBox] = Field(default_factory=list, description="Coordenadas para anclaje de componentes en WebAR")
     explanation: str = Field(..., description="Explicación concisa del circuito y leyes aplicadas")

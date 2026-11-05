@@ -16,7 +16,8 @@
     "max_velocity_m_s": 1.33,
     "tension_at_lowest_point_n": 5.5
   },
-  "explanation": "Péndulo de 1.5 m soltado desde 20°.",
+  "explanation": "Péndulo de 1.5 m que se suelta desde 20° respecto a la vertical.",
+  "question": "Hallar el periodo de oscilación y la velocidad máxima",
   "bounding_boxes": [
     {
       "x": 0.16,

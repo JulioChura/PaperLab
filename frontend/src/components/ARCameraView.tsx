@@ -263,6 +263,7 @@ export const ARCameraView: React.FC<ARCameraViewProps> = ({ moduleId, onBack }) 
           plan,
           space: { width: space.width, height: space.height },
           tracker,
+          question: result.question,
         });
         setPhase('ar');
       } else {

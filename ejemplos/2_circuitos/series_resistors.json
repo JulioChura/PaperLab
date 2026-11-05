@@ -23,6 +23,7 @@
     ]
   },
   "explanation": "Tres resistencias en serie alimentadas con 12 V.",
+  "question": "Hallar la resistencia equivalente, la corriente y la caída en cada resistencia",
   "bounding_boxes": [
     {
       "x": 0.16,

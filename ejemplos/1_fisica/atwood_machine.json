@@ -15,7 +15,8 @@
     "acceleration_m_s2": 2.45,
     "tension_n": 36.75
   },
-  "explanation": "Polea ideal con masas de 3 kg y 5 kg.",
+  "explanation": "Polea ideal sin fricción con masas de 3 kg y 5 kg colgando a cada lado.",
+  "question": "Hallar la aceleración del sistema y la tensión de la cuerda",
   "bounding_boxes": [
     {
       "x": 0.16,

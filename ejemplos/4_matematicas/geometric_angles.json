@@ -23,6 +23,7 @@
     ]
   },
   "explanation": "Triángulo con ángulos de 50° y 70°; hallar x.",
+  "question": "Hallar el valor de x",
   "bounding_boxes": [
     {
       "x": 0.16,

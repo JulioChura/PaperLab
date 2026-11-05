@@ -97,6 +97,7 @@
     ]
   },
   "explanation": "Una pasada del ordenamiento burbuja sobre un arreglo de 3 elementos.",
+  "question": "Ejecutar el código paso a paso y obtener la salida",
   "bounding_boxes": [
     {
       "x": 0.16,

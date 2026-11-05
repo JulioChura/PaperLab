@@ -12,11 +12,12 @@
     "launch_angle_degrees": 50,
     "initial_height_m": 0,
     "gravity_m_s2": 9.8,
-    "max_height_m": 18.7,
-    "range_m": 62.8,
-    "flight_time_s": 3.9
+    "max_height_m": 18.71,
+    "range_m": 62.81,
+    "flight_time_s": 3.91
   },
-  "explanation": "Proyectil lanzado a 25 m/s con 50° de elevación.",
+  "explanation": "Proyectil lanzado desde el suelo con 25 m/s y 50° de elevación.",
+  "question": "Hallar la altura máxima, el tiempo de vuelo y el alcance horizontal",
   "bounding_boxes": [
     {
       "x": 0.16,

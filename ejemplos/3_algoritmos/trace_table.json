@@ -64,6 +64,7 @@
     }
   },
   "explanation": "Traza de f = f * i para i = 1..4.",
+  "question": "Completar la tabla de traza",
   "bounding_boxes": [
     {
       "x": 0.16,

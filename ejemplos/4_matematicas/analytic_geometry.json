@@ -25,6 +25,7 @@
     ]
   },
   "explanation": "Segmento entre A(−2; 1) y B(4; 5).",
+  "question": "Hallar la distancia, el punto medio y la pendiente",
   "bounding_boxes": [
     {
       "x": 0.16,

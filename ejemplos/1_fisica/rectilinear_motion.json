@@ -16,7 +16,8 @@
     "final_velocity_m_s": 16,
     "distance_traveled_m": 60
   },
-  "explanation": "Móvil que parte con 4 m/s y acelera 2 m/s² durante 6 s.",
+  "explanation": "Un auto parte con 4 m/s y acelera a razón de 2 m/s² durante 6 s.",
+  "question": "Hallar la velocidad final y la distancia recorrida en 6 s",
   "bounding_boxes": [
     {
       "x": 0.16,

@@ -15,6 +15,7 @@
     "current_closed_a": 0.2
   },
   "explanation": "Interruptor abierto que controla un foco con 9 V y 45 Ω.",
+  "question": "Hallar la corriente con el interruptor abierto y cerrado",
   "bounding_boxes": [
     {
       "x": 0.16,

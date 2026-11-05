@@ -103,6 +103,10 @@ class MathGeoAnalysisResult(BaseModel):
         "geometric_angles",
     ] = Field(..., description="Subtipo de ejercicio matemático clasificado")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Nivel de certeza de 0 a 1")
+    question: Optional[str] = Field(
+        default=None,
+        description="Qué pide el enunciado, en español breve (ej: 'Hallar la aceleración del bloque'). Si no está escrito, infiérelo.",
+    )
     detected_elements: list[str] = Field(default_factory=list, description="Trazos, figuras y ángulos identificados")
     bounding_boxes: list[BoundingBox] = Field(default_factory=list, description="Coordenadas para superposición holográfica WebAR")
     explanation: str = Field(..., description="Explicación pedagógica y deductiva del problema")

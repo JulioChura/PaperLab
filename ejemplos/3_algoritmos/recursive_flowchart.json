@@ -114,6 +114,7 @@
     ]
   },
   "explanation": "fact(n) = n * fact(n-1), caso base n <= 1.",
+  "question": "Hallar fact(3)",
   "bounding_boxes": [
     {
       "x": 0.16,

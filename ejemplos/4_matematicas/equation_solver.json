@@ -21,6 +21,7 @@
     ]
   },
   "explanation": "Resolver x² + 2x − 3 = 0.",
+  "question": "Resolver la ecuación",
   "bounding_boxes": [
     {
       "x": 0.16,

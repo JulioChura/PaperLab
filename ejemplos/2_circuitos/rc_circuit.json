@@ -16,6 +16,7 @@
     "mode": "charging"
   },
   "explanation": "Carga de un condensador de 470 μF a través de 2 kΩ con 5 V.",
+  "question": "Hallar la constante de tiempo y la carga máxima del condensador",
   "bounding_boxes": [
     {
       "x": 0.16,

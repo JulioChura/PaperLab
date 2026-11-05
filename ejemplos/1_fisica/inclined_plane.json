@@ -14,10 +14,11 @@
     "gravity_m_s2": 9.8,
     "acceleration_m_s2": 3.2,
     "weight_n": 19.6,
-    "normal_force_n": 17,
-    "friction_force_n": 3.4
+    "normal_force_n": 16.97,
+    "friction_force_n": 3.39
   },
-  "explanation": "Bloque de 2 kg sobre una rampa de 30° con μ = 0.2.",
+  "explanation": "Bloque de 2 kg que desliza por una rampa de 30° con coeficiente de fricción cinético μ = 0.2.",
+  "question": "Hallar la aceleración del bloque, la normal y la fuerza de fricción",
   "bounding_boxes": [
     {
       "x": 0.16,

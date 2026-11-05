@@ -216,6 +216,7 @@
     ]
   },
   "explanation": "Bucle mientras i <= 3 que acumula la suma.",
+  "question": "Hallar el valor final de s",
   "bounding_boxes": [
     {
       "x": 0.16,

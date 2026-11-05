@@ -115,6 +115,7 @@
     ]
   },
   "explanation": "Lee base y altura, calcula el área e imprime.",
+  "question": "Ejecutar el diagrama y obtener la salida",
   "bounding_boxes": [
     {
       "x": 0.16,

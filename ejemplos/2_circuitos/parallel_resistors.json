@@ -21,6 +21,7 @@
     "total_current_a": 0.5
   },
   "explanation": "Dos resistencias en paralelo con 6 V.",
+  "question": "Hallar la resistencia equivalente y la corriente en cada rama",
   "bounding_boxes": [
     {
       "x": 0.16,
