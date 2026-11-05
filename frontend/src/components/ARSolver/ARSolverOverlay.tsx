@@ -4,7 +4,7 @@ import { PaperARScene, type MediaSource, type TrackingStatus } from '../../ar/ar
 import type { HybridPaperTracker } from '../../ar/paperTracker';
 import { layoutSolution } from '../../ar/arLayout';
 import { ensureHandwritingFont } from '../../ar/handwriting';
-import type { PaperInkProfile } from '../../ar/paperVision';
+import type { NormRect, PaperInkProfile } from '../../ar/paperVision';
 import type { SolutionPlan } from '../../ar/mathEngine';
 
 export interface ARSolverSession {
@@ -25,6 +25,28 @@ interface Props {
   onRescan: () => void;
 }
 
+/**
+ * Zona de pantalla que tapa el panel, convertida a coordenadas normalizadas del fotograma
+ * (según el object-fit del medio), para que el layout no escriba debajo.
+ */
+function uiBlockedRects(host: HTMLElement, panel: HTMLElement | null, media: MediaSource): NormRect[] {
+  if (!panel) return [];
+  const hb = host.getBoundingClientRect();
+  const pb = panel.getBoundingClientRect();
+  const cw = hb.width || 1;
+  const ch = hb.height || 1;
+  const scale =
+    media.fit === 'cover' ? Math.max(cw / media.width, ch / media.height) : Math.min(cw / media.width, ch / media.height);
+  const ox = (cw - media.width * scale) / 2;
+  const oy = (ch - media.height * scale) / 2;
+  const toU = (x: number) => (x - hb.left - ox) / (media.width * scale);
+  const toV = (y: number) => (y - hb.top - oy) / (media.height * scale);
+  const gap = 10; // px de aire alrededor del panel
+  const x0 = toU(pb.left - gap);
+  const y0 = toV(pb.top - gap);
+  return [{ x: x0, y: y0, w: toU(pb.right + gap) - x0, h: toV(pb.bottom + gap) - y0 }];
+}
+
 /** Mezcla un color hex con blanco (para el resaltador). */
 function tint(hex: string, amount: number): string {
   const n = parseInt(hex.replace('#', ''), 16);
@@ -43,6 +65,7 @@ const STATUS_COPY: Record<TrackingStatus, { label: string; tone: string }> = {
 
 export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgress, onRescan }) => {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<PaperARScene | null>(null);
   const [titles, setTitles] = useState<string[]>([]);
   const [active, setActive] = useState(0);
@@ -86,7 +109,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
     (async () => {
       await ensureHandwritingFont();
       if (life.cancelled) return;
-      const placed = layoutSolution(plan, profile);
+      const placed = layoutSolution(plan, profile, uiBlockedRects(host, panelRef.current, media));
       placed.forEach((p) => scene.addLayer(p.layer.canvas, p.place, p.duration));
       setTitles(placed.map((p) => p.title));
       scene.play(0);
@@ -132,7 +155,7 @@ export const ARSolverOverlay: React.FC<Props> = ({ session, accent, mindarProgre
       </div>
 
       {/* Panel compacto: paso actual + progreso; la lista completa se despliega a pedido */}
-      <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:w-[22rem] z-30 animate-entrance">
+      <div ref={panelRef} className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:w-[22rem] z-30 animate-entrance">
         <div className="rounded-2xl bg-slate-950/80 border border-slate-700/70 backdrop-blur-xl shadow-2xl text-white overflow-hidden">
           {expanded && (
             <ol className="px-2 pt-2 max-h-44 overflow-y-auto border-b border-slate-800">

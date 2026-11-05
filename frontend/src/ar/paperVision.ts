@@ -15,6 +15,8 @@ export interface NormRect {
   h: number;
 }
 
+import { convexHull, ConvexRegion, type Pt } from './geometry';
+
 export type InkKind = 'graphite' | 'pen';
 
 export interface PaperInkProfile {
@@ -22,6 +24,8 @@ export interface PaperInkProfile {
   frameHeight: number;
   paperDetected: boolean;
   paperRect: NormRect;
+  /** Contorno convexo de la hoja (coordenadas normalizadas del frame): el "espacio de trabajo". */
+  paperHull: Pt[];
   inkRect: NormRect | null;
   /** Altura típica de un carácter manuscrito, normalizada a la altura del frame. */
   charHeight: number;
@@ -129,6 +133,7 @@ function defaultProfile(width: number, height: number, hint?: NormRect | null): 
     frameHeight: height,
     paperDetected: false,
     paperRect: { x: 0.06, y: 0.06, w: 0.88, h: 0.88 },
+    paperHull: [[0.06, 0.06], [0.94, 0.06], [0.94, 0.94], [0.06, 0.94]],
     inkRect: hint ?? null,
     charHeight: clamp(inkRect.h * 0.8, 0.035, 0.12),
     strokeRatio: 0.1,
@@ -166,41 +171,111 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
       sat[i] = max === 0 ? 0 : (max - min) / max;
     }
 
-    // ---- 1. Segmentación de la hoja ----
-    const otsu = otsuThreshold(lum);
-    const paperMask = new Uint8Array(n);
-    for (let i = 0; i < n; i++) paperMask[i] = lum[i] > otsu && sat[i] < 0.3 ? 1 : 0;
-    const { labels: paperLabels, comps: paperComps } = labelComponents(paperMask, sw, sh, false);
+    // ---- 1. Segmentación de la hoja por COLOR (robusta a sombras) ----
+    // El alumno apunta a la hoja: la semilla es la zona escrita (caja de la IA) o el centro del encuadre.
+    const seed = hint
+      ? { x0: hint.x - hint.w * 0.25, y0: hint.y - hint.h * 0.5, x1: hint.x + hint.w * 1.25, y1: hint.y + hint.h * 2.5 }
+      : { x0: 0.3, y0: 0.3, x1: 0.7, y1: 0.7 };
+    const sx0 = Math.max(0, Math.floor(seed.x0 * sw));
+    const sy0 = Math.max(0, Math.floor(seed.y0 * sh));
+    const sx1 = Math.min(sw - 1, Math.ceil(seed.x1 * sw));
+    const sy1 = Math.min(sh - 1, Math.ceil(seed.y1 * sh));
+    const seedLum: number[] = [];
+    for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) seedLum.push(lum[y * sw + x]);
+    seedLum.sort((a, b) => a - b);
+    const brightThr = seedLum[Math.floor(seedLum.length * 0.6)] ?? 128;
 
-    let bestId = -1;
-    let bestScore = 0;
-    paperComps.forEach((c, id) => {
-      const cx = c.sumX / c.size / sw - 0.5;
-      const cy = c.sumY / c.size / sh - 0.5;
-      const centerWeight = 1 - Math.min(0.6, Math.hypot(cx, cy));
-      const score = c.size * centerWeight;
-      if (score > bestScore) {
-        bestScore = score;
-        bestId = id;
-      }
-    });
-    if (bestId < 0 || paperComps[bestId].size < n * 0.08) return defaultProfile(W, H, hint);
-    const paper = paperComps[bestId];
-
-    // Envolvente por filas y columnas (aproxima el interior de la hoja, con agujeros de tinta incluidos)
-    const rowMin = new Int32Array(sh).fill(sw);
-    const rowMax = new Int32Array(sh).fill(-1);
-    const colMin = new Int32Array(sw).fill(sh);
-    const colMax = new Int32Array(sw).fill(-1);
-    for (let y = 0; y < sh; y++) {
-      for (let x = 0; x < sw; x++) {
-        if (paperLabels[y * sw + x] !== bestId) continue;
-        if (x < rowMin[y]) rowMin[y] = x;
-        if (x > rowMax[y]) rowMax[y] = x;
-        if (y < colMin[x]) colMin[x] = y;
-        if (y > colMax[x]) colMax[x] = y;
+    // Color de referencia del papel: cromaticidad media de los píxeles claros de la semilla
+    let pcr = 0, pcg = 0, pL = 0, pn = 0;
+    for (let y = sy0; y <= sy1; y++) {
+      for (let x = sx0; x <= sx1; x++) {
+        const i = y * sw + x;
+        if (lum[i] < brightThr) continue;
+        const sum = px[i * 4] + px[i * 4 + 1] + px[i * 4 + 2] + 1;
+        pcr += px[i * 4] / sum;
+        pcg += px[i * 4 + 1] / sum;
+        pL += lum[i];
+        pn++;
       }
     }
+    let labels: Int32Array;
+    let paperId = -1;
+    let paperComp: Component | null = null;
+    if (pn > 20) {
+      pcr /= pn;
+      pcg /= pn;
+      pL /= pn;
+      // Mismo tono que el papel (cromaticidad) con luminancia entre sombra profunda y reflejo
+      const mask = new Uint8Array(n);
+      for (let i = 0; i < n; i++) {
+        const sum = px[i * 4] + px[i * 4 + 1] + px[i * 4 + 2] + 1;
+        const dc = Math.abs(px[i * 4] / sum - pcr) + Math.abs(px[i * 4 + 1] / sum - pcg);
+        const ratio = lum[i] / Math.max(1, pL);
+        // en sombras oscuras la cromaticidad es ruidosa: se tolera más
+        const tol = ratio < 0.6 ? 0.075 : 0.05;
+        mask[i] = dc < tol && ratio > 0.38 && ratio < 1.45 && sat[i] < 0.38 ? 1 : 0;
+      }
+      const res = labelComponents(mask, sw, sh, false);
+      labels = res.labels;
+      // la región que más píxeles de la semilla contiene es la hoja
+      const votes = new Map<number, number>();
+      for (let y = sy0; y <= sy1; y++) {
+        for (let x = sx0; x <= sx1; x++) {
+          const id = labels[y * sw + x];
+          if (id >= 0) votes.set(id, (votes.get(id) ?? 0) + 1);
+        }
+      }
+      let best = 0;
+      votes.forEach((v, id) => {
+        if (v > best) {
+          best = v;
+          paperId = id;
+        }
+      });
+      if (paperId >= 0 && res.comps[paperId].size >= n * 0.08) paperComp = res.comps[paperId];
+      else paperId = -1;
+    } else {
+      labels = new Int32Array(n).fill(-1);
+    }
+
+    // Respaldo: el método por brillo (Otsu) si el color no fue concluyente
+    if (!paperComp) {
+      const otsu = otsuThreshold(lum);
+      const paperMask = new Uint8Array(n);
+      for (let i = 0; i < n; i++) paperMask[i] = lum[i] > otsu && sat[i] < 0.3 ? 1 : 0;
+      const res = labelComponents(paperMask, sw, sh, false);
+      let bestScore = 0;
+      res.comps.forEach((c, id) => {
+        const cx = c.sumX / c.size / sw - 0.5;
+        const cy = c.sumY / c.size / sh - 0.5;
+        const score = c.size * (1 - Math.min(0.6, Math.hypot(cx, cy)));
+        if (score > bestScore) {
+          bestScore = score;
+          paperId = id;
+        }
+      });
+      if (paperId < 0 || res.comps[paperId].size < n * 0.08) return defaultProfile(W, H, hint);
+      labels = res.labels;
+      paperComp = res.comps[paperId];
+    }
+    const paper = paperComp;
+
+    // Envolvente convexa del contorno de la hoja (rellena los "agujeros" de la tinta)
+    const boundary: Pt[] = [];
+    for (let y = 0; y < sh; y++) {
+      for (let x = 0; x < sw; x++) {
+        const i = y * sw + x;
+        if (labels[i] !== paperId) continue;
+        const edge =
+          x === 0 || y === 0 || x === sw - 1 || y === sh - 1 ||
+          labels[i - 1] !== paperId || labels[i + 1] !== paperId ||
+          labels[i - sw] !== paperId || labels[i + sw] !== paperId;
+        if (edge) boundary.push([x + 0.5, y + 0.5]);
+      }
+    }
+    const hullPx = convexHull(boundary);
+    const region = new ConvexRegion(hullPx);
+    const paperHull: Pt[] = hullPx.map(([x, y]) => [x / sw, y / sh]);
 
     // ---- 2. Detección de trazos (umbral adaptativo con imagen integral) ----
     const integral = new Float64Array((sw + 1) * (sh + 1));
@@ -214,10 +289,11 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
     const radius = Math.max(4, Math.round(sw / 36));
     const margin = 4;
     const inkMask = new Uint8Array(n);
-    for (let y = 0; y < sh; y++) {
-      if (rowMax[y] < 0) continue;
-      for (let x = rowMin[y] + margin; x <= rowMax[y] - margin; x++) {
-        if (y < colMin[x] + margin || y > colMax[x] - margin) continue;
+    for (let y = Math.max(0, Math.floor(region.minY)); y <= Math.min(sh - 1, Math.ceil(region.maxY)); y++) {
+      const span = region.spanAt(y + 0.5);
+      if (!span) continue;
+      for (let x = Math.max(0, Math.ceil(span[0] + margin)); x <= Math.min(sw - 1, Math.floor(span[1] - margin)); x++) {
+        if (!region.contains([x + 0.5, y + 0.5], margin)) continue;
         const x0 = Math.max(0, x - radius);
         const y0 = Math.max(0, y - radius);
         const x1 = Math.min(sw - 1, x + radius);
@@ -255,7 +331,7 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
 
     if (strokes.length === 0) {
       const base = defaultProfile(W, H, hint);
-      return { ...base, paperDetected: true, paperRect };
+      return { ...base, paperDetected: true, paperRect, paperHull };
     }
 
     // Si la IA dio una caja aproximada, prioriza los trazos que caen cerca de ella
@@ -306,18 +382,31 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
     const cw = Math.max(1, cx1 - cx0);
     const chh = Math.max(1, cy1 - cy0);
     const fctx = frame.getContext('2d', { willReadFrequently: true });
-    if (!fctx) return { ...defaultProfile(W, H, hint), paperDetected: true, paperRect, inkRect, charHeight };
+    if (!fctx) return { ...defaultProfile(W, H, hint), paperDetected: true, paperRect, paperHull, inkRect, charHeight };
     const crop = fctx.getImageData(cx0, cy0, cw, chh).data;
     const cn = cw * chh;
     const clum = new Uint8Array(cn);
     const hist = new Array<number>(256).fill(0);
+    const onPaper = new Uint8Array(cn);
+    let paperPx = 0;
+    const toSmallX = sw / W;
+    const toSmallY = sh / H;
     for (let i = 0; i < cn; i++) {
+      const x = i % cw;
+      const y = (i - x) / cw;
+      // Solo cuenta lo que está SOBRE la hoja: el borde inclinado no debe aportar mesa como "tinta"
+      if (!region.contains([(cx0 + x + 0.5) * toSmallX, (cy0 + y + 0.5) * toSmallY], 1.5)) {
+        clum[i] = 255;
+        continue;
+      }
       const l = Math.round(0.299 * crop[i * 4] + 0.587 * crop[i * 4 + 1] + 0.114 * crop[i * 4 + 2]);
       clum[i] = l;
+      onPaper[i] = 1;
       hist[l]++;
+      paperPx++;
     }
     const percentile = (p: number) => {
-      const target = cn * p;
+      const target = paperPx * p;
       let acc = 0;
       for (let i = 0; i < 256; i++) {
         acc += hist[i];
@@ -338,6 +427,7 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
     for (let y = 0; y < chh; y++) {
       for (let x = 0; x < cw; x++) {
         const i = y * cw + x;
+        if (!onPaper[i]) continue;
         const l = clum[i];
         if (l < coreThr) {
           ir += crop[i * 4];
@@ -361,7 +451,7 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
       }
     }
     if (inkCount === 0 || paperCount === 0) {
-      return { ...defaultProfile(W, H, hint), paperDetected: true, paperRect, inkRect, charHeight };
+      return { ...defaultProfile(W, H, hint), paperDetected: true, paperRect, paperHull, inkRect, charHeight };
     }
     ir /= inkCount; ig /= inkCount; ib /= inkCount;
     pr /= paperCount; pg /= paperCount; pb /= paperCount;
@@ -384,6 +474,7 @@ export function analyzePaper(frame: HTMLCanvasElement, hint?: NormRect | null): 
       frameHeight: H,
       paperDetected: true,
       paperRect,
+      paperHull,
       inkRect,
       charHeight,
       strokeRatio,
